@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=News+Cycle:wght@400;700&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'News Cycle', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  @apply bg-mainBlue; 
+  @apply text-mainYellow;
+
+}
+
+
+code {
+  font-family: 'Source Code Pro', Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
