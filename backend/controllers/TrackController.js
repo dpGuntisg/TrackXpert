@@ -1,7 +1,7 @@
 import Track from "../models/Track.js";
 
 export const createTrack = async (req, res) => {
-    const { name, description, location, image, latitude, longitude, availability } = req.body;
+    const { name, description, location, image, latitude, longitude, availability, features } = req.body;
     const created_by = req.userId;
 
     try {
@@ -15,6 +15,7 @@ export const createTrack = async (req, res) => {
             location,
             image,
             availability,
+            geojsonFeatures: features,
             created_by,
             coordinates: {
                 type: "Point",
@@ -86,7 +87,7 @@ export const deleteTrack = async (req, res) => {
 
 export const updateTrack = async (req, res) => {
     const trackId = req.params.id;
-    const { name, description, location, image, latitude, longitude, availability } = req.body;
+    const { name, description, location, image, latitude, longitude, availability, features } = req.body;
     const created_by = req.userId;
     let errors = {};
 
@@ -123,6 +124,7 @@ export const updateTrack = async (req, res) => {
         if (location) track.location = location;
         if (image) track.image = image; 
         if (availability) track.availability = availability;
+        if(features) track.geojsonFeatures = features;
         if (latitude && longitude) {
             track.coordinates = {
                 type: "Point",

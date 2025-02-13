@@ -27,6 +27,7 @@ export default function TracksPage() {
     const token = localStorage.getItem('token');
 
     const [coordinates, setCoordinates] = useState(null);
+    const [features, setFeatures] = useState([]);
     const [availability, setAvailability] = useState([]);
 
     
@@ -113,7 +114,7 @@ export default function TracksPage() {
         if(token){
             try{
                 await axios.post("http://localhost:5000/api/createtrack",
-                    { name, description, location, image,  latitude: coordinates[0], longitude: coordinates[1],
+                    { name, description, location, image,  latitude: coordinates[0], longitude: coordinates[1], features,
                       availability: availability.length > 0 ? availability : undefined // Only include availability if it's not empty
                     },
                     { headers: { Authorization: `Bearer ${token}` } }
@@ -125,6 +126,7 @@ export default function TracksPage() {
                 setLocation("");
                 setImage("");
                 setCoordinates(null);
+                setFeatures([]);
                 setStep(1);
                 setShowCreateForm(false);
                 getTracks();              
@@ -240,10 +242,11 @@ export default function TracksPage() {
                         ) : (                           <>
                                     {/* Step 3: Map Selection */}
                                     <div className="h-96 w-full rounded-lg overflow-hidden">
-                                        <MapSelector 
-                                            position={coordinates}
-                                            onPositionChange={setCoordinates}
-                                        />
+                                    <MapSelector 
+                                        position={coordinates}
+                                        onPositionChange={setCoordinates}
+                                        onFeaturesChange={setFeatures}
+                                    />
                                     </div>
                                     {coordinates && (
                                         <p className="text-sm text-gray-300">
