@@ -27,7 +27,6 @@ export default function TracksPage() {
     const token = localStorage.getItem('token');
 
     const [coordinates, setCoordinates] = useState(null);
-    const [features, setFeatures] = useState([]);
     const [availability, setAvailability] = useState([]);
 
     
@@ -64,6 +63,10 @@ export default function TracksPage() {
             setError("Track name must be at least 5 characters long.");
             return false;
         }
+        if(!name || name.length > 100){
+            setError("Track name is too long.");
+            return false;
+        }
         if (!description || description.length < 10) {
             setError("Track description must be at least 10 characters long.");
             return false;
@@ -74,6 +77,10 @@ export default function TracksPage() {
         }
         if (!location || location.length < 5) {
             setError("Track location must be at least 5 characters long.");
+            return false;
+        }
+        if(!location || location.length > 50){
+            setError("Track location is too long.");
             return false;
         }
         if(!image){
@@ -114,7 +121,7 @@ export default function TracksPage() {
         if(token){
             try{
                 await axios.post("http://localhost:5000/api/createtrack",
-                    { name, description, location, image,  latitude: coordinates[0], longitude: coordinates[1], features,
+                    { name, description, location, image,  latitude: coordinates[0], longitude: coordinates[1],
                       availability: availability.length > 0 ? availability : undefined // Only include availability if it's not empty
                     },
                     { headers: { Authorization: `Bearer ${token}` } }
@@ -126,7 +133,6 @@ export default function TracksPage() {
                 setLocation("");
                 setImage("");
                 setCoordinates(null);
-                setFeatures([]);
                 setStep(1);
                 setShowCreateForm(false);
                 getTracks();              
@@ -186,7 +192,7 @@ export default function TracksPage() {
 
             {showCreateForm && (
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                    <div className="bg-mainBlue rounded-xl p-6 w-full max-w-md space-y-4">
+                    <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4">
                         <div className="flex justify-between items-center">
                             <h3 className="text-2xl font-bold">Create Track ({step}/3)</h3>
                             <button
@@ -245,7 +251,6 @@ export default function TracksPage() {
                                     <MapSelector 
                                         position={coordinates}
                                         onPositionChange={setCoordinates}
-                                        onFeaturesChange={setFeatures}
                                     />
                                     </div>
                                     {coordinates && (

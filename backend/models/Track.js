@@ -22,28 +22,6 @@ const TrackSchema = new mongoose.Schema({
         }
     ],
     created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    geojsonFeatures: [{
-        type: {
-          type: String,
-          enum: ['Feature'],
-          required: true
-        },
-        geometry: {
-          type: {
-            type: String,
-            enum: ['Point', 'LineString', 'Polygon'],
-            required: true
-          },
-          coordinates: {
-            type: mongoose.Schema.Types.Mixed,
-            required: true
-          }
-        },
-        properties: {
-          type: Object,
-          default: {}
-        }
-      }],
     coordinates: {
         type: { type: String, enum: ["Point"], required: true },
         coordinates: { type: [Number], required: true }
