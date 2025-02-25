@@ -68,8 +68,7 @@ export default function TrackDetailPage() {
         getTrack();
     }, [trackId]);
 
-    const handleEdit = async (e) => {
-        e.preventDefault();
+    const handleEdit = async () => {
         setError("");
 
         // Final validation
@@ -267,7 +266,7 @@ return (
                 {/* Edit Modal */}
                 {editMode && (
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                    <form onSubmit={handleEdit} className="bg-mainBlue rounded-xl p-6 w-full max-w-md space-y-4">
+                    <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4">
                         <div className="flex justify-between items-center">
                             <h3 className="text-2xl font-bold mb-4">Edit Track ({step}/3)</h3>
                             <button 
@@ -330,7 +329,8 @@ return (
                                 </button>
                             ) : (
                                 <button
-                                    type="submit"
+                                    type="button"
+                                    onClick={handleEdit}
                                     className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
                                 >
                                     Save Changes
@@ -347,7 +347,7 @@ return (
                                     Cancel
                                 </button>
                         </div>
-                    </form>
+                    </div>
                 </div>
             )}
                 {/* Delete Confirmation Modal */}

@@ -111,8 +111,7 @@ export default function TracksPage() {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleSubmit = async () => {
         if (!validateStep2()) return;
 
         setError("");
@@ -226,7 +225,7 @@ export default function TracksPage() {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-4">
                         {step === 1 ? (
                             <TrackForm 
                                 values={{ name, description, location, image }}
@@ -245,68 +244,70 @@ export default function TracksPage() {
                                 error={error}
                                 setError={setError}
                             />
-                        ) : (                           <>
-                                    {/* Step 3: Map Selection */}
-                                    <div className="h-96 w-full rounded-lg overflow-hidden">
-                                    <MapSelector 
-                                        position={coordinates}
-                                        onPositionChange={setCoordinates}
-                                    />
-                                    </div>
-                                    {coordinates && (
-                                        <p className="text-sm text-gray-300">
-                                            Selected coordinates: {coordinates[0].toFixed(4)}, {coordinates[1].toFixed(4)}
-                                        </p>
-                                    )}
-                                </>
-                            )}
+                        ) : (                           
+                            <>
+                                {/* Step 3: Map Selection */}
+                                <div className="h-96 w-full rounded-lg overflow-hidden">
+                                <MapSelector 
+                                    position={coordinates}
+                                    onPositionChange={setCoordinates}
+                                />
+                                </div>
+                                {coordinates && (
+                                    <p className="text-sm text-gray-300">
+                                        Selected coordinates: {coordinates[0].toFixed(4)}, {coordinates[1].toFixed(4)}
+                                    </p>
+                                )}
+                            </>
+                        )}
 
-                            {/* Navigation Buttons */}
-                            <div className="flex justify-between space-x-3 pt-4">
-                                {step > 1 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setStep(step - 1)}
-                                        className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-                                    >
-                                        <FontAwesomeIcon icon={faArrowLeft} />
-                                        Back
-                                    </button>
-                                )}
-                                <div className="flex-grow"></div>
-                                {step < 3 ? (
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            if (step === 1 && !validateStep1()) return;
-                                            setStep(step + 1);
-                                        }}
-                                        className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
-                                    >
-                                        Next
-                                    </button>
-                                ) : (
-                                    <button
-                                        type="submit"
-                                        className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
-                                    >
-                                        Create Track
-                                    </button>
-                                )}
+                        {/* Navigation Buttons */}
+                        <div className="flex justify-between space-x-3 pt-4">
+                            {step > 1 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setStep(step - 1)}
+                                    className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                                >
+                                    <FontAwesomeIcon icon={faArrowLeft} />
+                                    Back
+                                </button>
+                            )}
+                            <div className="flex-grow"></div>
+                            {step < 3 ? (
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        setShowCreateForm(false);
-                                        setStep(1);
+                                        if (step === 1 && !validateStep1()) return;
+                                        setStep(step + 1);
                                     }}
-                                    className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
+                                    className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
                                 >
-                                    Cancel
+                                    Next
                                 </button>
-                            </div>
-                        </form>
+                            ) : (
+                                <button
+                                    type="button"
+                                    onClick={handleSubmit}
+                                    className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
+                                >
+                                    Create Track
+                                </button>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowCreateForm(false);
+                                    setStep(1);
+                                }}
+                                className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </div>
             )}
 
             
