@@ -57,6 +57,7 @@ export const MapSelector = ({ position, onPositionChange }) => {
 
   const lastPolygonPoint = polygonPoints.length > 0 ? polygonPoints[polygonPoints.length - 1] : null;
   const lastPolylinePoint = polylinePoints.length > 0 ? polylinePoints[polylinePoints.length - 1] : null;
+  
 
   return (
     <div style={{ height: '100vh', position: 'relative' }}>
@@ -115,9 +116,13 @@ export const MapSelector = ({ position, onPositionChange }) => {
         </button>
         <button
           onClick={() => {
-            setPolygonPoints([]);
-            setPolylinePoints([]);
-            setSelectedPoint(null);
+            if(mode === 'polygon') {
+              setPolygonPoints([]);
+            } else if(mode === 'polyline') {
+              setPolylinePoints([]);
+            } else if (mode === 'point') {
+              setSelectedPoint(null);
+            }
           }}
           disabled={!(
             (mode === 'polygon' && polygonPoints.length > 0) || 
@@ -142,8 +147,8 @@ export const MapSelector = ({ position, onPositionChange }) => {
         </button>
       </div>
 
-      {/* Map Container */}
-      <MapContainer center={position || [56.9496, 24.1052]} zoom={6} style={{ height: '100vh', width: '100%' }}>
+        {/* Map Container */}
+        <MapContainer center={position || [56.9496, 24.1052]} zoom={6} style={{ height: '100vh', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap contributors' />
 
         <MapHoverHandler setHoverPosition={setHoverPosition} />
@@ -154,7 +159,7 @@ export const MapSelector = ({ position, onPositionChange }) => {
 
         {/* Draw Polygon */}
         {polygonPoints.length > 2 && <Polygon positions={polygonPoints} />}
-        {polygonPoints.map((point, index) => (
+        {mode === 'polygon' && polygonPoints.map((point, index) => (
           <Marker key={`polygon-${index}`} position={point} icon={squareIcon} />
         ))}
 
@@ -170,7 +175,7 @@ export const MapSelector = ({ position, onPositionChange }) => {
 
         {/* Draw Polyline */}
         {polylinePoints.length > 1 && <Polyline positions={polylinePoints} />}
-        {polylinePoints.map((point, index) => (
+        {mode === 'polyline' && polylinePoints.map((point, index) => (
           <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
         ))}
 

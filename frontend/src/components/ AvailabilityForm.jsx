@@ -52,7 +52,8 @@ export const AvailabilityForm = ({ availability, setAvailability, error, setErro
         <div className="space-y-4">
             <h4 className="text-xl font-semibold flex items-center gap-2">
                 <FontAwesomeIcon icon={faClock} />
-                Add Availability
+                Set Opening Hours
+
             </h4>
 
             {availability.length > 0 && (
@@ -135,7 +136,7 @@ export const AvailabilityForm = ({ availability, setAvailability, error, setErro
                     onClick={addAvailability}
                     className="bg-mainYellow hover:bg-yellow-200 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
                 >
-                    Add Availability
+                    Add Opening Times
                 </button>
             </div>
         </div>
