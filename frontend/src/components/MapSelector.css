@@ -1,0 +1,25 @@
+/* search bar text color */
+.leaflet-control-geosearch form input {
+    color: #233438;
+  }
+  
+  /* Styling for the placeholder text */
+  .leaflet-control-geosearch form input::placeholder {
+    color: #888; /* Change this to your desired placeholder text color */
+  }
+  
+  /* Style for the text when it's focused */
+  .leaflet-control-geosearch form input:focus {
+    color: #000; /* Change this to your desired text color when input is focused */
+  }
+  
+  /* Style for the results dropdown */
+  .leaflet-control-geosearch form .results > * {
+    color: #233438; /* Change this to your desired text color for search results */
+  }
+  
+  /* Hover style for the results */
+  .leaflet-control-geosearch form .results > *:hover {
+    color: #000; /* Change this to your desired hover text color for search results */
+    background-color: #f0f0f0; /* Optional: background color on hover */
+  }

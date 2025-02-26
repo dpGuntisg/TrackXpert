@@ -1,9 +1,12 @@
-import { MapContainer, TileLayer, Marker, Polygon, Polyline, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polygon, Polyline, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMapMarkerAlt, faPencilAlt, faDrawPolygon, faRotateLeft, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { faMapMarkerAlt, faPencilAlt, faDrawPolygon, faRotateLeft, faTrash, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
+import 'leaflet-geosearch/dist/geosearch.css';
+import './MapSelector.css';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -17,6 +20,36 @@ const squareIcon = L.divIcon({
   html: "<div style='width: 12px; height: 12px; background: red; opacity: 0.8;'></div>",
   iconSize: [12, 12],
 });
+
+// Search component 
+const SearchControl = ({ position }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    const provider = new OpenStreetMapProvider();
+
+    const searchControl = new GeoSearchControl({
+      provider,
+      style: 'bar',
+      showMarker: true,
+      showPopup: false,
+      autoClose: true,
+      retainZoomLevel: false,
+      animateZoom: true,
+      keepResult: true,
+      searchLabel: 'Search for address',
+      className: 'custom-search-control',
+    });
+
+    map.addControl(searchControl);
+
+    return () => {
+      map.removeControl(searchControl);
+    };
+  }, [map]);
+
+  return null;
+};
 
 const MapClickHandler = ({ mode, setSelectedPoint, setPolygonPoints, setPolylinePoints, onPositionChange }) => {
   useMapEvents({
@@ -54,11 +87,11 @@ export const MapSelector = ({ position, onPositionChange }) => {
   const [polygonPoints, setPolygonPoints] = useState([]);
   const [polylinePoints, setPolylinePoints] = useState([]);
   const [hoverPosition, setHoverPosition] = useState(null);
+  const mapCenter = position || [56.9496, 24.1052];
 
   const lastPolygonPoint = polygonPoints.length > 0 ? polygonPoints[polygonPoints.length - 1] : null;
   const lastPolylinePoint = polylinePoints.length > 0 ? polylinePoints[polylinePoints.length - 1] : null;
   
-
   return (
     <div style={{ height: '100vh', position: 'relative' }}>
       {/* Mode Selector buttons */}
@@ -147,9 +180,12 @@ export const MapSelector = ({ position, onPositionChange }) => {
         </button>
       </div>
 
-        {/* Map Container */}
-        <MapContainer center={position || [56.9496, 24.1052]} zoom={6} style={{ height: '100vh', width: '100%' }}>
+      {/* Map Container */}
+      <MapContainer center={mapCenter} zoom={6} style={{ height: '100vh', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap contributors' />
+        
+        {/*Search Control */}
+        <SearchControl position="topleft" />
 
         <MapHoverHandler setHoverPosition={setHoverPosition} />
         <MapClickHandler mode={mode} setSelectedPoint={setSelectedPoint} setPolygonPoints={setPolygonPoints} setPolylinePoints={setPolylinePoints} onPositionChange={onPositionChange} />

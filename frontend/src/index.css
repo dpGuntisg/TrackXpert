@@ -8,12 +8,10 @@ body {
   font-family: 'News Cycle', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  @apply bg-mainBlue; 
-  @apply text-mainYellow;
-
+  @apply bg-mainBlue text-mainYellow; 
 }
-
 
 code {
   font-family: 'Source Code Pro', Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
+
