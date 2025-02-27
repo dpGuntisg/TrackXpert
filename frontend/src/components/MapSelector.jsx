@@ -3,7 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMapMarkerAlt, faPencilAlt, faDrawPolygon, faRotateLeft, faTrash, faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faMapMarkerAlt, faPencilAlt, faDrawPolygon, faRotateLeft, faTrash, faSave} from '@fortawesome/free-solid-svg-icons';
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import 'leaflet-geosearch/dist/geosearch.css';
 import './MapSelector.css';
@@ -81,13 +81,48 @@ const MapHoverHandler = ({ setHoverPosition }) => {
   return null;
 };
 
-export const MapSelector = ({ position, onPositionChange }) => {
+export const MapSelector = ({ position, onPositionChange, initialDrawings = null, onDrawingsChange }) => {
   const [mode, setMode] = useState('point');
   const [selectedPoint, setSelectedPoint] = useState(null);
   const [polygonPoints, setPolygonPoints] = useState([]);
   const [polylinePoints, setPolylinePoints] = useState([]);
   const [hoverPosition, setHoverPosition] = useState(null);
   const mapCenter = position || [56.9496, 24.1052];
+  
+
+  useEffect(() => {
+    if (initialDrawings) {
+      if (initialDrawings.point) {
+        setSelectedPoint(initialDrawings.point);
+      }
+      if (initialDrawings.polygon) {
+        setPolygonPoints(initialDrawings.polygon);
+      }
+      if (initialDrawings.polyline) {
+        setPolylinePoints(initialDrawings.polyline);
+      }
+    }
+  }, [initialDrawings]);
+
+  // Convert LatLng objects to arrays for storage
+  const prepareDrawingsForSave = () => {
+    const drawings = {
+      point: selectedPoint ? [selectedPoint.lat, selectedPoint.lng] : null,
+      polygon: polygonPoints.length > 0 ? polygonPoints.map(point => [point.lat, point.lng]) : null,
+      polyline: polylinePoints.length > 0 ? polylinePoints.map(point => [point.lat, point.lng]) : null
+    };
+    
+    // Update parent component with drawings
+    if (onDrawingsChange) {
+      onDrawingsChange(drawings);
+    }
+    
+    if (selectedPoint && onPositionChange) {
+      onPositionChange([selectedPoint.lat, selectedPoint.lng]);
+    }
+    
+    return drawings;
+  };
 
   const lastPolygonPoint = polygonPoints.length > 0 ? polygonPoints[polygonPoints.length - 1] : null;
   const lastPolylinePoint = polylinePoints.length > 0 ? polylinePoints[polylinePoints.length - 1] : null;
@@ -95,7 +130,7 @@ export const MapSelector = ({ position, onPositionChange }) => {
   return (
     <div style={{ height: '100vh', position: 'relative' }}>
       {/* Mode Selector buttons */}
-      <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000, display: 'flex', flexDirection: 'column', border: '1px solid #ccc' }}>
+      <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000, display: 'flex', flexDirection: 'column', border: '1px solid #ccc',}}>
         {['point', 'polygon', 'polyline'].map((type) => (
           <button
             key={type}
@@ -142,7 +177,7 @@ export const MapSelector = ({ position, onPositionChange }) => {
                   (mode === 'polyline' && polylinePoints.length > 0) || 
                   (mode === 'point' && selectedPoint) ? 'pointer' : 'not-allowed',
             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-            marginTop: '5px'
+            marginTop: '10px'
           }}
         >
           <FontAwesomeIcon icon={faRotateLeft} />
@@ -162,7 +197,7 @@ export const MapSelector = ({ position, onPositionChange }) => {
             (mode === 'polyline' && polylinePoints.length > 0) || 
             (mode === 'point' && selectedPoint)
           )}
-          title="Erase Everything"
+          title="Erase Current Drawing"
           style={{
             width: '40px', height: '40px', borderRadius: '5%', border: 'none',
             background: (mode === 'polygon' && polygonPoints.length > 0) || 
@@ -177,6 +212,21 @@ export const MapSelector = ({ position, onPositionChange }) => {
           }}
         >
           <FontAwesomeIcon icon={faTrash} />
+        </button>
+        {/* Save button */}
+        <button
+          onClick={prepareDrawingsForSave}
+          title="Save All Drawings"
+          style={{
+            width: '40px', height: '40px', borderRadius: '5%', border: 'none',
+            background: '#4169E1',
+            color: 'white',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+          }}
+        >
+          <FontAwesomeIcon icon={faSave} />
         </button>
       </div>
 
