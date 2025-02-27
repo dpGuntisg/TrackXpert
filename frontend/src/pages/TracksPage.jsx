@@ -111,8 +111,6 @@ export default function TracksPage() {
     };
 
     const handleSubmit = async () => {
-
-
         const trackData = {
             name, 
             description, 
@@ -120,21 +118,20 @@ export default function TracksPage() {
             image,
             availability: availability.length > 0 ? availability : undefined
         };
-
-        // Add point coordinates if available
+    
+        // Convert coordinates to GeoJSON format [lng, lat]
         if (coordinates) {
-            trackData.latitude = coordinates[0];
-            trackData.longitude = coordinates[1];
+            trackData.longitude = coordinates[1]; // lng
+            trackData.latitude = coordinates[0];  // lat
         }
-
-        // Add polygon if available
+    
+        // Convert drawings to GeoJSON format
         if (drawings.polygon && drawings.polygon.length > 2) {
-            trackData.polygon = drawings.polygon;
+            trackData.polygon = drawings.polygon.map(([lat, lng]) => [lng, lat]);
         }
-
-        // Add polyline if available
+    
         if (drawings.polyline && drawings.polyline.length > 1) {
-            trackData.polyline = drawings.polyline;
+            trackData.polyline = drawings.polyline.map(([lat, lng]) => [lng, lat]);
         }
 
         if(token){

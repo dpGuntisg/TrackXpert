@@ -106,65 +106,63 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const [polygonPoints, setPolygonPoints] = useState([]);
   const [polylinePoints, setPolylinePoints] = useState([]);
   const [hoverPosition, setHoverPosition] = useState(null);
-  const [isMapReady, setIsMapReady] = useState(false);
   
   const mapCenter = position && Array.isArray(position) && position.length >= 2 ? 
     position : [56.9496, 24.1052];
 
-  // Initialize drawings once map is ready
   useEffect(() => {
     if (!initialDrawings) return;
     
     try {
-      // Handle point
-      if (initialDrawings.point) {
-        const pointLatLng = arrayToLatLng(initialDrawings.point);
-        if (pointLatLng) {
-          setSelectedPoint(pointLatLng);
+        // Convert GeoJSON [lng, lat] to Leaflet [lat, lng]
+        if (initialDrawings.point) {
+            const [lng, lat] = initialDrawings.point;
+            setSelectedPoint(L.latLng(lat, lng));
         }
-      }
-      
-      // Handle polygon
-      if (initialDrawings.polygon && Array.isArray(initialDrawings.polygon)) {
-        const polygonLatLngs = arrayToLatLngArray(initialDrawings.polygon);
-        setPolygonPoints(polygonLatLngs);
-      }
-      
-      // Handle polyline
-      if (initialDrawings.polyline && Array.isArray(initialDrawings.polyline)) {
-        const polylineLatLngs = arrayToLatLngArray(initialDrawings.polyline);
-        setPolylinePoints(polylineLatLngs);
-      }
+        
+        if (initialDrawings.polygon) {
+            const polygonLatLngs = initialDrawings.polygon.map(([lng, lat]) => 
+                L.latLng(lat, lng)
+            );
+            setPolygonPoints(polygonLatLngs);
+        }
+        
+        if (initialDrawings.polyline) {
+            const polylineLatLngs = initialDrawings.polyline.map(([lng, lat]) => 
+                L.latLng(lat, lng)
+            );
+            setPolylinePoints(polylineLatLngs);
+        }
     } catch (error) {
-      console.error("Error initializing drawings:", error);
+        console.error("Error initializing drawings:", error);
     }
     
-    setIsMapReady(true);
-  }, [initialDrawings]);
+
+}, [initialDrawings]);
 
   // Convert LatLng objects to arrays for storage
   const prepareDrawingsForSave = () => {
+    // Convert Leaflet [lat, lng] to GeoJSON [lng, lat]
     const drawings = {
-      point: selectedPoint ? [selectedPoint.lat, selectedPoint.lng] : null,
-      polygon: polygonPoints.length > 0 ? 
-        polygonPoints.map(point => point && point.lat && point.lng ? [point.lat, point.lng] : null).filter(Boolean) : 
-        null,
-      polyline: polylinePoints.length > 0 ? 
-        polylinePoints.map(point => point && point.lat && point.lng ? [point.lat, point.lng] : null).filter(Boolean) : 
-        null
+        point: selectedPoint ? [selectedPoint.lng, selectedPoint.lat] : null,
+        polygon: polygonPoints.length > 0 ? 
+            polygonPoints.map(p => [p.lng, p.lat]) : 
+            null,
+        polyline: polylinePoints.length > 0 ? 
+            polylinePoints.map(p => [p.lng, p.lat]) : 
+            null
     };
-    
-    // Update parent component with drawings
+
     if (onDrawingsChange) {
-      onDrawingsChange(drawings);
+        onDrawingsChange(drawings);
     }
     
     if (selectedPoint && onPositionChange) {
-      onPositionChange([selectedPoint.lat, selectedPoint.lng]);
+        onPositionChange([selectedPoint.lat, selectedPoint.lng]);
     }
-    
+
     return drawings;
-  };
+};
 
   const lastPolygonPoint = polygonPoints.length > 0 ? polygonPoints[polygonPoints.length - 1] : null;
   const lastPolylinePoint = polylinePoints.length > 0 ? polylinePoints[polylinePoints.length - 1] : null;
