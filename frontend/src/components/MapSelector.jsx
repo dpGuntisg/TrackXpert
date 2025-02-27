@@ -51,6 +51,23 @@ const SearchControl = ({ position }) => {
   return null;
 };
 
+// function to convert array coordinates to L.LatLng objects
+const arrayToLatLng = (coord) => {
+  if (!coord || !Array.isArray(coord) || coord.length < 2 || 
+      typeof coord[0] !== 'number' || typeof coord[1] !== 'number') {
+    return null;
+  }
+  return L.latLng(coord[0], coord[1]);
+};
+
+// function to convert array of array coordinates to array of L.LatLng objects
+const arrayToLatLngArray = (coords) => {
+  if (!coords || !Array.isArray(coords)) {
+    return [];
+  }
+  return coords.map(coord => arrayToLatLng(coord)).filter(coord => coord !== null);
+};
+
 const MapClickHandler = ({ mode, setSelectedPoint, setPolygonPoints, setPolylinePoints, onPositionChange }) => {
   useMapEvents({
     click(e) {
@@ -58,11 +75,13 @@ const MapClickHandler = ({ mode, setSelectedPoint, setPolygonPoints, setPolyline
 
       if (mode === 'point') {
         setSelectedPoint(clickedCoord);
-        onPositionChange && onPositionChange([clickedCoord.lat, clickedCoord.lng]);
+        if (onPositionChange && clickedCoord) {
+          onPositionChange([clickedCoord.lat, clickedCoord.lng]);
+        }
       } else if (mode === 'polygon') {
-        setPolygonPoints((prev) => [...prev, clickedCoord]);
+        setPolygonPoints(prev => [...prev, clickedCoord]);
       } else if (mode === 'polyline') {
-        setPolylinePoints((prev) => [...prev, clickedCoord]);
+        setPolylinePoints(prev => [...prev, clickedCoord]);
       }
     }
   });
@@ -87,29 +106,52 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const [polygonPoints, setPolygonPoints] = useState([]);
   const [polylinePoints, setPolylinePoints] = useState([]);
   const [hoverPosition, setHoverPosition] = useState(null);
-  const mapCenter = position || [56.9496, 24.1052];
+  const [isMapReady, setIsMapReady] = useState(false);
   
+  const mapCenter = position && Array.isArray(position) && position.length >= 2 ? 
+    position : [56.9496, 24.1052];
 
+  // Initialize drawings once map is ready
   useEffect(() => {
-    if (initialDrawings) {
+    if (!initialDrawings) return;
+    
+    try {
+      // Handle point
       if (initialDrawings.point) {
-        setSelectedPoint(initialDrawings.point);
+        const pointLatLng = arrayToLatLng(initialDrawings.point);
+        if (pointLatLng) {
+          setSelectedPoint(pointLatLng);
+        }
       }
-      if (initialDrawings.polygon) {
-        setPolygonPoints(initialDrawings.polygon);
+      
+      // Handle polygon
+      if (initialDrawings.polygon && Array.isArray(initialDrawings.polygon)) {
+        const polygonLatLngs = arrayToLatLngArray(initialDrawings.polygon);
+        setPolygonPoints(polygonLatLngs);
       }
-      if (initialDrawings.polyline) {
-        setPolylinePoints(initialDrawings.polyline);
+      
+      // Handle polyline
+      if (initialDrawings.polyline && Array.isArray(initialDrawings.polyline)) {
+        const polylineLatLngs = arrayToLatLngArray(initialDrawings.polyline);
+        setPolylinePoints(polylineLatLngs);
       }
+    } catch (error) {
+      console.error("Error initializing drawings:", error);
     }
+    
+    setIsMapReady(true);
   }, [initialDrawings]);
 
   // Convert LatLng objects to arrays for storage
   const prepareDrawingsForSave = () => {
     const drawings = {
       point: selectedPoint ? [selectedPoint.lat, selectedPoint.lng] : null,
-      polygon: polygonPoints.length > 0 ? polygonPoints.map(point => [point.lat, point.lng]) : null,
-      polyline: polylinePoints.length > 0 ? polylinePoints.map(point => [point.lat, point.lng]) : null
+      polygon: polygonPoints.length > 0 ? 
+        polygonPoints.map(point => point && point.lat && point.lng ? [point.lat, point.lng] : null).filter(Boolean) : 
+        null,
+      polyline: polylinePoints.length > 0 ? 
+        polylinePoints.map(point => point && point.lat && point.lng ? [point.lat, point.lng] : null).filter(Boolean) : 
+        null
     };
     
     // Update parent component with drawings
@@ -126,6 +168,9 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
 
   const lastPolygonPoint = polygonPoints.length > 0 ? polygonPoints[polygonPoints.length - 1] : null;
   const lastPolylinePoint = polylinePoints.length > 0 ? polylinePoints[polylinePoints.length - 1] : null;
+  
+  const validPolygonPoints = polygonPoints.filter(point => point && point.lat && point.lng);
+  const validPolylinePoints = polylinePoints.filter(point => point && point.lat && point.lng);
   
   return (
     <div style={{ height: '100vh', position: 'relative' }}>
@@ -234,39 +279,57 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
       <MapContainer center={mapCenter} zoom={6} style={{ height: '100vh', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap contributors' />
         
-        {/*Search Control */}
+        {/* Search Control */}
         <SearchControl position="topleft" />
 
         <MapHoverHandler setHoverPosition={setHoverPosition} />
-        <MapClickHandler mode={mode} setSelectedPoint={setSelectedPoint} setPolygonPoints={setPolygonPoints} setPolylinePoints={setPolylinePoints} onPositionChange={onPositionChange} />
+        <MapClickHandler 
+          mode={mode} 
+          setSelectedPoint={setSelectedPoint} 
+          setPolygonPoints={setPolygonPoints} 
+          setPolylinePoints={setPolylinePoints} 
+          onPositionChange={onPositionChange} 
+        />
 
         {/* Marker for point selection */}
-        {selectedPoint && <Marker position={selectedPoint} />}
+        {selectedPoint && selectedPoint.lat && selectedPoint.lng && (
+          <Marker position={selectedPoint} />
+        )}
 
         {/* Draw Polygon */}
-        {polygonPoints.length > 2 && <Polygon positions={polygonPoints} />}
-        {mode === 'polygon' && polygonPoints.map((point, index) => (
+        {validPolygonPoints.length > 2 && (
+          <Polygon positions={validPolygonPoints} />
+        )}
+        
+        {mode === 'polygon' && validPolygonPoints.map((point, index) => (
           <Marker key={`polygon-${index}`} position={point} icon={squareIcon} />
         ))}
 
         {/* Draw Preview Line for Polygon */}
-        {mode === 'polygon' && lastPolygonPoint && hoverPosition && (
+        {mode === 'polygon' && lastPolygonPoint && lastPolygonPoint.lat && lastPolygonPoint.lng && 
+         hoverPosition && hoverPosition.lat && hoverPosition.lng && (
           <Polyline positions={[lastPolygonPoint, hoverPosition]} color="red" weight={2} opacity={0.7} dashArray="5,10" />
         )}
 
         {/* Close Polygon Preview */}
-        {mode === 'polygon' && polygonPoints.length > 2 && hoverPosition && (
-          <Polyline positions={[hoverPosition, polygonPoints[0]]} color="red" weight={2} opacity={0.5} dashArray="5,10" />
+        {mode === 'polygon' && validPolygonPoints.length > 2 && 
+         validPolygonPoints[0] && validPolygonPoints[0].lat && validPolygonPoints[0].lng &&
+         hoverPosition && hoverPosition.lat && hoverPosition.lng && (
+          <Polyline positions={[hoverPosition, validPolygonPoints[0]]} color="red" weight={2} opacity={0.5} dashArray="5,10" />
         )}
 
         {/* Draw Polyline */}
-        {polylinePoints.length > 1 && <Polyline positions={polylinePoints} />}
-        {mode === 'polyline' && polylinePoints.map((point, index) => (
+        {validPolylinePoints.length > 1 && (
+          <Polyline positions={validPolylinePoints} />
+        )}
+        
+        {mode === 'polyline' && validPolylinePoints.map((point, index) => (
           <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
         ))}
 
         {/* Draw Preview Line for Polyline */}
-        {mode === 'polyline' && lastPolylinePoint && hoverPosition && (
+        {mode === 'polyline' && lastPolylinePoint && lastPolylinePoint.lat && lastPolylinePoint.lng &&
+         hoverPosition && hoverPosition.lat && hoverPosition.lng && (
           <Polyline positions={[lastPolylinePoint, hoverPosition]} color="red" weight={2} opacity={0.7} dashArray="5,10" />
         )}
       </MapContainer>

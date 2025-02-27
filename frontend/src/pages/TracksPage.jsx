@@ -29,6 +29,12 @@ export default function TracksPage() {
     const [coordinates, setCoordinates] = useState(null);
     const [availability, setAvailability] = useState([]);
 
+    const [drawings, setDrawings] = useState({
+        point: null,
+        polygon: null,
+        polyline: null
+    });
+
     
 
 
@@ -91,13 +97,6 @@ export default function TracksPage() {
         return true;
     };
 
-    const validateStep2 = () => {
-        if (!coordinates) {
-            setError("Please select a location on the map");
-            return false;
-        }
-        return true;
-    };
 
 
     const handleImageChange = (e) => {
@@ -112,17 +111,37 @@ export default function TracksPage() {
     };
 
     const handleSubmit = async () => {
-        if (!validateStep2()) return;
 
-        setError("");
-        setSuccess("");
+
+        const trackData = {
+            name, 
+            description, 
+            location, 
+            image,
+            availability: availability.length > 0 ? availability : undefined
+        };
+
+        // Add point coordinates if available
+        if (coordinates) {
+            trackData.latitude = coordinates[0];
+            trackData.longitude = coordinates[1];
+        }
+
+        // Add polygon if available
+        if (drawings.polygon && drawings.polygon.length > 2) {
+            trackData.polygon = drawings.polygon;
+        }
+
+        // Add polyline if available
+        if (drawings.polyline && drawings.polyline.length > 1) {
+            trackData.polyline = drawings.polyline;
+        }
 
         if(token){
             try{
-                await axios.post("http://localhost:5000/api/createtrack",
-                    { name, description, location, image,  latitude: coordinates[0], longitude: coordinates[1],
-                      availability: availability.length > 0 ? availability : undefined // Only include availability if it's not empty
-                    },
+                await axios.post(
+                    "http://localhost:5000/api/createtrack",
+                    trackData,
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 alert("Track created!");
@@ -248,16 +267,12 @@ export default function TracksPage() {
                             <>
                                 {/* Step 3: Map Selection */}
                                 <div className="h-96 w-full rounded-lg overflow-hidden">
-                                <MapSelector 
-                                    position={coordinates}
-                                    onPositionChange={setCoordinates}
-                                />
+                                    <MapSelector 
+                                        position={coordinates}
+                                        onPositionChange={setCoordinates}
+                                        onDrawingsChange={setDrawings}
+                                    />
                                 </div>
-                                {coordinates && (
-                                    <p className="text-sm text-gray-300">
-                                        Selected coordinates: {coordinates[0].toFixed(4)}, {coordinates[1].toFixed(4)}
-                                    </p>
-                                )}
                             </>
                         )}
 
