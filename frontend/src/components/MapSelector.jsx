@@ -110,59 +110,51 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const mapCenter = position && Array.isArray(position) && position.length >= 2 ? 
     position : [56.9496, 24.1052];
 
-  useEffect(() => {
-    if (!initialDrawings) return;
-    
-    try {
-        // Convert GeoJSON [lng, lat] to Leaflet [lat, lng]
+    useEffect(() => {
+      if (!initialDrawings) return;
+      
+      try {
+        // Convert from Leaflet [lat, lng] format (no conversion needed)
         if (initialDrawings.point) {
-            const [lng, lat] = initialDrawings.point;
-            setSelectedPoint(L.latLng(lat, lng));
+          setSelectedPoint(L.latLng(initialDrawings.point[0], initialDrawings.point[1]));
+        } else {
+          setSelectedPoint(null);
         }
         
         if (initialDrawings.polygon) {
-            const polygonLatLngs = initialDrawings.polygon.map(([lng, lat]) => 
-                L.latLng(lat, lng)
-            );
-            setPolygonPoints(polygonLatLngs);
+          const polygonLatLngs = initialDrawings.polygon.map(([lat, lng]) => 
+            L.latLng(lat, lng)
+          );
+          setPolygonPoints(polygonLatLngs);
         }
         
         if (initialDrawings.polyline) {
-            const polylineLatLngs = initialDrawings.polyline.map(([lng, lat]) => 
-                L.latLng(lat, lng)
-            );
-            setPolylinePoints(polylineLatLngs);
+          const polylineLatLngs = initialDrawings.polyline.map(([lat, lng]) => 
+            L.latLng(lat, lng)
+          );
+          setPolylinePoints(polylineLatLngs);
         }
-    } catch (error) {
+      } catch (error) {
         console.error("Error initializing drawings:", error);
-    }
+      }
+    }, [initialDrawings]);
+
+    const prepareDrawingsForSave = () => {
+      const drawings = {
+        point: selectedPoint ? [selectedPoint.lat, selectedPoint.lng] : null,
+        polygon: polygonPoints.length > 2 ? 
+          polygonPoints.map(p => [p.lat, p.lng]) : 
+          null,
+        polyline: polylinePoints.length > 1 ? 
+          polylinePoints.map(p => [p.lat, p.lng]) : 
+          null
+      };
     
-
-}, [initialDrawings]);
-
-  // Convert LatLng objects to arrays for storage
-  const prepareDrawingsForSave = () => {
-    // Convert Leaflet [lat, lng] to GeoJSON [lng, lat]
-    const drawings = {
-        point: selectedPoint ? [selectedPoint.lng, selectedPoint.lat] : null,
-        polygon: polygonPoints.length > 0 ? 
-            polygonPoints.map(p => [p.lng, p.lat]) : 
-            null,
-        polyline: polylinePoints.length > 0 ? 
-            polylinePoints.map(p => [p.lng, p.lat]) : 
-            null
-    };
-
-    if (onDrawingsChange) {
+      if (onDrawingsChange) {
         onDrawingsChange(drawings);
-    }
-    
-    if (selectedPoint && onPositionChange) {
-        onPositionChange([selectedPoint.lat, selectedPoint.lng]);
-    }
-
-    return drawings;
-};
+      }
+      return drawings;
+    };
 
   const lastPolygonPoint = polygonPoints.length > 0 ? polygonPoints[polygonPoints.length - 1] : null;
   const lastPolylinePoint = polylinePoints.length > 0 ? polylinePoints[polylinePoints.length - 1] : null;
@@ -225,36 +217,58 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         >
           <FontAwesomeIcon icon={faRotateLeft} />
         </button>
+        
         <button
-          onClick={() => {
-            if(mode === 'polygon') {
-              setPolygonPoints([]);
-            } else if(mode === 'polyline') {
-              setPolylinePoints([]);
-            } else if (mode === 'point') {
-              setSelectedPoint(null);
+        onClick={() => {
+          // First, update the state based on the current mode
+          if(mode === 'polygon') {
+            setPolygonPoints([]);
+          } else if(mode === 'polyline') {
+            setPolylinePoints([]);
+          } else if (mode === 'point') {
+            setSelectedPoint(null);
+          }
+          
+          // Use setTimeout to ensure state updates are processed before saving
+          setTimeout(() => {
+            // Create a drawings object with explicit empty values
+            const emptyDrawings = {
+              point: null,
+              polygon: null,
+              polyline: null
+            };
+            
+            // Call onDrawingsChange with the empty drawings
+            if (onDrawingsChange) {
+              onDrawingsChange(emptyDrawings);
             }
-          }}
-          disabled={!(
-            (mode === 'polygon' && polygonPoints.length > 0) || 
-            (mode === 'polyline' && polylinePoints.length > 0) || 
-            (mode === 'point' && selectedPoint)
-          )}
-          title="Erase Current Drawing"
-          style={{
-            width: '40px', height: '40px', borderRadius: '5%', border: 'none',
-            background: (mode === 'polygon' && polygonPoints.length > 0) || 
+            
+            // Update position if needed
+            if (onPositionChange) {
+              onPositionChange(null);
+            }
+          }, 50); // Small delay to ensure state updates complete
+        }}
+        disabled={!(
+          (mode === 'polygon' && polygonPoints.length > 0) || 
+          (mode === 'polyline' && polylinePoints.length > 0) || 
+          (mode === 'point' && selectedPoint)
+        )}
+        title="Erase Current Drawing"
+        style={{
+          width: '40px', height: '40px', borderRadius: '5%', border: 'none',
+          background: (mode === 'polygon' && polygonPoints.length > 0) || 
                       (mode === 'polyline' && polylinePoints.length > 0) || 
                       (mode === 'point' && selectedPoint) ? '#FFA500' : '#ccc',
-            color: 'white',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: (mode === 'polygon' && polygonPoints.length > 0) || 
+          color: 'white',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          cursor: (mode === 'polygon' && polygonPoints.length > 0) || 
                   (mode === 'polyline' && polylinePoints.length > 0) || 
                   (mode === 'point' && selectedPoint) ? 'pointer' : 'not-allowed',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-          }}
+          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
+        }}
         >
-          <FontAwesomeIcon icon={faTrash} />
+        <FontAwesomeIcon icon={faTrash} />
         </button>
         {/* Save button */}
         <button
@@ -289,15 +303,22 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
           onPositionChange={onPositionChange} 
         />
 
-        {/* Marker for point selection */}
-        {selectedPoint && selectedPoint.lat && selectedPoint.lng && (
-          <Marker position={selectedPoint} />
-        )}
+      {selectedPoint && selectedPoint.lat && selectedPoint.lng && (
+        <Marker position={[selectedPoint.lat, selectedPoint.lng]} />
+      )}
 
-        {/* Draw Polygon */}
-        {validPolygonPoints.length > 2 && (
-          <Polygon positions={validPolygonPoints} />
-        )}
+      {validPolygonPoints.length > 2 && (
+        <Polygon 
+          positions={validPolygonPoints.map(p => [p.lat, p.lng])}
+        />
+      )}
+
+      {validPolylinePoints.length > 1 && (
+        <Polyline 
+          positions={validPolylinePoints.map(p => [p.lat, p.lng])}
+        />
+      )}
+
         
         {mode === 'polygon' && validPolygonPoints.map((point, index) => (
           <Marker key={`polygon-${index}`} position={point} icon={squareIcon} />

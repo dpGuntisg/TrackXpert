@@ -62,11 +62,38 @@ export default function TrackDetailPage() {
                 image: trackData.image
             });
             setAvailability(trackData.availability || []);
-            setDrawings({
-                point: trackData.coordinates?.coordinates || null,
-                polygon: trackData.polygon?.coordinates[0] || null,
-                polyline: trackData.polyline?.coordinates || null
-            });
+            
+            // Initialize drawings with Leaflet [lat, lng] format
+            const initialDrawings = {
+                point: null,
+                polygon: null,
+                polyline: null
+            };
+            
+            // Convert GeoJSON [lng, lat] to Leaflet [lat, lng]
+            if (trackData.coordinates?.coordinates) {
+                initialDrawings.point = [
+                    trackData.coordinates.coordinates[1], // lat
+                    trackData.coordinates.coordinates[0]  // lng
+                ];
+                setCoordinates(initialDrawings.point);
+            }
+            
+            if (trackData.polygon?.coordinates?.[0]) {
+                initialDrawings.polygon = trackData.polygon.coordinates[0].map(coord => [
+                    coord[1], // lat
+                    coord[0]  // lng
+                ]);
+            }
+            
+            if (trackData.polyline?.coordinates) {
+                initialDrawings.polyline = trackData.polyline.coordinates.map(coord => [
+                    coord[1], // lat
+                    coord[0]  // lng
+                ]);
+            }
+            
+            setDrawings(initialDrawings);
         } catch (error) {
             setServerError(error.response?.data?.message || "Error fetching the track.");
         }
@@ -85,39 +112,60 @@ export default function TrackDetailPage() {
         getTrack();
     }, [trackId]);
 
+
     const handleEdit = async () => {
         setError("");
-    
+      
         try {
-            const updateData = {
-                ...editValues,
-                availability: availability,
-                // Point coordinates (GeoJSON format [lng, lat])
-                longitude: drawings.point ? drawings.point[0] : null, // lng
-                latitude: drawings.point ? drawings.point[1] : null,  // lat
-                // Polygon coordinates (GeoJSON format)
-                polygon: drawings.polygon ? {
-                    type: "Polygon",
-                    coordinates: [drawings.polygon] 
-                } : null,
-                // Polyline coordinates (GeoJSON format)
-                polyline: drawings.polyline ? {
-                    type: "LineString",
-                    coordinates: drawings.polyline
-                } : null
+          const updateData = {
+            ...editValues,
+            availability,
+            coordinates: null,
+            polygon: null,
+            polyline: null
+          };
+      
+          // Explicitly handle deletions
+          if (drawings.point === null) {
+            updateData.coordinates = null;
+          } else if (coordinates) {
+            updateData.coordinates = {
+              type: "Point",
+              coordinates: [coordinates[1], coordinates[0]]
             };
-    
-            await axios.patch(
-                `http://localhost:5000/api/tracks/${trackId}`,
-                updateData,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
-            setEditMode(false);
-            getTrack();
+          }
+      
+          if (drawings.polygon === null) {
+            updateData.polygon = null;
+          } else if (drawings.polygon?.length > 2) {
+            updateData.polygon = {
+              type: "Polygon",
+              coordinates: [drawings.polygon.map(([lat, lng]) => [lng, lat])]
+            };
+          }
+      
+          if (drawings.polyline === null) {
+            updateData.polyline = null;
+          } else if (drawings.polyline?.length > 1) {
+            updateData.polyline = {
+              type: "LineString",
+              coordinates: drawings.polyline.map(([lat, lng]) => [lng, lat])
+            };
+          }
+      
+          await axios.patch(
+            `http://localhost:5000/api/tracks/${trackId}`,
+            updateData,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+      
+          setEditMode(false);
+          getTrack();
         } catch (error) {
-            setError(error.response?.data?.message || "Error updating track");
+          setError(error.response?.data?.message || "Error updating track");
         }
-    };
+      };
+
 
 
     const validateStep = () => {
@@ -278,34 +326,33 @@ return (
                         attribution='&copy; OpenStreetMap contributors'
                     />
                     
-                    {/* Display Point Marker */}
                     {track.coordinates && (
-                        <Marker position={[
+                    <Marker position={[
                         track.coordinates.coordinates[1],
                         track.coordinates.coordinates[0]
-                        ]} />
-                    )}
-
-                    {/* Display Polygon */}
-                    {track.polygon?.coordinates && (
-                        <Polygon
-                        positions={track.polygon.coordinates[0].map(coord => [coord[1], coord[0]])}
-                        color="blue"
-                        fillOpacity={0.2}
-                        />
-                    )}
-
-                    {/* Display Polyline */}
-                    {track.polyline?.coordinates && (
-                        <Polyline
-                        positions={track.polyline.coordinates.map(coord => [coord[1], coord[0]])}
-                        color="green"
-                        weight={3}
-                        />
-                    )}
-                    </MapContainer>
-                </div>
+                    ]} />
                 )}
+
+                {track.polygon?.coordinates && (
+                    <Polygon
+                        positions={track.polygon.coordinates[0].map(coord => [
+                            coord[1], // lat
+                            coord[0]  // lng
+                        ])}
+                    />
+                )}
+
+                {track.polyline?.coordinates && (
+                    <Polyline
+                        positions={track.polyline.coordinates.map(coord => [
+                            coord[1], // lat
+                            coord[0]  // lng
+                        ])}
+                    />
+                )}
+                                    </MapContainer>
+                                </div>
+                                )}
 
                 {/* Edit Modal */}
                 {editMode && (
@@ -343,19 +390,26 @@ return (
                         )}
 
                         {step === 3 && (
-                            <div className="h-96 w-full rounded-lg overflow-hidden">
-                                <MapSelector 
-                                    position={coordinates}
-                                    onPositionChange={setCoordinates}
-                                    initialDrawings={drawings}
-                                    onDrawingsChange={(newDrawings) => {
-                                        setDrawings(newDrawings);
-                                        if (newDrawings.point) {
-                                            setCoordinates(newDrawings.point);
-                                        }
-                                    }}
-                                />
-                            </div>
+                        <div className="h-96 w-full rounded-lg overflow-hidden">
+                            <MapSelector 
+                            position={coordinates}
+                            onPositionChange={(pos) => {
+                                setCoordinates(pos);
+                                setDrawings(prev => ({
+                                ...prev,
+                                point: pos
+                                }));
+                            }}
+                            initialDrawings={drawings}
+                            onDrawingsChange={(newDrawings) => {
+                                setDrawings({
+                                point: newDrawings.point,
+                                polygon: newDrawings.polygon,
+                                polyline: newDrawings.polyline
+                                });
+                            }}
+                            />
+                        </div>
                         )}
 
                         {/* Navigation Controls */}
