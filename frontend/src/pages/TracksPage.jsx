@@ -118,22 +118,21 @@ export default function TracksPage() {
             image,
             availability: availability.length > 0 ? availability : undefined
         };
-    
-        // Convert coordinates to GeoJSON format [lng, lat]
+      
+        // Send coordinates as [lng, lat] directly
         if (coordinates) {
-            trackData.longitude = coordinates[1]; // lng
-            trackData.latitude = coordinates[0];  // lat
+            trackData.longitude = coordinates[1]; 
+            trackData.latitude = coordinates[0];  
         }
-    
-        // Convert drawings to GeoJSON format
+      
         if (drawings.polygon && drawings.polygon.length > 2) {
-            trackData.polygon = drawings.polygon.map(([lat, lng]) => [lng, lat]);
+            trackData.polygon = drawings.polygon; 
+        }
+      
+        if (drawings.polyline && drawings.polyline.length > 1) {
+            trackData.polyline = drawings.polyline; 
         }
     
-        if (drawings.polyline && drawings.polyline.length > 1) {
-            trackData.polyline = drawings.polyline.map(([lat, lng]) => [lng, lat]);
-        }
-
         if(token){
             try{
                 await axios.post(
@@ -160,6 +159,7 @@ export default function TracksPage() {
             setLoading(false);                
         }
     };
+    
 
     
 
