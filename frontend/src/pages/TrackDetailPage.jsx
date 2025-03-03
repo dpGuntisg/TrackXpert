@@ -36,11 +36,9 @@ export default function TrackDetailPage() {
     if (track.coordinates) {
         mapCenter = [track.coordinates.coordinates[1], track.coordinates.coordinates[0]];
     } else if (track.polygon?.coordinates?.[0]?.[0]) {
-        // Use first polygon point's coordinates [lat, lng]
         const [lng, lat] = track.polygon.coordinates[0][0];
         mapCenter = [lat, lng];
     } else if (track.polyline?.coordinates?.[0]) {
-        // Use first polyline point's coordinates [lat, lng]
         const [lng, lat] = track.polyline.coordinates[0];
         mapCenter = [lat, lng];
     }
@@ -63,34 +61,23 @@ export default function TrackDetailPage() {
             });
             setAvailability(trackData.availability || []);
             
-            // Initialize drawings with Leaflet [lat, lng] format
             const initialDrawings = {
                 point: null,
                 polygon: null,
                 polyline: null
             };
             
-            // Convert GeoJSON [lng, lat] to Leaflet [lat, lng]
             if (trackData.coordinates?.coordinates) {
-                initialDrawings.point = [
-                    trackData.coordinates.coordinates[1], // lat
-                    trackData.coordinates.coordinates[0]  // lng
-                ];
+                initialDrawings.point = [ trackData.coordinates.coordinates[1], trackData.coordinates.coordinates[0] ];
                 setCoordinates(initialDrawings.point);
             }
             
             if (trackData.polygon?.coordinates?.[0]) {
-                initialDrawings.polygon = trackData.polygon.coordinates[0].map(coord => [
-                    coord[1], // lat
-                    coord[0]  // lng
-                ]);
+                initialDrawings.polygon = trackData.polygon.coordinates[0].map(coord => [coord[1], coord[0]]);
             }
             
             if (trackData.polyline?.coordinates) {
-                initialDrawings.polyline = trackData.polyline.coordinates.map(coord => [
-                    coord[1], // lat
-                    coord[0]  // lng
-                ]);
+                initialDrawings.polyline = trackData.polyline.coordinates.map(coord => [coord[1], coord[0]]);
             }
             
             setDrawings(initialDrawings);
@@ -115,56 +102,58 @@ export default function TrackDetailPage() {
 
     const handleEdit = async () => {
         setError("");
-      
+    
         try {
-          const updateData = {
-            ...editValues,
-            availability,
-            coordinates: null,
-            polygon: null,
-            polyline: null
-          };
-      
-          // Explicitly handle deletions
-          if (drawings.point === null) {
-            updateData.coordinates = null;
-          } else if (coordinates) {
-            updateData.coordinates = {
-              type: "Point",
-              coordinates: [coordinates[1], coordinates[0]]
+            const updateData = {
+                ...editValues,
+                availability,
+                coordinates: null,
+                polygon: null,
+                polyline: null
             };
-          }
-      
-          if (drawings.polygon === null) {
-            updateData.polygon = null;
-          } else if (drawings.polygon?.length > 2) {
-            updateData.polygon = {
-              type: "Polygon",
-              coordinates: [drawings.polygon.map(([lat, lng]) => [lng, lat])]
-            };
-          }
-      
-          if (drawings.polyline === null) {
-            updateData.polyline = null;
-          } else if (drawings.polyline?.length > 1) {
-            updateData.polyline = {
-              type: "LineString",
-              coordinates: drawings.polyline.map(([lat, lng]) => [lng, lat])
-            };
-          }
-      
-          await axios.patch(
-            `http://localhost:5000/api/tracks/${trackId}`,
-            updateData,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-      
-          setEditMode(false);
-          getTrack();
+    
+            if (drawings.point) {
+                updateData.coordinates = {
+                    type: "Point",
+                    coordinates: [drawings.point[1], drawings.point[0]] // [lng, lat]
+                };
+            }
+    
+            if (drawings.polygon && drawings.polygon.length >= 3) {
+                updateData.polygon = {
+                    type: "Polygon",
+                    coordinates: [drawings.polygon.map(([lat, lng]) => [lng, lat])]
+                };
+            }
+    
+            if (drawings.polyline && drawings.polyline.length >= 2) {
+                updateData.polyline = {
+                    type: "LineString",
+                    coordinates: drawings.polyline.map(([lat, lng]) => [lng, lat])
+                };
+            }
+    
+            // Check if at least one geometry exists
+            const hasGeometry = updateData.coordinates || updateData.polygon || updateData.polyline;
+            if (!hasGeometry) {
+                setError("At least one geometry (point, polygon, or polyline) is required.");
+                return;
+            }
+    
+            await axios.patch(
+                `http://localhost:5000/api/tracks/${trackId}`,
+                updateData,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+    
+            setEditMode(false);
+            getTrack();
         } catch (error) {
-          setError(error.response?.data?.message || "Error updating track");
+            setError(error.response?.data?.message || "Error updating track");
         }
-      };
+    };
+    
+    
 
 
 
@@ -317,45 +306,33 @@ return (
             {(track.coordinates || track.polygon || track.polyline) && !editMode && (
                 <div className="z-0 h-96 w-full rounded overflow-hidden">
                     <MapContainer
-                    center={mapCenter}
-                    zoom={13}
-                    style={{ height: '100%', width: '100%' }}
-                    >
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; OpenStreetMap contributors'
-                    />
-                    
-                    {track.coordinates && (
-                    <Marker position={[
-                        track.coordinates.coordinates[1],
-                        track.coordinates.coordinates[0]
-                    ]} />
-                )}
+                        center={mapCenter}
+                        zoom={13}
+                        style={{ height: '100%', width: '100%' }}
+                        >
+                        <TileLayer
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            attribution='&copy; OpenStreetMap contributors'
+                        />
+                        
+                        {track.coordinates && (
+                            <Marker position={[track.coordinates.coordinates[1], track.coordinates.coordinates[0]]} />
+                        )}
 
-                {track.polygon?.coordinates && (
-                    <Polygon
-                        positions={track.polygon.coordinates[0].map(coord => [
-                            coord[1], // lat
-                            coord[0]  // lng
-                        ])}
-                    />
-                )}
+                        {track.polygon?.coordinates && (
+                            <Polygon positions={track.polygon.coordinates[0].map(coord => [coord[1], coord[0]])} />
+                        )}
 
-                {track.polyline?.coordinates && (
-                    <Polyline
-                        positions={track.polyline.coordinates.map(coord => [
-                            coord[1], // lat
-                            coord[0]  // lng
-                        ])}
-                    />
-                )}
-                                    </MapContainer>
-                                </div>
-                                )}
+                        {track.polyline?.coordinates && (
+                            <Polyline positions={track.polyline.coordinates.map(coord => [coord[1], coord[0]])} />
+                        )}
+                        
+                    </MapContainer>
+                </div>
+            )}
 
-                {/* Edit Modal */}
-                {editMode && (
+            {/* Edit Modal */}
+            {editMode && (
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
                     <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4">
                         <div className="flex justify-between items-center">
@@ -392,22 +369,10 @@ return (
                         {step === 3 && (
                         <div className="h-96 w-full rounded-lg overflow-hidden">
                             <MapSelector 
-                            position={coordinates}
-                            onPositionChange={(pos) => {
-                                setCoordinates(pos);
-                                setDrawings(prev => ({
-                                ...prev,
-                                point: pos
-                                }));
-                            }}
-                            initialDrawings={drawings}
-                            onDrawingsChange={(newDrawings) => {
-                                setDrawings({
-                                point: newDrawings.point,
-                                polygon: newDrawings.polygon,
-                                polyline: newDrawings.polyline
-                                });
-                            }}
+                                position={coordinates}
+                                onPositionChange={(pos) => {setCoordinates(pos);}}
+                                initialDrawings={drawings}
+                                onDrawingsChange={(newDrawings) => {setDrawings(newDrawings);}}
                             />
                         </div>
                         )}

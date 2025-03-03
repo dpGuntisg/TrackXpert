@@ -203,51 +203,55 @@ function validateAndFixPolygon(polygonCoordinates) {
     return fixedPolygon;
 }
 
-if (polygon) {
-    if (polygon.type && polygon.coordinates) {
-        // If it's already in GeoJSON format
-        try {
-            // Validate and fix the first ring of coordinates
-            const fixedCoordinates = validateAndFixPolygon(polygon.coordinates[0]);
-            polygon.coordinates[0] = fixedCoordinates;
-            track.polygon = polygon;
-        } catch (error) {
-            return res.status(400).json({ message: error.message });
-        }
-    } else if (Array.isArray(polygon) && polygon.length > 2) {
-        // If it's an array of points
-        try {
-            // Validate and fix the coordinates
-            const fixedPolygon = validateAndFixPolygon(polygon);
-            
-            track.polygon = {
-                type: "Polygon",
-                coordinates: [fixedPolygon.map(point => [parseFloat(point[1]), parseFloat(point[0])])]
-            };
-        } catch (error) {
-            return res.status(400).json({ message: error.message });
-        }
-    } else if (polygon === null) {
-        track.polygon = undefined;
-    }
-}
-// ...
 
-        // Update Polyline - Handle both array format and GeoJSON format
-        if (polyline) {
-            if (polyline.type && polyline.coordinates) {
-                // If it's already in GeoJSON format
-                track.polyline = polyline;
-            } else if (Array.isArray(polyline) && polyline.length > 1) {
-                // If it's an array of points
-                track.polyline = {
-                    type: "LineString",
-                    coordinates: polyline.map(point => [parseFloat(point[1]), parseFloat(point[0])])
-                };
-            } else if (polyline === null) {
-                track.polyline = undefined;
+// Update Polygon
+    if (polygon === null) {
+        track.polygon = undefined;
+    } else if (polygon) {
+        if (polygon.type && polygon.coordinates) {
+            try {
+                // Validate and fix the first ring of coordinates
+                const fixedCoordinates = validateAndFixPolygon(polygon.coordinates[0]);
+                polygon.coordinates[0] = fixedCoordinates;
+                track.polygon = polygon;
+            } catch (error) {
+                return res.status(400).json({ message: error.message });
             }
+        } else if (Array.isArray(polygon) && polygon.length > 2) {
+            // If it's an array of points
+            try {
+                // Validate and fix the coordinates
+                const fixedPolygon = validateAndFixPolygon(polygon);
+                
+                track.polygon = {
+                    type: "Polygon",
+                    coordinates: [fixedPolygon.map(point => [parseFloat(point[1]), parseFloat(point[0])])]
+                };
+            } catch (error) {
+                return res.status(400).json({ message: error.message });
+            }
+        } else {
+            return res.status(400).json({ message: "Invalid polygon data" });
         }
+    }
+
+    // Update Polyline - Handle both array format and GeoJSON format
+    if (polyline === null) {
+        track.polyline = undefined;
+    } else if (polyline) {
+        if (polyline.type && polyline.coordinates) {
+            // If it's already in GeoJSON format
+            track.polyline = polyline;
+        } else if (Array.isArray(polyline) && polyline.length > 1) {
+            // If it's an array of points
+            track.polyline = {
+                type: "LineString",
+                coordinates: polyline.map(point => [parseFloat(point[1]), parseFloat(point[0])])
+            };
+        } else {
+            return res.status(400).json({ message: "Invalid polyline data" });
+        }
+    }
 
         // Ensure at least one geometry type is provided
         const hasGeometry = 

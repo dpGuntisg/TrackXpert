@@ -11,7 +11,7 @@ router.post('/signin', signInUser);
 router.get('/profile', verifyToken, userProfile);
 router.patch('/profile/update', verifyToken ,updateUser)
 router.get('/profile/:userId/tracks', verifyToken, getTracksByUserId);
-router.post('/signout', verifyToken, logUserOut);
+router.post('/signout', logUserOut);
 router.get('/verifyToken', verifyToken);
 
 router.post('/createtrack', verifyToken, createTrack);
