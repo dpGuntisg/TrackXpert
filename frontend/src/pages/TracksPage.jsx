@@ -31,7 +31,6 @@ export default function TracksPage() {
 
     const [drawings, setDrawings] = useState({
         point: null,
-        polygon: null,
         polyline: null
     });
 
@@ -123,10 +122,6 @@ export default function TracksPage() {
         if (coordinates) {
             trackData.longitude = coordinates[1]; 
             trackData.latitude = coordinates[0];  
-        }
-      
-        if (drawings.polygon && drawings.polygon.length > 2) {
-            trackData.polygon = drawings.polygon; 
         }
       
         if (drawings.polyline && drawings.polyline.length > 1) {

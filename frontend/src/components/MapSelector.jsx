@@ -1,9 +1,9 @@
-import { MapContainer, TileLayer, Marker, Polygon, Polyline, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMapMarkerAlt, faPencilAlt, faDrawPolygon, faRotateLeft, faTrash, faSave} from '@fortawesome/free-solid-svg-icons';
+import { faMapMarkerAlt, faPencilAlt, faRotateLeft, faTrash, faSave} from '@fortawesome/free-solid-svg-icons';
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import 'leaflet-geosearch/dist/geosearch.css';
 import './MapSelector.css';
@@ -71,13 +71,11 @@ const arrayToLatLngArray = (coords) => {
 export const MapSelector = ({ position, onPositionChange, initialDrawings = null, onDrawingsChange }) => {
   const [mode, setMode] = useState('point');
   const [selectedPoint, setSelectedPoint] = useState(null);
-  const [polygonPoints, setPolygonPoints] = useState([]);
   const [polylinePoints, setPolylinePoints] = useState([]);
   const [hoverPosition, setHoverPosition] = useState(null);
   
   const drawingsRef = useRef({
     point: null,
-    polygon: null,
     polyline: null
   });
   
@@ -96,13 +94,6 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         setSelectedPoint(L.latLng(initialDrawings.point[0], initialDrawings.point[1]));
       }
       
-      if (initialDrawings.polygon) {
-        const polygonLatLngs = initialDrawings.polygon.map(([lat, lng]) => 
-          L.latLng(lat, lng)
-        );
-        setPolygonPoints(polygonLatLngs);
-      }
-      
       if (initialDrawings.polyline) {
         const polylineLatLngs = initialDrawings.polyline.map(([lat, lng]) => 
           L.latLng(lat, lng)
@@ -113,7 +104,6 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
       // Update the ref to match initial state
       drawingsRef.current = {
         point: initialDrawings.point,
-        polygon: initialDrawings.polygon,
         polyline: initialDrawings.polyline
       };
       
@@ -127,9 +117,6 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     // Get current state of drawings from component state
     const drawings = {
       point: selectedPoint ? [selectedPoint.lat, selectedPoint.lng] : null,
-      polygon: polygonPoints.length > 2 ? 
-        polygonPoints.map(p => [p.lat, p.lng]) : 
-        null,
       polyline: polylinePoints.length > 1 ? 
         polylinePoints.map(p => [p.lat, p.lng]) : 
         null
@@ -147,7 +134,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   };
 
   // Map click handler component
-  const MapClickHandler = ({ mode, setSelectedPoint, setPolygonPoints, setPolylinePoints, onPositionChange }) => {
+  const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints, onPositionChange }) => {
     useMapEvents({
       click(e) {
         const clickedCoord = e.latlng;
@@ -157,8 +144,6 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
           if (onPositionChange && clickedCoord) {
             onPositionChange([clickedCoord.lat, clickedCoord.lng]);
           }
-        } else if (mode === 'polygon') {
-          setPolygonPoints(prev => [...prev, clickedCoord]);
         } else if (mode === 'polyline') {
           setPolylinePoints(prev => [...prev, clickedCoord]);
         }
@@ -182,9 +167,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   
   // Handle undo action
   const handleUndo = () => {
-    if (mode === 'polygon' && polygonPoints.length > 0) {
-      setPolygonPoints(prev => prev.slice(0, -1));
-    } else if (mode === 'polyline' && polylinePoints.length > 0) {
+    if (mode === 'polyline' && polylinePoints.length > 0) {
       setPolylinePoints(prev => prev.slice(0, -1));
     } else if (mode === 'point' && selectedPoint) {
       setSelectedPoint(null);
@@ -197,9 +180,8 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   // Handle clear action
   const handleClear = () => {
     // Clear the current drawing based on the mode
-    if (mode === 'polygon') {
-      setPolygonPoints([]);
-    } else if (mode === 'polyline') {
+
+    if (mode === 'polyline') {
       setPolylinePoints([]);
     } else if (mode === 'point') {
       setSelectedPoint(null);
@@ -211,24 +193,22 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     setTimeout(() => prepareDrawingsForSave(), 0);
   };
   
-  const lastPolygonPoint = polygonPoints.length > 0 ? polygonPoints[polygonPoints.length - 1] : null;
   const lastPolylinePoint = polylinePoints.length > 0 ? polylinePoints[polylinePoints.length - 1] : null;
   
-  const validPolygonPoints = polygonPoints.filter(point => point && point.lat && point.lng);
   const validPolylinePoints = polylinePoints.filter(point => point && point.lat && point.lng);
   
   return (
     <div style={{ height: '100vh', position: 'relative' }}>
       {/* Mode Selector buttons */}
       <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000, display: 'flex', flexDirection: 'column', border: '1px solid #ccc',}}>
-        {['point', 'polygon', 'polyline'].map((type) => (
+        {['point','polyline'].map((type) => (
           <button
             key={type}
             onClick={(e) => {
               e.preventDefault();
               setMode(type);
             }}
-            title={type === 'point' ? 'Place a marker' : type === 'polygon' ? 'Draw a polygon' : 'Draw a polyline'}
+            title={type === 'point' ? 'Place a marker' : 'Draw a polyline'}
             style={{
               width: '40px', height: '40px', borderRadius: '5%', border: 'none',
               background: mode === type ? '#F04642' : '#F7FEBE', color: mode === type ? 'white' : '#233438',
@@ -236,28 +216,24 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
               cursor: 'pointer', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)'
             }}
           >
-            <FontAwesomeIcon icon={type === 'point' ? faMapMarkerAlt : type === 'polygon' ? faDrawPolygon : faPencilAlt} />
-          </button>
+      <FontAwesomeIcon icon={type === 'point' ? faMapMarkerAlt : faPencilAlt} />          </button>
         ))}
         {/* Undo button */} 
         <button
           onClick={handleUndo}
           disabled={!(
-            (mode === 'polygon' && polygonPoints.length > 0) || 
             (mode === 'polyline' && polylinePoints.length > 0) || 
             (mode === 'point' && selectedPoint)
           )}
           title="Undo last action"
           style={{
             width: '40px', height: '40px', borderRadius: '5%', border: 'none',
-            background: (mode === 'polygon' && polygonPoints.length > 0) || 
-                      (mode === 'polyline' && polylinePoints.length > 0) || 
-                      (mode === 'point' && selectedPoint) ? '#00FF00' : '#ccc',
+            background:(mode === 'polyline' && polylinePoints.length > 0) || 
+                       (mode === 'point' && selectedPoint) ? '#00FF00' : '#ccc',
             color: 'white',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: (mode === 'polygon' && polygonPoints.length > 0) || 
-                  (mode === 'polyline' && polylinePoints.length > 0) || 
-                  (mode === 'point' && selectedPoint) ? 'pointer' : 'not-allowed',
+            cursor:(mode === 'polyline' && polylinePoints.length > 0) || 
+                   (mode === 'point' && selectedPoint) ? 'pointer' : 'not-allowed',
             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
             marginTop: '10px'
           }}
@@ -268,15 +244,13 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         <button
           onClick={handleClear}
           disabled={!(
-            (mode === 'polygon' && polygonPoints.length > 0) || 
             (mode === 'polyline' && polylinePoints.length > 0) || 
             (mode === 'point' && selectedPoint)
           )}
           title="Erase Current Drawing"
           style={{
             width: '40px', height: '40px', borderRadius: '5%', border: 'none',
-            background: (mode === 'polygon' && polygonPoints.length > 0) || 
-                      (mode === 'polyline' && polylinePoints.length > 0) || 
+            background:(mode === 'polyline' && polylinePoints.length > 0) || 
                       (mode === 'point' && selectedPoint) ? '#FFA500' : '#ccc',
             color: 'white',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -315,7 +289,6 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         <MapClickHandler 
           mode={mode} 
           setSelectedPoint={setSelectedPoint} 
-          setPolygonPoints={setPolygonPoints} 
           setPolylinePoints={setPolylinePoints} 
           onPositionChange={onPositionChange} 
         />
@@ -324,35 +297,11 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         <Marker position={[selectedPoint.lat, selectedPoint.lng]} />
       )}
 
-      {validPolygonPoints.length > 2 && (
-        <Polygon 
-          positions={validPolygonPoints.map(p => [p.lat, p.lng])}
-        />
-      )}
-
       {validPolylinePoints.length > 1 && (
         <Polyline 
           positions={validPolylinePoints.map(p => [p.lat, p.lng])}
         />
       )}
-
-        
-        {mode === 'polygon' && validPolygonPoints.map((point, index) => (
-          <Marker key={`polygon-${index}`} position={point} icon={squareIcon} />
-        ))}
-
-        {/* Draw Preview Line for Polygon */}
-        {mode === 'polygon' && lastPolygonPoint && lastPolygonPoint.lat && lastPolygonPoint.lng && 
-         hoverPosition && hoverPosition.lat && hoverPosition.lng && (
-          <Polyline positions={[lastPolygonPoint, hoverPosition]} color="red" weight={2} opacity={0.7} dashArray="5,10" />
-        )}
-
-        {/* Close Polygon Preview */}
-        {mode === 'polygon' && validPolygonPoints.length > 2 && 
-         validPolygonPoints[0] && validPolygonPoints[0].lat && validPolygonPoints[0].lng &&
-         hoverPosition && hoverPosition.lat && hoverPosition.lng && (
-          <Polyline positions={[hoverPosition, validPolygonPoints[0]]} color="red" weight={2} opacity={0.5} dashArray="5,10" />
-        )}
 
         {/* Draw Polyline */}
         {validPolylinePoints.length > 1 && (

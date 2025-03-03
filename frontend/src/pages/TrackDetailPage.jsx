@@ -4,7 +4,7 @@ import axios from "axios";
 import { jwtDecode } from 'jwt-decode';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
-import { MapContainer, TileLayer, Marker, Polygon, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import { MapSelector } from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
@@ -35,16 +35,12 @@ export default function TrackDetailPage() {
     let mapCenter = [56.9496, 24.1052];
     if (track.coordinates) {
         mapCenter = [track.coordinates.coordinates[1], track.coordinates.coordinates[0]];
-    } else if (track.polygon?.coordinates?.[0]?.[0]) {
-        const [lng, lat] = track.polygon.coordinates[0][0];
-        mapCenter = [lat, lng];
     } else if (track.polyline?.coordinates?.[0]) {
         const [lng, lat] = track.polyline.coordinates[0];
         mapCenter = [lat, lng];
     }
     const [drawings, setDrawings] = useState({
         point: null,
-        polygon: null,
         polyline: null
     });
 
@@ -63,17 +59,12 @@ export default function TrackDetailPage() {
             
             const initialDrawings = {
                 point: null,
-                polygon: null,
                 polyline: null
             };
             
             if (trackData.coordinates?.coordinates) {
                 initialDrawings.point = [ trackData.coordinates.coordinates[1], trackData.coordinates.coordinates[0] ];
                 setCoordinates(initialDrawings.point);
-            }
-            
-            if (trackData.polygon?.coordinates?.[0]) {
-                initialDrawings.polygon = trackData.polygon.coordinates[0].map(coord => [coord[1], coord[0]]);
             }
             
             if (trackData.polyline?.coordinates) {
@@ -108,7 +99,6 @@ export default function TrackDetailPage() {
                 ...editValues,
                 availability,
                 coordinates: null,
-                polygon: null,
                 polyline: null
             };
     
@@ -116,13 +106,6 @@ export default function TrackDetailPage() {
                 updateData.coordinates = {
                     type: "Point",
                     coordinates: [drawings.point[1], drawings.point[0]] // [lng, lat]
-                };
-            }
-    
-            if (drawings.polygon && drawings.polygon.length >= 3) {
-                updateData.polygon = {
-                    type: "Polygon",
-                    coordinates: [drawings.polygon.map(([lat, lng]) => [lng, lat])]
                 };
             }
     
@@ -134,9 +117,9 @@ export default function TrackDetailPage() {
             }
     
             // Check if at least one geometry exists
-            const hasGeometry = updateData.coordinates || updateData.polygon || updateData.polyline;
+            const hasGeometry = updateData.coordinates || updateData.polyline;
             if (!hasGeometry) {
-                setError("At least one geometry (point, polygon, or polyline) is required.");
+                setError("At least one geometry (point or polyline) is required.");
                 return;
             }
     
@@ -303,7 +286,7 @@ return (
                 <p className="text-gray-300 leading-relaxed">{track.description}</p>
             </div>
         
-            {(track.coordinates || track.polygon || track.polyline) && !editMode && (
+            {(track.coordinates || track.polyline) && !editMode && (
                 <div className="z-0 h-96 w-full rounded overflow-hidden">
                     <MapContainer
                         center={mapCenter}
@@ -317,10 +300,6 @@ return (
                         
                         {track.coordinates && (
                             <Marker position={[track.coordinates.coordinates[1], track.coordinates.coordinates[0]]} />
-                        )}
-
-                        {track.polygon?.coordinates && (
-                            <Polygon positions={track.polygon.coordinates[0].map(coord => [coord[1], coord[0]])} />
                         )}
 
                         {track.polyline?.coordinates && (
