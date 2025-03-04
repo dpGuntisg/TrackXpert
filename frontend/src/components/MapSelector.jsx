@@ -1,4 +1,4 @@
-import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap, Popup, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useState, useEffect, useRef } from 'react';
@@ -20,6 +20,8 @@ const squareIcon = L.divIcon({
   html: "<div style='width: 12px; height: 12px; background: red; opacity: 0.8;'></div>",
   iconSize: [12, 12],
 });
+
+
 
 // Search component 
 const SearchControl = ({ position }) => {
@@ -51,6 +53,8 @@ const SearchControl = ({ position }) => {
   return null;
 };
 
+
+
 // function to convert array coordinates to L.LatLng objects
 const arrayToLatLng = (coord) => {
   if (!coord || !Array.isArray(coord) || coord.length < 2 || 
@@ -78,6 +82,16 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     point: null,
     polyline: null
   });
+
+
+  const calculatePolylineLength = (points) => {
+    if (points.length < 2) return 0;
+    let total = 0;
+    for (let i = 1; i < points.length; i++) {
+      total += points[i-1].distanceTo(points[i]);
+    }
+    return total;
+  };
   
   // Flag to prevent initialDrawings from overriding local state after user edits
   const initializedRef = useRef(false);
@@ -134,16 +148,17 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   };
 
   // Map click handler component
-  const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints, onPositionChange }) => {
+  const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints }) => {
+    const map = useMap();
+    useEffect(() => {
+      map.getContainer().style.cursor = mode !== 'default' ? 'crosshair' : 'auto';
+    }, [mode, map]);
+  
     useMapEvents({
       click(e) {
         const clickedCoord = e.latlng;
-  
         if (mode === 'point') {
           setSelectedPoint(clickedCoord);
-          if (onPositionChange && clickedCoord) {
-            onPositionChange([clickedCoord.lat, clickedCoord.lng]);
-          }
         } else if (mode === 'polyline') {
           setPolylinePoints(prev => [...prev, clickedCoord]);
         }
@@ -193,10 +208,9 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     setTimeout(() => prepareDrawingsForSave(), 0);
   };
   
+  
   const lastPolylinePoint = polylinePoints.length > 0 ? polylinePoints[polylinePoints.length - 1] : null;
-  
-  const validPolylinePoints = polylinePoints.filter(point => point && point.lat && point.lng);
-  
+    
   return (
     <div style={{ height: '100vh', position: 'relative' }}>
       {/* Mode Selector buttons */}
@@ -281,10 +295,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
       {/* Map Container - Use key based on initializedRef to prevent re-rendering */}
       <MapContainer key={initializedRef.current ? 'initialized' : 'unintialized'} center={mapCenter} zoom={6} style={{ height: '100vh', width: '100%' }}>
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap contributors' />
-        
-        {/* Search Control */}
         <SearchControl position="topleft" />
-
         <MapHoverHandler setHoverPosition={setHoverPosition} />
         <MapClickHandler 
           mode={mode} 
@@ -297,26 +308,27 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         <Marker position={[selectedPoint.lat, selectedPoint.lng]} />
       )}
 
-      {validPolylinePoints.length > 1 && (
-        <Polyline 
-          positions={validPolylinePoints.map(p => [p.lat, p.lng])}
-        />
-      )}
+    {polylinePoints.length > 1 && (
+      <Polyline positions={polylinePoints.filter(p => p?.lat && p?.lng)}>
+        <Tooltip permanent direction="top" opacity={0.8} style={{ pointerEvents: 'none' }}>
+          Total length: {(calculatePolylineLength(polylinePoints) / 1000).toFixed(2)} km
+        </Tooltip>
+      </Polyline>
+    )}
 
-        {/* Draw Polyline */}
-        {validPolylinePoints.length > 1 && (
-          <Polyline positions={validPolylinePoints} />
-        )}
-        
-        {mode === 'polyline' && validPolylinePoints.map((point, index) => (
-          <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
-        ))}
+      {mode === 'polyline' && polylinePoints.filter(p => p?.lat && p?.lng).map((point, index) => (
+        <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
+      ))}
 
         {/* Draw Preview Line for Polyline */}
         {mode === 'polyline' && lastPolylinePoint && lastPolylinePoint.lat && lastPolylinePoint.lng &&
          hoverPosition && hoverPosition.lat && hoverPosition.lng && (
           <Polyline positions={[lastPolylinePoint, hoverPosition]} color="red" weight={2} opacity={0.7} dashArray="5,10" />
         )}
+
+      {mode === 'polyline' && lastPolylinePoint && hoverPosition && (
+        <Marker position={hoverPosition} icon={squareIcon}></Marker>
+      )}
       </MapContainer>
     </div>
   );

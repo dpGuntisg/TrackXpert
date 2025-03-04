@@ -86,8 +86,8 @@ function Navbar() {
                                           sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent ">HOME</button> </NavLink>
             <NavLink to="/tracks"> <button className="relative overflow-hidden hover:bg-mainRed w-full text-left rounded transition-all duration-500
                                                 sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent  ">TRACKS</button> </NavLink>
-            <NavLink to="/leaderboard"> <button className="relative overflow-hidden hover:bg-mainRed w-full text-left rounded transition-all duration-500
-                                                      sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent">LEADERBOARD</button> </NavLink>
+            <NavLink to="/events"> <button className="relative overflow-hidden hover:bg-mainRed w-full text-left rounded transition-all duration-500
+                                                      sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent">EVENTS</button> </NavLink>
             {isUserLoggedIn() && (
               <NavLink to="/profile"> <button className="relative overflow-hidden hover:bg-mainRed w-full text-left rounded transition-all duration-500
                                                       sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent">PROFILE</button> </NavLink>
