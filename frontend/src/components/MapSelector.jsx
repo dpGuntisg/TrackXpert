@@ -1,13 +1,14 @@
-import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap, Popup, Tooltip } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMapMarkerAlt, faPencilAlt, faRotateLeft, faTrash, faSave} from '@fortawesome/free-solid-svg-icons';
+import { faMapMarkerAlt, faPencilAlt, faRotateLeft, faTrash, faSave } from '@fortawesome/free-solid-svg-icons';
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import 'leaflet-geosearch/dist/geosearch.css';
 import './MapSelector.css';
 
+// Override default icon settings for leaflet markers
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -15,262 +16,159 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
+// Custom icon for polyline points (square red icon)
 const squareIcon = L.divIcon({
   className: 'custom-square-icon',
   html: "<div style='width: 12px; height: 12px; background: red; opacity: 0.8;'></div>",
   iconSize: [12, 12],
 });
 
-
-
-// Search component 
+// Search control component for the map, allows users to search by location
 const SearchControl = ({ position }) => {
   const map = useMap();
   
   useEffect(() => {
     const provider = new OpenStreetMapProvider();
-
     const searchControl = new GeoSearchControl({
       provider,
       style: 'bar',
       showMarker: true,
       showPopup: false,
       autoClose: true,
-      retainZoomLevel: false,
-      animateZoom: true,
-      keepResult: true,
       searchLabel: 'Search for address',
       className: 'custom-search-control',
     });
 
     map.addControl(searchControl);
-
-    return () => {
-      map.removeControl(searchControl);
-    };
+    return () => map.removeControl(searchControl);
   }, [map]);
 
   return null;
 };
 
+// Handles map click events, depending on mode (point or polyline)
+const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints }) => {
+  const map = useMap();
+  useEffect(() => {
+    // Change cursor based on the current mode
+    map.getContainer().style.cursor = mode !== 'default' ? 'crosshair' : 'auto';
+  }, [mode, map]);
 
-
-// function to convert array coordinates to L.LatLng objects
-const arrayToLatLng = (coord) => {
-  if (!coord || !Array.isArray(coord) || coord.length < 2 || 
-      typeof coord[0] !== 'number' || typeof coord[1] !== 'number') {
-    return null;
-  }
-  return L.latLng(coord[0], coord[1]);
-};
-
-// function to convert array of array coordinates to array of L.LatLng objects
-const arrayToLatLngArray = (coords) => {
-  if (!coords || !Array.isArray(coords)) {
-    return [];
-  }
-  return coords.map(coord => arrayToLatLng(coord)).filter(coord => coord !== null);
-};
-
-export const MapSelector = ({ position, onPositionChange, initialDrawings = null, onDrawingsChange }) => {
-  const [mode, setMode] = useState('point');
-  const [selectedPoint, setSelectedPoint] = useState(null);
-  const [polylinePoints, setPolylinePoints] = useState([]);
-  const [hoverPosition, setHoverPosition] = useState(null);
-  
-  const drawingsRef = useRef({
-    point: null,
-    polyline: null
+  // Map event to handle click actions based on the selected mode
+  useMapEvents({
+    click(e) {
+      const clickedCoord = e.latlng;
+      if (mode === 'point') setSelectedPoint(clickedCoord);
+      if (mode === 'polyline') setPolylinePoints(prev => [...prev, clickedCoord]);
+    }
   });
 
+  return null;
+};
 
-  const calculatePolylineLength = (points) => {
-    if (points.length < 2) return 0;
-    let total = 0;
-    for (let i = 1; i < points.length; i++) {
-      total += points[i-1].distanceTo(points[i]);
-    }
-    return total;
-  };
-  
-  // Flag to prevent initialDrawings from overriding local state after user edits
-  const initializedRef = useRef(false);
-  
-  const mapCenter = position && Array.isArray(position) && position.length >= 2 ? 
-    position : [56.9496, 24.1052];
+// Handles map hover events and updates the hover position
+const MapHoverHandler = ({ setHoverPosition }) => {
+  useMapEvents({
+    mousemove(e) { setHoverPosition(e.latlng); },
+    mouseout() { setHoverPosition(null); },
+  });
 
-  // Effect to sync initialDrawings with local state - only run once
+  return null;
+};
+
+// Main component for map selection with point and polyline drawing functionalities
+export const MapSelector = ({ position, onPositionChange, initialDrawings = null, onDrawingsChange }) => {
+  const [mode, setMode] = useState('point');  // Mode can be 'point' or 'polyline'
+  const [selectedPoint, setSelectedPoint] = useState(null);  // Selected point coordinates
+  const [polylinePoints, setPolylinePoints] = useState([]);  // Points for polyline
+  const [hoverPosition, setHoverPosition] = useState(null);  // Position of mouse hover
+
+  const initializedRef = useRef(false);  // Ref to track initialization state
+  const drawingsRef = useRef({ point: null, polyline: null });  // Ref to store drawings for saving
+
+  // Default map center if no position is provided
+  const mapCenter = position && position.length >= 2 ? position : [56.9496, 24.1052];
+
   useEffect(() => {
+    // Initialize map with existing drawings if available
     if (!initialDrawings || initializedRef.current) return;
-    
-    try {
-      if (initialDrawings.point) {
-        setSelectedPoint(L.latLng(initialDrawings.point[0], initialDrawings.point[1]));
-      }
-      
-      if (initialDrawings.polyline) {
-        const polylineLatLngs = initialDrawings.polyline.map(([lat, lng]) => 
-          L.latLng(lat, lng)
-        );
-        setPolylinePoints(polylineLatLngs);
-      }
-      
-      // Update the ref to match initial state
-      drawingsRef.current = {
-        point: initialDrawings.point,
-        polyline: initialDrawings.polyline
-      };
-      
-      initializedRef.current = true;
-    } catch (error) {
-      console.error("Error initializing drawings:", error);
+
+    if (initialDrawings.point) setSelectedPoint(L.latLng(initialDrawings.point[0], initialDrawings.point[1]));
+    if (initialDrawings.polyline) {
+      const polylineLatLngs = initialDrawings.polyline.map(([lat, lng]) => L.latLng(lat, lng));
+      setPolylinePoints(polylineLatLngs);
     }
+
+    drawingsRef.current = { point: initialDrawings.point, polyline: initialDrawings.polyline };
+    initializedRef.current = true;
   }, [initialDrawings]);
 
+  // Prepares drawings for saving and triggers the callback
   const prepareDrawingsForSave = () => {
-    // Get current state of drawings from component state
     const drawings = {
       point: selectedPoint ? [selectedPoint.lat, selectedPoint.lng] : null,
-      polyline: polylinePoints.length > 1 ? 
-        polylinePoints.map(p => [p.lat, p.lng]) : 
-        null
+      polyline: polylinePoints.length > 1 ? polylinePoints.map(p => [p.lat, p.lng]) : null,
     };
-  
-    // Update ref with current state
     drawingsRef.current = drawings;
-    
-    // notify parent of the current state
-    if (onDrawingsChange) {
-      onDrawingsChange(drawings);
-    }
-  
+    if (onDrawingsChange) onDrawingsChange(drawings);
     return drawings;
   };
 
-  // Map click handler component
-  const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints }) => {
-    const map = useMap();
-    useEffect(() => {
-      map.getContainer().style.cursor = mode !== 'default' ? 'crosshair' : 'auto';
-    }, [mode, map]);
-  
-    useMapEvents({
-      click(e) {
-        const clickedCoord = e.latlng;
-        if (mode === 'point') {
-          setSelectedPoint(clickedCoord);
-        } else if (mode === 'polyline') {
-          setPolylinePoints(prev => [...prev, clickedCoord]);
-        }
-      }
-    });
-    return null;
-  };
-  
-  // Map hover handler component
-  const MapHoverHandler = ({ setHoverPosition }) => {
-    useMapEvents({
-      mousemove(e) {
-        setHoverPosition(e.latlng);
-      },
-      mouseout() {
-        setHoverPosition(null);
-      }
-    });
-    return null;
-  };
-  
-  // Handle undo action
+  // Undo the last action, either removing the last point or polyline point
   const handleUndo = () => {
     if (mode === 'polyline' && polylinePoints.length > 0) {
       setPolylinePoints(prev => prev.slice(0, -1));
     } else if (mode === 'point' && selectedPoint) {
       setSelectedPoint(null);
-      if (onPositionChange) {
-        onPositionChange(null);
-      }
+      if (onPositionChange) onPositionChange(null);
     }
   };
-  
-  // Handle clear action
-  const handleClear = () => {
-    // Clear the current drawing based on the mode
 
-    if (mode === 'polyline') {
-      setPolylinePoints([]);
-    } else if (mode === 'point') {
+  // Clear current drawing (either point or polyline)
+  const handleClear = () => {
+    if (mode === 'polyline') setPolylinePoints([]);
+    if (mode === 'point') {
       setSelectedPoint(null);
-      if (onPositionChange) {
-        onPositionChange(null);
-      }
+      if (onPositionChange) onPositionChange(null);
     }
-    
     setTimeout(() => prepareDrawingsForSave(), 0);
   };
-  
-  
-  const lastPolylinePoint = polylinePoints.length > 0 ? polylinePoints[polylinePoints.length - 1] : null;
-    
+
+  // Get the last point of the polyline (for drawing new lines)
+  const lastPolylinePoint = polylinePoints[polylinePoints.length - 1];
+
   return (
     <div style={{ height: '100vh', position: 'relative' }}>
-      {/* Mode Selector buttons */}
-      <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000, display: 'flex', flexDirection: 'column', border: '1px solid #ccc',}}>
-        {['point','polyline'].map((type) => (
+      {/* Control panel for switching modes and performing actions */}
+      <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
+        {/* Point and Polyline mode buttons */}
+        {['point', 'polyline'].map(type => (
           <button
             key={type}
-            onClick={(e) => {
-              e.preventDefault();
-              setMode(type);
-            }}
+            onClick={() => setMode(type)}
             title={type === 'point' ? 'Place a marker' : 'Draw a polyline'}
-            style={{
-              width: '40px', height: '40px', borderRadius: '5%', border: 'none',
-              background: mode === type ? '#F04642' : '#F7FEBE', color: mode === type ? 'white' : '#233438',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)'
-            }}
+            className={`button mode-button ${mode === type ? 'active' : ''}`}
           >
-      <FontAwesomeIcon icon={type === 'point' ? faMapMarkerAlt : faPencilAlt} />          </button>
+            <FontAwesomeIcon icon={type === 'point' ? faMapMarkerAlt : faPencilAlt} />
+          </button>
         ))}
-        {/* Undo button */} 
+        
+        {/* Undo button */}
         <button
           onClick={handleUndo}
-          disabled={!(
-            (mode === 'polyline' && polylinePoints.length > 0) || 
-            (mode === 'point' && selectedPoint)
-          )}
+          disabled={!((mode === 'polyline' && polylinePoints.length > 0) || (mode === 'point' && selectedPoint))}
           title="Undo last action"
-          style={{
-            width: '40px', height: '40px', borderRadius: '5%', border: 'none',
-            background:(mode === 'polyline' && polylinePoints.length > 0) || 
-                       (mode === 'point' && selectedPoint) ? '#00FF00' : '#ccc',
-            color: 'white',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor:(mode === 'polyline' && polylinePoints.length > 0) || 
-                   (mode === 'point' && selectedPoint) ? 'pointer' : 'not-allowed',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-            marginTop: '10px'
-          }}
+          className={`button undo ${((mode === 'polyline' && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)) ? 'active' : ''}`}
         >
           <FontAwesomeIcon icon={faRotateLeft} />
         </button>
-        
+
+        {/* Clear button */}
         <button
           onClick={handleClear}
-          disabled={!(
-            (mode === 'polyline' && polylinePoints.length > 0) || 
-            (mode === 'point' && selectedPoint)
-          )}
+          disabled={!((mode === 'polyline' && polylinePoints.length > 0) || (mode === 'point' && selectedPoint))}
           title="Erase Current Drawing"
-          style={{
-            width: '40px', height: '40px', borderRadius: '5%', border: 'none',
-            background:(mode === 'polyline' && polylinePoints.length > 0) || 
-                      (mode === 'point' && selectedPoint) ? '#FFA500' : '#ccc',
-            color: 'white',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-          }}
+          className={`button clear ${((mode === 'polyline' && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)) ? 'active' : ''}`}
         >
           <FontAwesomeIcon icon={faTrash} />
         </button>
@@ -279,56 +177,44 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         <button
           onClick={prepareDrawingsForSave}
           title="Save All Drawings"
-          style={{
-            width: '40px', height: '40px', borderRadius: '5%', border: 'none',
-            background: '#4169E1',
-            color: 'white',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer',
-            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)',
-          }}
+          className="button save"
         >
           <FontAwesomeIcon icon={faSave} />
         </button>
       </div>
 
-      {/* Map Container - Use key based on initializedRef to prevent re-rendering */}
-      <MapContainer key={initializedRef.current ? 'initialized' : 'unintialized'} center={mapCenter} zoom={6} style={{ height: '100vh', width: '100%' }}>
-        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap contributors' />
-        <SearchControl position="topleft" />
+
+      {/* Leaflet map container */}
+      <MapContainer center={mapCenter} zoom={6} style={{ height: '100vh', width: '100%' }}>
+        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+        <SearchControl />
         <MapHoverHandler setHoverPosition={setHoverPosition} />
-        <MapClickHandler 
-          mode={mode} 
-          setSelectedPoint={setSelectedPoint} 
-          setPolylinePoints={setPolylinePoints} 
-          onPositionChange={onPositionChange} 
-        />
+        <MapClickHandler mode={mode} setSelectedPoint={setSelectedPoint} setPolylinePoints={setPolylinePoints} />
 
-      {selectedPoint && selectedPoint.lat && selectedPoint.lng && (
-        <Marker position={[selectedPoint.lat, selectedPoint.lng]} />
-      )}
-
-    {polylinePoints.length > 1 && (
-      <Polyline positions={polylinePoints.filter(p => p?.lat && p?.lng)}>
-        <Tooltip permanent direction="top" opacity={0.8} style={{ pointerEvents: 'none' }}>
-          Total length: {(calculatePolylineLength(polylinePoints) / 1000).toFixed(2)} km
-        </Tooltip>
-      </Polyline>
-    )}
-
-      {mode === 'polyline' && polylinePoints.filter(p => p?.lat && p?.lng).map((point, index) => (
-        <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
-      ))}
-
-        {/* Draw Preview Line for Polyline */}
-        {mode === 'polyline' && lastPolylinePoint && lastPolylinePoint.lat && lastPolylinePoint.lng &&
-         hoverPosition && hoverPosition.lat && hoverPosition.lng && (
-          <Polyline positions={[lastPolylinePoint, hoverPosition]} color="red" weight={2} opacity={0.7} dashArray="5,10" />
+        {/* Display selected point as marker */}
+        {selectedPoint && <Marker position={selectedPoint} />}
+        
+        {/* Display polyline and tooltip for total length */}
+        {polylinePoints.length > 1 && (
+          <Polyline positions={polylinePoints}>
+            <Tooltip permanent direction="top" opacity={0.8}>
+              Total length: {(polylinePoints.reduce((total, point, index) => index > 0 ? total + point.distanceTo(polylinePoints[index - 1]) : total, 0) / 1000).toFixed(2)} km
+            </Tooltip>
+          </Polyline>
         )}
 
-      {mode === 'polyline' && lastPolylinePoint && hoverPosition && (
-        <Marker position={hoverPosition} icon={squareIcon}></Marker>
-      )}
+        {/* Display polyline points as red square markers */}
+        {mode === 'polyline' && polylinePoints.map((point, index) => (
+          <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
+        ))}
+        
+        {/* Display line connecting the last polyline point to the hover position */}
+        {mode === 'polyline' && lastPolylinePoint && hoverPosition && (
+          <>
+            <Polyline positions={[lastPolylinePoint, hoverPosition]} color="red" weight={2} opacity={0.7} dashArray="5,10" />
+            <Marker position={hoverPosition} icon={squareIcon} />
+          </>
+        )}
       </MapContainer>
     </div>
   );

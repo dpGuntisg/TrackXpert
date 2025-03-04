@@ -36,3 +36,54 @@
     margin: 15px !important;
     z-index: 1000 !important;
   }
+
+  /* Button base styles */
+.button {
+  width: 40px;
+  height: 40px;
+  border-radius: 5%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Point and Polyline mode button styles */
+.button.mode-button {
+  background: #F7FEBE;
+  color: #233438;
+}
+
+.button.mode-button.active {
+  background: #F04642;
+  color: white;
+}
+
+/* Undo button styles */
+.button.undo {
+  margin-top: 10px;
+  background: #ccc;
+  color: white;
+}
+
+.button.undo.active {
+  background: #00FF00;
+}
+
+/* Clear button styles */
+.button.clear {
+  background: #ccc;
+  color: white;
+}
+
+.button.clear.active {
+  background: #FFA500;
+}
+
+/* Save button styles */
+.button.save {
+  background: #4169E1;
+  color: white;
+}
