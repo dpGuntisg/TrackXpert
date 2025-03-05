@@ -5,7 +5,7 @@ import { jwtDecode } from 'jwt-decode';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
-import { MapSelector } from '../components/MapSelector';
+import { MapSelector, startIcon} from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
 
@@ -302,9 +302,12 @@ return (
                             <Marker position={[track.coordinates.coordinates[1], track.coordinates.coordinates[0]]} />
                         )}
 
-                        {track.polyline?.coordinates && (
+                    {track.polyline?.coordinates && (
+                        <>
                             <Polyline positions={track.polyline.coordinates.map(coord => [coord[1], coord[0]])} />
-                        )}
+                            <Marker position={[track.polyline.coordinates[0][1], track.polyline.coordinates[0][0]]} icon={startIcon}/>
+                        </>
+                    )}
                         
                     </MapContainer>
                 </div>

@@ -24,12 +24,18 @@ const squareIcon = L.divIcon({
 });
 
 // Custom icon for start point
-const startIcon = L.divIcon({
+export const startIcon = L.divIcon({
   className: 'custom-start-icon',
-  html: "<div style='font-size: 16px; color: blue;'>🚩</div>",
+  html: "<div style='font-size: 20px; color: blue;'>🚩</div>",
   iconSize: [20, 20],
 });
 
+// Custom icon for end point
+const endIcon = L.divIcon({
+  className: 'custom-end-icon',
+  html: "<div style='font-size: 16px;'>🏁</div>",
+  iconSize: [20, 20],
+});
 
 // Search control component for the map, allows users to search by location
 const SearchControl = ({ position }) => {
@@ -115,7 +121,8 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const [selectedPoint, setSelectedPoint] = useState(null);  // Selected point coordinates
   const [polylinePoints, setPolylinePoints] = useState([]);  // Points for polyline
   const [hoverPosition, setHoverPosition] = useState(null);  // Position of mouse hover
-  const [startPoint, setStartPoint] = useState(null);
+  const [startPoint, setStartPoint] = useState(null); //polyline starting point
+  const [endPoint, setEndPoint] = useState(null); //polyline end point
 
   const initializedRef = useRef(false);  // Ref to track initialization state
   const drawingsRef = useRef({ point: null, polyline: null });  // Ref to store drawings for saving
@@ -149,10 +156,14 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   };
 
   useEffect(() => {
-    if (polylinePoints.length === 1 && !startPoint) {
-      setStartPoint(polylinePoints[0]);
+    if (polylinePoints.length > 0) {
+      setStartPoint(polylinePoints[0]); // First point of the polyline
+    } else {
+      setStartPoint(null); // Reset if polyline is cleared
     }
-  }, [polylinePoints, startPoint]);
+  }, [polylinePoints]);
+  
+  
 
   // Undo the last action, either removing the last point or polyline
   const handleUndo = () => {
@@ -179,6 +190,18 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     }
     setTimeout(() => prepareDrawingsForSave(), 0);
   };
+
+  const calculatePolylineLength = () => {
+    return polylinePoints.reduce((total, point, index) => {
+      if (index > 0) {
+        total += point.distanceTo(polylinePoints[index - 1]);
+      }
+      return total;
+    }, 0) / 1000; // Convert to kilometers
+  };
+
+  // Calculate and format the length in kilometers
+  const polylineLength = polylinePoints.length > 1 ? calculatePolylineLength().toFixed(2) : 0;
 
   // Get the last point of the polyline (for drawing new lines)
   const lastPolylinePoint = polylinePoints[polylinePoints.length - 1];
@@ -229,6 +252,15 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         </button>
       </div>
 
+      <div style={{ position: 'absolute', top: 350, left: 5, zIndex: 1000, display: 'flex', flexDirection: 'column', pointerEvents: 'none'}}>
+        {/* Display calculated length of polyline */}
+        {polylinePoints.length > 1 && (
+            <div className="length-display">
+              Length: {polylineLength} km
+            </div>
+        )}
+      </div>
+
 
       {/* Leaflet map container */}
       <MapContainer center={mapCenter} zoom={6} style={{ height: '100vh', width: '100%' }}>
@@ -240,12 +272,9 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         {/* Display selected point as marker */}
         {selectedPoint && <Marker position={selectedPoint} />}
         
-        {/* Display polyline and tooltip for total length */}
+        {/* Display polyline */}
         {polylinePoints.length > 1 && (
-          <Polyline positions={polylinePoints}>
-            <Tooltip permanent direction="top" opacity={0.8}>
-              Total length: {(polylinePoints.reduce((total, point, index) => index > 0 ? total + point.distanceTo(polylinePoints[index - 1]) : total, 0) / 1000).toFixed(2)} km
-            </Tooltip>
+          <Polyline positions={polylinePoints} color='#233438' >
           </Polyline>
         )}
 
