@@ -86,7 +86,7 @@ const FloatingTooltip = ({ position, text }) => {
 
 
 // Handles map click events, depending on mode (point or polyline)
-const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints }) => {
+const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints, polylinePoints, setIsClosed }) => {
   const map = useMap();
   useEffect(() => {
     // Change cursor based on the current mode
@@ -97,13 +97,31 @@ const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints }) => {
   useMapEvents({
     click(e) {
       const clickedCoord = e.latlng;
-      if (mode === 'point') setSelectedPoint(clickedCoord);
-      if (mode === 'polyline') setPolylinePoints(prev => [...prev, clickedCoord]);
+
+      if (mode === 'polyline') {
+        if (polylinePoints.length > 2) {
+          const firstPoint = polylinePoints[0];
+          const distance = clickedCoord.distanceTo(firstPoint);
+          
+          // Check if user clicked near the first point
+          if (distance < 10) { // Adjust sensitivity 
+            setPolylinePoints([...polylinePoints, firstPoint]); // Close the polyline
+            setIsClosed(true);
+            return;
+          }
+        }
+        setPolylinePoints(prev => [...prev, clickedCoord]);
+        setIsClosed(false);
+      }
+  
+      if (mode === 'point') {
+        setSelectedPoint(clickedCoord);
+      }
     }
   });
 
-  return null;
 };
+  
 
 // Handles map hover events and updates the hover position
 const MapHoverHandler = ({ setHoverPosition }) => {
@@ -123,6 +141,8 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const [hoverPosition, setHoverPosition] = useState(null);  // Position of mouse hover
   const [startPoint, setStartPoint] = useState(null); //polyline starting point
   const [endPoint, setEndPoint] = useState(null); //polyline end point
+  const [isClosed, setIsClosed] = useState(false);
+
 
   const initializedRef = useRef(false);  // Ref to track initialization state
   const drawingsRef = useRef({ point: null, polyline: null });  // Ref to store drawings for saving
@@ -267,7 +287,12 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <SearchControl />
         <MapHoverHandler setHoverPosition={setHoverPosition} />
-        <MapClickHandler mode={mode} setSelectedPoint={setSelectedPoint} setPolylinePoints={setPolylinePoints} />
+        <MapClickHandler mode={mode}
+          setSelectedPoint={setSelectedPoint}
+          setPolylinePoints={setPolylinePoints} 
+          polylinePoints={polylinePoints} 
+          setIsClosed={setIsClosed}
+        />
 
         {/* Display selected point as marker */}
         {selectedPoint && <Marker position={selectedPoint} />}
@@ -285,13 +310,20 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
           />
         )}
 
+        
+
         {startPoint && (
           <Marker position={startPoint} icon={startIcon}>
             <Tooltip permanent direction="right" offset={[10, 0]} opacity={0.8}>
-              Start Point
+              {isClosed
+                ? "Track is closed"
+                : polylinePoints.length > 2
+                ? "Click here to close the track"
+                : "Start Point"}
             </Tooltip>
           </Marker>
         )}
+
 
         {mode === 'point' && hoverPosition && (
           <>
