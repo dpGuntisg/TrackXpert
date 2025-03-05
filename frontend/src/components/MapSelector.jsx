@@ -23,6 +23,14 @@ const squareIcon = L.divIcon({
   iconSize: [12, 12],
 });
 
+// Custom icon for start point
+const startIcon = L.divIcon({
+  className: 'custom-start-icon',
+  html: "<div style='font-size: 16px; color: blue;'>🚩</div>",
+  iconSize: [20, 20],
+});
+
+
 // Search control component for the map, allows users to search by location
 const SearchControl = ({ position }) => {
   const map = useMap();
@@ -45,6 +53,31 @@ const SearchControl = ({ position }) => {
 
   return null;
 };
+
+const FloatingTooltip = ({ position, text }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!position) return;
+
+    const tooltip = L.tooltip({
+      permanent: true,
+      direction: "right",
+      offset: L.point(10, 0),
+      opacity: 0.8,
+    })
+      .setLatLng(position)
+      .setContent(text)
+      .addTo(map);
+
+    return () => {
+      map.removeLayer(tooltip);
+    };
+  }, [position, text, map]);
+
+  return null;
+};
+
 
 // Handles map click events, depending on mode (point or polyline)
 const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints }) => {
@@ -82,6 +115,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const [selectedPoint, setSelectedPoint] = useState(null);  // Selected point coordinates
   const [polylinePoints, setPolylinePoints] = useState([]);  // Points for polyline
   const [hoverPosition, setHoverPosition] = useState(null);  // Position of mouse hover
+  const [startPoint, setStartPoint] = useState(null);
 
   const initializedRef = useRef(false);  // Ref to track initialization state
   const drawingsRef = useRef({ point: null, polyline: null });  // Ref to store drawings for saving
@@ -114,19 +148,31 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     return drawings;
   };
 
-  // Undo the last action, either removing the last point or polyline point
+  useEffect(() => {
+    if (polylinePoints.length === 1 && !startPoint) {
+      setStartPoint(polylinePoints[0]);
+    }
+  }, [polylinePoints, startPoint]);
+
+  // Undo the last action, either removing the last point or polyline
   const handleUndo = () => {
     if (mode === 'polyline' && polylinePoints.length > 0) {
-      setPolylinePoints(prev => prev.slice(0, -1));
+      setPolylinePoints(prev => {
+        const newPoints = prev.slice(0, -1);
+        if (newPoints.length === 0) {
+          setStartPoint(null); // Clear start point if no polyline points remain
+        }
+        return newPoints;
+      });
     } else if (mode === 'point' && selectedPoint) {
       setSelectedPoint(null);
       if (onPositionChange) onPositionChange(null);
     }
-  };
+};
 
   // Clear current drawing (either point or polyline)
   const handleClear = () => {
-    if (mode === 'polyline') setPolylinePoints([]);
+    if (mode === 'polyline') setPolylinePoints([]); setStartPoint(null);
     if (mode === 'point') {
       setSelectedPoint(null);
       if (onPositionChange) onPositionChange(null);
@@ -203,16 +249,40 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
           </Polyline>
         )}
 
+        {/* Display tooltip for polyline drawing */}
+        {mode === 'polyline' && polylinePoints.length < 1 && hoverPosition && (
+          <FloatingTooltip position={hoverPosition} 
+            text="Click on the map to place a point." 
+          />
+        )}
+
+        {startPoint && (
+          <Marker position={startPoint} icon={startIcon}>
+            <Tooltip permanent direction="right" offset={[10, 0]} opacity={0.8}>
+              Start Point
+            </Tooltip>
+          </Marker>
+        )}
+
+        {mode === 'point' && hoverPosition && (
+          <>
+            <Marker position={hoverPosition}>
+              <Tooltip permanent direction="right" offset={[10, 0]} opacity={0.8}>
+                Click on the map to place a point.
+              </Tooltip>
+            </Marker>
+          </>
+        )}
+
         {/* Display polyline points as red square markers */}
         {mode === 'polyline' && polylinePoints.map((point, index) => (
-          <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
+          index > 0 && <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
         ))}
         
         {/* Display line connecting the last polyline point to the hover position */}
         {mode === 'polyline' && lastPolylinePoint && hoverPosition && (
           <>
             <Polyline positions={[lastPolylinePoint, hoverPosition]} color="red" weight={2} opacity={0.7} dashArray="5,10" />
-            <Marker position={hoverPosition} icon={squareIcon} />
           </>
         )}
       </MapContainer>
