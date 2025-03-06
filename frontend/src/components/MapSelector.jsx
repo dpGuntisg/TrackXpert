@@ -44,6 +44,7 @@ const controlPointIcon = L.divIcon({
   iconSize: [10, 10],
 });
 
+
 // Search control component for the map, allows users to search by location
 const SearchControl = ({ position }) => {
   const map = useMap();
@@ -218,6 +219,8 @@ const MapHoverHandler = ({
 
   return null;
 };
+
+
 
 // Main component for map selection with point, polyline, and bezier curve functionalities
 export const MapSelector = ({ position, onPositionChange, initialDrawings = null, onDrawingsChange }) => {
@@ -549,16 +552,31 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         )}
 
         {startPoint && (
-          <Marker position={startPoint} icon={startIcon}>
-            <Tooltip permanent direction="right" offset={[10, 0]} opacity={0.8}>
-              {isClosed
-                ? "Track is closed"
-                : polylinePoints.length > 2
-                ? "Click here to close the track"
-                : "Start Point"}
-            </Tooltip>
-          </Marker>
+          <>
+            <Marker position={startPoint} icon={startIcon}>
+              <Tooltip permanent direction="right" offset={[10, 0]} opacity={0.8}>
+                {isClosed
+                  ? "Track is closed"
+                  : polylinePoints.length > 2
+                  ? "Click here to close the track"
+                  : "Start Point"}
+              </Tooltip>
+            </Marker>
+
+            {polylinePoints.length > 2 && !isClosed && (
+              <Marker
+                position={startPoint}
+                icon={L.divIcon({
+                  className: 'start-circle-icon',
+                  html: `<div style="width: 20px; height: 20px; background: rgba(0, 0, 255, 0.3); border-radius: 50%; border: 2px solid blue;"></div>`,
+                  iconSize: [20, 20],
+                  iconAnchor: [10, 10], 
+                })}
+              />
+            )}
+          </>
         )}
+
 
         {mode === 'point' && hoverPosition && (
           <>
