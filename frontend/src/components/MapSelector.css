@@ -52,6 +52,11 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+.button:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+
 /* Point and Polyline mode button styles */
 .button.mode-button {
   background: #F7FEBE;
@@ -63,11 +68,12 @@
   color: white;
 }
 
+
 /* Undo button styles */
 .button.undo {
   margin-top: 10px;
   background: #ccc;
-  color: white;
+  color: #233438;
 }
 
 .button.undo.active {
@@ -77,7 +83,7 @@
 /* Clear button styles */
 .button.clear {
   background: #ccc;
-  color: white;
+  color: #233438;
 }
 
 .button.clear.active {
@@ -87,7 +93,12 @@
 /* Save button styles */
 .button.save {
   background: #4169E1;
-  color: white;
+  color: #233438;
+}
+
+.button.fullscreen {
+  background: #4169E1;
+  color: #233438;
 }
 
 .custom-square-icon {

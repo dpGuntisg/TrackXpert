@@ -3,7 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMapMarkerAlt, faPencilAlt, faRotateLeft, faTrash, faSave } from '@fortawesome/free-solid-svg-icons';
+import { faMapMarkerAlt, faPencilAlt, faRotateLeft, faTrash, faSave, faExpand, faCompress } from '@fortawesome/free-solid-svg-icons';
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import 'leaflet-geosearch/dist/geosearch.css';
 import './MapSelector.css';
@@ -122,7 +122,6 @@ const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints, polylinePo
 
 };
   
-
 // Handles map hover events and updates the hover position
 const MapHoverHandler = ({ setHoverPosition }) => {
   useMapEvents({
@@ -142,13 +141,72 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const [startPoint, setStartPoint] = useState(null); //polyline starting point
   const [endPoint, setEndPoint] = useState(null); //polyline end point
   const [isClosed, setIsClosed] = useState(false);
-
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const mapContainerRef = useRef(null);
 
   const initializedRef = useRef(false);  // Ref to track initialization state
   const drawingsRef = useRef({ point: null, polyline: null });  // Ref to store drawings for saving
 
   // Default map center if no position is provided
   const mapCenter = position && position.length >= 2 ? position : [56.9496, 24.1052];
+  
+
+  // Handle fullscreen toggle
+  const toggleFullscreen = () => {
+    if (!isFullscreen) {
+      // Enter fullscreen
+      const element = mapContainerRef.current;
+      if (element) {
+        if (element.requestFullscreen) {
+          element.requestFullscreen();
+        } else if (element.mozRequestFullScreen) {
+          element.mozRequestFullScreen();
+        } else if (element.webkitRequestFullscreen) {
+          element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) {
+          element.msRequestFullscreen();
+        }
+      }
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+    }
+    setIsFullscreen(!isFullscreen);
+  };
+  
+  // Listen for fullscreen change events
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isInFullscreen = (
+        document.fullscreenElement || 
+        document.webkitFullscreenElement || 
+        document.mozFullScreenElement || 
+        document.msFullscreenElement
+      );
+      
+      setIsFullscreen(!!isInFullscreen);
+    };
+    
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+    };
+  }, []);
 
   useEffect(() => {
     // Initialize map with existing drawings if available
@@ -183,8 +241,6 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     }
   }, [polylinePoints]);
   
-  
-
   // Undo the last action, either removing the last point or polyline
   const handleUndo = () => {
     if (mode === 'polyline' && polylinePoints.length > 0) {
@@ -199,11 +255,14 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
       setSelectedPoint(null);
       if (onPositionChange) onPositionChange(null);
     }
-};
+  };
 
   // Clear current drawing (either point or polyline)
   const handleClear = () => {
-    if (mode === 'polyline') setPolylinePoints([]); setStartPoint(null);
+    if (mode === 'polyline') {
+      setPolylinePoints([]);
+      setStartPoint(null);
+    }
     if (mode === 'point') {
       setSelectedPoint(null);
       if (onPositionChange) onPositionChange(null);
@@ -226,10 +285,31 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   // Get the last point of the polyline (for drawing new lines)
   const lastPolylinePoint = polylinePoints[polylinePoints.length - 1];
 
+  // Apply responsive classes for fullscreen mode
+  const mapContainerStyle = {
+    height: isFullscreen ? '100%' : '100vh',
+    width: '100%',
+    position: 'relative'
+  };
+
+  // Control panel position adjustment for mobile
+  const controlPanelStyle = {
+    position: 'absolute',
+    top: '10px',
+    right:'10px',
+    zIndex: 1000,
+    display: 'flex',
+    flexDirection: 'column',
+  };
+
   return (
-    <div style={{ height: '100vh', position: 'relative' }}>
+    <div 
+      ref={mapContainerRef} 
+      style={mapContainerStyle}
+      className={`map-container ${isFullscreen ? 'fullscreen-map' : ''}`}
+    >
       {/* Control panel for switching modes and performing actions */}
-      <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000, display: 'flex', flexDirection: 'column' }}>
+      <div style={controlPanelStyle}>
         {/* Point and Polyline mode buttons */}
         {['point', 'polyline'].map(type => (
           <button
@@ -270,24 +350,34 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         >
           <FontAwesomeIcon icon={faSave} />
         </button>
+
+        {/* Fullscreen toggle button */}
+        <button
+          onClick={toggleFullscreen}
+          title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          className="button fullscreen"
+        >
+          <FontAwesomeIcon icon={isFullscreen ? faCompress : faExpand} />
+        </button>
+
       </div>
 
-      <div style={{ position: 'absolute', top: 350, left: 5, zIndex: 1000, display: 'flex', flexDirection: 'column', pointerEvents: 'none'}}>
+      <div style={{ position: 'absolute', top:'350px', left: '5px', zIndex: 1000, display: 'flex', flexDirection: 'column', pointerEvents: 'none'}}>
         {/* Display calculated length of polyline */}
         {polylinePoints.length > 1 && (
-            <div className="length-display">
-              Length: {polylineLength} km
-            </div>
+          <div className="length-display">
+            Length: {polylineLength} km
+          </div>
         )}
       </div>
 
-
       {/* Leaflet map container */}
-      <MapContainer center={mapCenter} zoom={6} style={{ height: '100vh', width: '100%' }}>
+      <MapContainer center={mapCenter} zoom={6} style={{ height: '100%', width: '100%' }} >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <SearchControl />
         <MapHoverHandler setHoverPosition={setHoverPosition} />
-        <MapClickHandler mode={mode}
+        <MapClickHandler 
+          mode={mode}
           setSelectedPoint={setSelectedPoint}
           setPolylinePoints={setPolylinePoints} 
           polylinePoints={polylinePoints} 
@@ -299,8 +389,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         
         {/* Display polyline */}
         {polylinePoints.length > 1 && (
-          <Polyline positions={polylinePoints} color='#233438' >
-          </Polyline>
+          <Polyline positions={polylinePoints} color='#233438' />
         )}
 
         {/* Display tooltip for polyline drawing */}
@@ -309,8 +398,6 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
             text="Click on the map to place a point." 
           />
         )}
-
-        
 
         {startPoint && (
           <Marker position={startPoint} icon={startIcon}>
@@ -323,7 +410,6 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
             </Tooltip>
           </Marker>
         )}
-
 
         {mode === 'point' && hoverPosition && (
           <>
