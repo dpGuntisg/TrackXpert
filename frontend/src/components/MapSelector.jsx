@@ -3,7 +3,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { useState, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMapMarkerAlt, faPencilAlt, faRotateLeft, faTrash, faSave, faExpand, faCompress } from '@fortawesome/free-solid-svg-icons';
+import { faMapMarkerAlt, faPencilAlt, faRotateLeft, faTrash, faSave, faExpand, faCompress, faBezierCurve } from '@fortawesome/free-solid-svg-icons';
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import 'leaflet-geosearch/dist/geosearch.css';
 import './MapSelector.css';
@@ -35,6 +35,13 @@ const endIcon = L.divIcon({
   className: 'custom-end-icon',
   html: "<div style='font-size: 16px;'>🏁</div>",
   iconSize: [20, 20],
+});
+
+// Custom icon for control point (for bezier curves)
+const controlPointIcon = L.divIcon({
+  className: 'custom-control-point',
+  html: "<div style='width: 10px; height: 10px; background: purple; opacity: 0.8; border-radius: 50%;'></div>",
+  iconSize: [10, 10],
 });
 
 // Search control component for the map, allows users to search by location
@@ -84,10 +91,41 @@ const FloatingTooltip = ({ position, text }) => {
   return null;
 };
 
+// Function to create bezier curve points
+const createBezierCurve = (startPoint, endPoint, controlPoint, segments = 10) => {
+  const points = [];
+  
+  for (let i = 0; i <= segments; i++) {
+    const t = i / segments;
+    
+    // Quadratic Bezier formula: B(t) = (1-t)²P₀ + 2(1-t)tP₁ + t²P₂
+    const lat = Math.pow(1-t, 2) * startPoint.lat + 
+                2 * (1-t) * t * controlPoint.lat + 
+                Math.pow(t, 2) * endPoint.lat;
+                
+    const lng = Math.pow(1-t, 2) * startPoint.lng + 
+                2 * (1-t) * t * controlPoint.lng + 
+                Math.pow(t, 2) * endPoint.lng;
+                
+    points.push(L.latLng(lat, lng));
+  }
+  
+  return points;
+};
 
-// Handles map click events, depending on mode (point or polyline)
-const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints, polylinePoints, setIsClosed }) => {
+// Handles map click events, depending on mode (point, polyline, or bezier)
+const MapClickHandler = ({ 
+  mode, 
+  setSelectedPoint,
+  setPolylinePoints, 
+  polylinePoints, 
+  setIsClosed, 
+  curveControlPoint,
+  setCurveControlPoint,
+  addCurveSegment
+}) => {
   const map = useMap();
+  
   useEffect(() => {
     // Change cursor based on the current mode
     map.getContainer().style.cursor = mode !== 'default' ? 'crosshair' : 'auto';
@@ -97,46 +135,96 @@ const MapClickHandler = ({ mode, setSelectedPoint, setPolylinePoints, polylinePo
   useMapEvents({
     click(e) {
       const clickedCoord = e.latlng;
-
+  
       if (mode === 'polyline') {
+        // Regular polyline mode
         if (polylinePoints.length > 2) {
           const firstPoint = polylinePoints[0];
           const distance = clickedCoord.distanceTo(firstPoint);
           
-          // Check if user clicked near the first point
-          if (distance < 10) { // Adjust sensitivity 
+          // Check if user clicked near the first point to close the polyline
+          if (distance < 20) { // Adjust sensitivity 
             setPolylinePoints([...polylinePoints, firstPoint]); // Close the polyline
             setIsClosed(true);
             return;
           }
         }
+        
+        // Add the new point
         setPolylinePoints(prev => [...prev, clickedCoord]);
+        setIsClosed(false); // Ensure it is open after adding a new point
+  
+      } else if (mode === 'bezier') {
+        // Bezier curve mode
+        if (polylinePoints.length === 0) {
+          setPolylinePoints([clickedCoord]);
+        } else if (!curveControlPoint) {
+          setCurveControlPoint(clickedCoord);
+        } else {
+          const lastPoint = polylinePoints[polylinePoints.length - 1];
+          addCurveSegment(lastPoint, clickedCoord, curveControlPoint);
+          setCurveControlPoint(null);
+        }
+        
+        // Check if we need to close the polyline (e.g., when the user clicks near the first point)
+        if (polylinePoints.length > 2) {
+          const firstPoint = polylinePoints[0];
+          const distance = clickedCoord.distanceTo(firstPoint);
+          if (distance < 20) {
+            setPolylinePoints(prev => [...prev, firstPoint]); // Close the polyline
+            setIsClosed(true);
+          }
+        }
+      }
+    },
+  
+    // Handle deleting or modifying points
+    setPolylinePoints(updatedPoints) {
+      setPolylinePoints(updatedPoints);
+      const firstPoint = updatedPoints[0];
+      const lastPoint = updatedPoints[updatedPoints.length - 1];
+      const distance = lastPoint ? firstPoint.distanceTo(lastPoint) : Infinity;
+      
+      // If polyline is modified, check if it is still closed
+      if (updatedPoints.length > 2 && distance < 20) {
+        setIsClosed(true);
+      } else {
         setIsClosed(false);
       }
-  
-      if (mode === 'point') {
-        setSelectedPoint(clickedCoord);
-      }
-    }
+    },
   });
-
+  
+  return null;
 };
   
+  
 // Handles map hover events and updates the hover position
-const MapHoverHandler = ({ setHoverPosition }) => {
+const MapHoverHandler = ({ 
+  setHoverPosition, 
+  mode, 
+  polylinePoints, 
+  curveControlPoint 
+}) => {
+  const map = useMap();
+  
   useMapEvents({
-    mousemove(e) { setHoverPosition(e.latlng); },
-    mouseout() { setHoverPosition(null); },
+    mousemove(e) { 
+      setHoverPosition(e.latlng);
+    },
+    mouseout() { 
+      setHoverPosition(null);
+    },
   });
 
   return null;
 };
 
-// Main component for map selection with point and polyline drawing functionalities
+// Main component for map selection with point, polyline, and bezier curve functionalities
 export const MapSelector = ({ position, onPositionChange, initialDrawings = null, onDrawingsChange }) => {
-  const [mode, setMode] = useState('point');  // Mode can be 'point' or 'polyline'
+  const [mode, setMode] = useState('point');  // Mode can be 'point', 'polyline', or 'bezier'
   const [selectedPoint, setSelectedPoint] = useState(null);  // Selected point coordinates
   const [polylinePoints, setPolylinePoints] = useState([]);  // Points for polyline
+  const [curveControlPoint, setCurveControlPoint] = useState(null); // Control point for curves
   const [hoverPosition, setHoverPosition] = useState(null);  // Position of mouse hover
   const [startPoint, setStartPoint] = useState(null); //polyline starting point
   const [endPoint, setEndPoint] = useState(null); //polyline end point
@@ -150,6 +238,13 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   // Default map center if no position is provided
   const mapCenter = position && position.length >= 2 ? position : [56.9496, 24.1052];
   
+  // Function to add a curve segment to the polyline
+  const addCurveSegment = (startPoint, endPoint, controlPoint) => {
+    const curvePoints = createBezierCurve(startPoint, endPoint, controlPoint);
+    
+    // Add all points from the curve except the first one (which is already in the polyline)
+    setPolylinePoints(prev => [...prev, ...curvePoints.slice(1)]);
+  };
 
   // Handle fullscreen toggle
   const toggleFullscreen = () => {
@@ -182,6 +277,12 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     setIsFullscreen(!isFullscreen);
   };
   
+  // Handle switching to bezier mode
+  const switchToBezierMode = () => {
+    setMode('bezier');
+    setCurveControlPoint(null);
+  };
+  
   // Listen for fullscreen change events
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -207,6 +308,11 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
       document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
     };
   }, []);
+
+  // Reset control point when changing modes
+  useEffect(() => {
+    setCurveControlPoint(null);
+  }, [mode]);
 
   useEffect(() => {
     // Initialize map with existing drawings if available
@@ -243,14 +349,24 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   
   // Undo the last action, either removing the last point or polyline
   const handleUndo = () => {
-    if (mode === 'polyline' && polylinePoints.length > 0) {
+    if ((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) {
       setPolylinePoints(prev => {
         const newPoints = prev.slice(0, -1);
+        // If we're undoing the point that closed the track, set isClosed to false
+        if (isClosed && newPoints.length > 0) {
+          const firstPoint = newPoints[0];
+          const lastPoint = newPoints[newPoints.length - 1];
+          const distance = firstPoint.distanceTo(lastPoint);
+          if (distance >= 20) {
+            setIsClosed(false);
+          }
+        }
         if (newPoints.length === 0) {
-          setStartPoint(null); // Clear start point if no polyline points remain
+          setStartPoint(null);
         }
         return newPoints;
       });
+      setCurveControlPoint(null);
     } else if (mode === 'point' && selectedPoint) {
       setSelectedPoint(null);
       if (onPositionChange) onPositionChange(null);
@@ -259,9 +375,10 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
 
   // Clear current drawing (either point or polyline)
   const handleClear = () => {
-    if (mode === 'polyline') {
+    if (mode === 'polyline' || mode === 'bezier') {
       setPolylinePoints([]);
       setStartPoint(null);
+      setCurveControlPoint(null);
     }
     if (mode === 'point') {
       setSelectedPoint(null);
@@ -283,7 +400,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const polylineLength = polylinePoints.length > 1 ? calculatePolylineLength().toFixed(2) : 0;
 
   // Get the last point of the polyline (for drawing new lines)
-  const lastPolylinePoint = polylinePoints[polylinePoints.length - 1];
+  const lastPolylinePoint = polylinePoints.length > 0 ? polylinePoints[polylinePoints.length - 1] : null;
 
   // Apply responsive classes for fullscreen mode
   const mapContainerStyle = {
@@ -302,6 +419,14 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     flexDirection: 'column',
   };
 
+  // Determine if we should show the bezier preview curve
+  const showBezierPreview = mode === 'bezier' && lastPolylinePoint && curveControlPoint && hoverPosition;
+
+  // Create the bezier preview curve points
+  const bezierPreviewPoints = showBezierPreview 
+    ? createBezierCurve(lastPolylinePoint, hoverPosition, curveControlPoint) 
+    : [];
+
   return (
     <div 
       ref={mapContainerRef} 
@@ -310,24 +435,37 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     >
       {/* Control panel for switching modes and performing actions */}
       <div style={controlPanelStyle}>
-        {/* Point and Polyline mode buttons */}
-        {['point', 'polyline'].map(type => (
-          <button
-            key={type}
-            onClick={() => setMode(type)}
-            title={type === 'point' ? 'Place a marker' : 'Draw a polyline'}
-            className={`button mode-button ${mode === type ? 'active' : ''}`}
-          >
-            <FontAwesomeIcon icon={type === 'point' ? faMapMarkerAlt : faPencilAlt} />
-          </button>
-        ))}
+        {/* Point, Polyline and Bezier mode buttons */}
+        <button
+          onClick={() => setMode('point')}
+          title="Place a marker"
+          className={`button mode-button ${mode === 'point' ? 'active' : ''}`}
+        >
+          <FontAwesomeIcon icon={faMapMarkerAlt} />
+        </button>
+        
+        <button
+          onClick={() => setMode('polyline')}
+          title="Draw a polyline"
+          className={`button mode-button ${mode === 'polyline' ? 'active' : ''}`}
+        >
+          <FontAwesomeIcon icon={faPencilAlt} />
+        </button>
+        
+        <button
+          onClick={switchToBezierMode}
+          title="Draw with Bezier Curves"
+          className={`button mode-button ${mode === 'bezier' ? 'active' : ''}`}
+        >
+          <FontAwesomeIcon icon={faBezierCurve} />
+        </button>
         
         {/* Undo button */}
         <button
           onClick={handleUndo}
-          disabled={!((mode === 'polyline' && polylinePoints.length > 0) || (mode === 'point' && selectedPoint))}
+          disabled={!((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)}
           title="Undo last action"
-          className={`button undo ${((mode === 'polyline' && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)) ? 'active' : ''}`}
+          className={`button undo ${(((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)) ? 'active' : ''}`}
         >
           <FontAwesomeIcon icon={faRotateLeft} />
         </button>
@@ -335,9 +473,9 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         {/* Clear button */}
         <button
           onClick={handleClear}
-          disabled={!((mode === 'polyline' && polylinePoints.length > 0) || (mode === 'point' && selectedPoint))}
+          disabled={!((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)}
           title="Erase Current Drawing"
-          className={`button clear ${((mode === 'polyline' && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)) ? 'active' : ''}`}
+          className={`button clear ${(((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)) ? 'active' : ''}`}
         >
           <FontAwesomeIcon icon={faTrash} />
         </button>
@@ -359,7 +497,6 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         >
           <FontAwesomeIcon icon={isFullscreen ? faCompress : faExpand} />
         </button>
-
       </div>
 
       <div style={{ position: 'absolute', top:'350px', left: '5px', zIndex: 1000, display: 'flex', flexDirection: 'column', pointerEvents: 'none'}}>
@@ -371,17 +508,27 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         )}
       </div>
 
+
+
       {/* Leaflet map container */}
       <MapContainer center={mapCenter} zoom={6} style={{ height: '100%', width: '100%' }} >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <SearchControl />
-        <MapHoverHandler setHoverPosition={setHoverPosition} />
+        <MapHoverHandler 
+          setHoverPosition={setHoverPosition}
+          mode={mode}
+          polylinePoints={polylinePoints}
+          curveControlPoint={curveControlPoint}
+        />
         <MapClickHandler 
           mode={mode}
           setSelectedPoint={setSelectedPoint}
           setPolylinePoints={setPolylinePoints} 
           polylinePoints={polylinePoints} 
           setIsClosed={setIsClosed}
+          curveControlPoint={curveControlPoint}
+          setCurveControlPoint={setCurveControlPoint}
+          addCurveSegment={addCurveSegment}
         />
 
         {/* Display selected point as marker */}
@@ -392,11 +539,13 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
           <Polyline positions={polylinePoints} color='#233438' />
         )}
 
-        {/* Display tooltip for polyline drawing */}
-        {mode === 'polyline' && polylinePoints.length < 1 && hoverPosition && (
-          <FloatingTooltip position={hoverPosition} 
-            text="Click on the map to place a point." 
-          />
+        {/* Display tooltip for initial drawing */}
+        {((mode === 'polyline' && polylinePoints.length < 1) || 
+          (mode === 'bezier' && polylinePoints.length < 1)) && 
+          hoverPosition && (
+            <FloatingTooltip position={hoverPosition} 
+              text="Click on the map to place the first point." 
+            />
         )}
 
         {startPoint && (
@@ -422,14 +571,60 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         )}
 
         {/* Display polyline points as red square markers */}
-        {mode === 'polyline' && polylinePoints.map((point, index) => (
+        {(mode === 'polyline' || mode === 'bezier') && polylinePoints.map((point, index) => (
           index > 0 && <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
         ))}
         
-        {/* Display line connecting the last polyline point to the hover position */}
+        {/* Display control point for bezier curve */}
+        {mode === 'bezier' && curveControlPoint && (
+          <Marker position={curveControlPoint} icon={controlPointIcon}>
+          </Marker>
+        )}
+        
+        {/* Display preview curve with control point in bezier mode */}
+        {showBezierPreview && (
+          <Polyline 
+            positions={bezierPreviewPoints} 
+            color="purple" 
+            weight={2} 
+            opacity={0.7} 
+            dashArray="5,10" 
+          />
+        )}
+        
+        {/* Display line connecting the last polyline point to the hover position in polyline mode */}
         {mode === 'polyline' && lastPolylinePoint && hoverPosition && (
+          <Polyline positions={[lastPolylinePoint, hoverPosition]} color="red" weight={2} opacity={0.7} dashArray="5,10" />
+        )}
+        
+        {/* Display line from last point to control point when in bezier mode */}
+        {mode === 'bezier' && lastPolylinePoint && curveControlPoint && (
+          <Polyline positions={[lastPolylinePoint, curveControlPoint]} color="purple" weight={1} opacity={0.4} dashArray="3,6" />
+        )}
+        
+        {/* Display line from control point to hover position when in bezier mode */}
+        {mode === 'bezier' && curveControlPoint && hoverPosition && (
+          <Polyline positions={[curveControlPoint, hoverPosition]} color="purple" weight={1} opacity={0.4} dashArray="3,6" />
+        )}
+        
+        {/* Display bezier guide for hover in bezier mode before control point is placed */}
+        {mode === 'bezier' && lastPolylinePoint && !curveControlPoint && hoverPosition && (
           <>
-            <Polyline positions={[lastPolylinePoint, hoverPosition]} color="red" weight={2} opacity={0.7} dashArray="5,10" />
+            {/* Show a straight dashed line to hover as a guide */}
+            <Polyline 
+              positions={[lastPolylinePoint, hoverPosition]} 
+              color="purple" 
+              weight={1} 
+              opacity={0.4} 
+              dashArray="3,6" 
+            />
+            
+            {/* Show a potential control point marker at hover position */}
+            <Marker position={hoverPosition} icon={controlPointIcon}>
+              <Tooltip permanent direction="right" offset={[10, 0]} opacity={0.8}>
+                Click to place control point
+              </Tooltip>
+            </Marker>
           </>
         )}
       </MapContainer>
