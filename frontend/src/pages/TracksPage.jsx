@@ -7,6 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faArrowLeft, faExclamationCircle, faCheckCircle} from '@fortawesome/free-solid-svg-icons';
 import { MapSelector } from '../components/MapSelector';
 
+// Base URL for API requests
+const API_BASE_URL = 'http://localhost:5000/api';
 
 export default function TracksPage() {
     const [tracks, setTracks] = useState([]);
@@ -34,17 +36,18 @@ export default function TracksPage() {
         polyline: null
     });
 
-    
-
-
     const getTracks = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get(`http://localhost:5000/api/tracks?page=${page}&limit=6`);
+            const response = await axios.get(`${API_BASE_URL}/tracks?page=${page}&limit=6`);
             setTracks(response.data.tracks);
             setTotalPages(response.data.totalPages);
+            setServerError('');
         } catch (error) {
-            setServerError(error.response?.data?.message || `Error fetching the tracks: ${error.message}`);
+            const errorMessage = error.response?.data?.message || `Error fetching tracks: ${error.message}`;
+            console.error('Failed to fetch tracks:', errorMessage);
+            setServerError(errorMessage);
+            setTracks([]);
         } finally {
             setLoading(false);
         }
@@ -61,6 +64,25 @@ export default function TracksPage() {
     const toggleCreateForm = () => { 
         setShowCreateForm(!showCreateForm);
         setError(''); 
+        setSuccess('');
+        // Reset form when opening
+        if (!showCreateForm) {
+            resetForm();
+        }
+    };
+
+    const resetForm = () => {
+        setName('');
+        setDescription('');
+        setLocation('');
+        setImage('');
+        setCoordinates(null);
+        setAvailability([]);
+        setDrawings({
+            point: null,
+            polyline: null
+        });
+        setStep(1);
     };
 
     const validateStep1 = () => {
@@ -68,27 +90,27 @@ export default function TracksPage() {
             setError("Track name must be at least 5 characters long.");
             return false;
         }
-        if(!name || name.length > 100){
-            setError("Track name is too long.");
+        if (name.length > 100) {
+            setError("Track name is too long (maximum 100 characters).");
             return false;
         }
         if (!description || description.length < 10) {
             setError("Track description must be at least 10 characters long.");
             return false;
         }
-        if(description.length > 15000){
-            setError("Track description is too long.");
+        if (description.length > 15000) {
+            setError("Track description is too long (maximum 15000 characters).");
             return false;
         }
         if (!location || location.length < 5) {
             setError("Track location must be at least 5 characters long.");
             return false;
         }
-        if(!location || location.length > 50){
-            setError("Track location is too long.");
+        if (location.length > 50) {
+            setError("Track location is too long (maximum 50 characters).");
             return false;
         }
-        if(!image){
+        if (!image) {
             setError("Track image is required.");
             return false;
         }
@@ -96,20 +118,51 @@ export default function TracksPage() {
         return true;
     };
 
-
-
     const handleImageChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Check file size (limit to 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setError("Image size exceeds 5MB limit. Please choose a smaller image.");
+                return;
+            }
+            
+            // Check file type
+            if (!file.type.match('image.*')) {
+                setError("Please upload an image file (jpg, png, etc).");
+                return;
+            }
+            
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImage(reader.result);
+                setError(''); // Clear any previous errors when successful
+            };
+            reader.onerror = () => {
+                setError("Failed to read image file. Please try again.");
             };
             reader.readAsDataURL(file);
         }
     };
 
     const handleSubmit = async () => {
+        setLoading(true);
+        setError('');
+        setSuccess('');
+        
+        // Final validation before submission
+        if (!validateStep1()) {
+            setLoading(false);
+            return;
+        }
+        
+        // Validate map data
+        if (!coordinates && (!drawings.polyline || drawings.polyline.length < 2)) {
+            setError("Please mark a location or draw a route on the map.");
+            setLoading(false);
+            return;
+        }
+
         const trackData = {
             name, 
             description, 
@@ -128,56 +181,63 @@ export default function TracksPage() {
             trackData.polyline = drawings.polyline; 
         }
     
-        if(token){
-            try{
-                await axios.post(
-                    "http://localhost:5000/api/createtrack",
-                    trackData,
-                    { headers: { Authorization: `Bearer ${token}` } }
-                );
-                alert("Track created!");
-                setSuccess("Track created!");
-                setName("");
-                setDescription("");
-                setLocation("");
-                setImage("");
-                setCoordinates(null);
-                setStep(1);
-                setShowCreateForm(false);
-                getTracks();              
-            } catch(error){
-                setServerError(error.response?.data?.message || "Failed to create track");
-                setLoading(false);                
-            }
-        } else {
-            setServerError("User is not authenticated");
-            setLoading(false);                
+        if (!token) {
+            setServerError("User is not authenticated. Please log in and try again.");
+            setLoading(false);
+            return;
+        }
+        
+        try {
+            await axios.post(
+                `${API_BASE_URL}/createtrack`,
+                trackData,
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+            setSuccess("Track created successfully!");
+            resetForm();
+            setShowCreateForm(false);
+            getTracks(currentPage);
+        } catch (error) {
+            const errorMessage = error.response?.data?.message || "Failed to create track. Please try again.";
+            console.error('Track creation error:', errorMessage);
+            setError(errorMessage);
+        } finally {
+            setLoading(false);
         }
     };
-    
 
-    
-
-    if(loading){
-        return(
+    if (loading && !tracks.length) {
+        return (
             <div className="flex h-screen w-screen items-center justify-center bg-mainBlue">
                 <div className="flex flex-col items-center">
                     <div className="loader ease-linear rounded-full border-4 border-t-4 border-mainRed h-12 w-12 mb-4"></div>
-                    <p className="text-lg">Loading...</p>
+                    <p className="text-lg">Loading tracks...</p>
                 </div>
             </div>
-        )
-    };
+        );
+    }
 
-    if(serverError){
-        return(
+    if (serverError && !tracks.length) {
+        return (
             <div className="flex h-screen w-screen items-center justify-center bg-mainBlue">
-                <div className="flex flex-col items-center">
-                    <p className="text-3xl">{error}</p>
-                    <p className="">Please try again later.</p>
+                <div className="flex flex-col items-center text-center max-w-lg">
+                    <div className="text-mainRed text-5xl mb-4">
+                        <FontAwesomeIcon icon={faExclamationCircle} />
+                    </div>
+                    <p className="text-3xl mb-3">Something went wrong</p>
+                    <p className="text-lg mb-6">{serverError}</p>
+                    <button 
+                        onClick={() => {
+                            setServerError('');
+                            getTracks(1);
+                        }}
+                        className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium"
+                    >
+                        Try Again
+                    </button>
                 </div>
             </div>
-        )
+        );
     }
 
     return (
@@ -185,6 +245,24 @@ export default function TracksPage() {
             <div className='flex justify-center mb-5'>
                 <h1 className='text-4xl font-bold'>Explore Tracks</h1>
             </div>
+
+            {serverError && (
+                <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20 max-w-4xl mx-auto">
+                    <div className="flex items-center gap-2 text-red-500">
+                        <FontAwesomeIcon icon={faExclamationCircle} />
+                        <p className="text-sm font-medium">{serverError}</p>
+                    </div>
+                    <button 
+                        onClick={() => {
+                            setServerError('');
+                            getTracks(currentPage);
+                        }}
+                        className="text-mainYellow hover:text-yellow-400 text-sm mt-2 font-medium"
+                    >
+                        Retry
+                    </button>
+                </div>
+            )}
 
             <div className="relative">
                 {token && (
@@ -201,148 +279,174 @@ export default function TracksPage() {
             </div>
 
             {showCreateForm && (
-                <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                    <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4">
+                <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto">
+                    <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 my-8">
                         <div className="flex justify-between items-center">
                             <h3 className="text-2xl font-bold">Create Track ({step}/3)</h3>
                             <button
                                 onClick={() => {
                                     setShowCreateForm(false);
-                                    setStep(1);
+                                    resetForm();
                                 }}
                                 className="text-gray-300 hover:text-white"
+                                aria-label="Close form"
                             >
                                 <FontAwesomeIcon icon={faTimes} className="text-xl" />
                             </button>
                         </div>
 
-                    {/* Global error message */}
-                    {error && (
-                        <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                        <div className="flex items-center gap-2 text-red-500">
-                            <FontAwesomeIcon icon={faExclamationCircle} />
-                            <p className="text-sm font-medium">{error}</p>
-                        </div>
-                        </div>
-                    )}
-
-                    {/* Success message */}
-                    {success && (
-                        <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                        <div className="flex items-center gap-2 text-green-500">
-                            <FontAwesomeIcon icon={faCheckCircle} />
-                            <p className="text-sm font-medium">{success}</p>
-                        </div>
-                        </div>
-                    )}
-
-                    <div className="space-y-4">
-                        {step === 1 ? (
-                            <TrackForm 
-                                values={{ name, description, location, image }}
-                                setValues={(values) => {
-                                    setName(values.name);
-                                    setDescription(values.description);
-                                    setLocation(values.location);
-                                    setImage(values.image);
-                                }}
-                                handleImageChange={handleImageChange}
-                            />
-                        ) : step === 2 ? (
-                            <AvailabilityForm 
-                                availability={availability}
-                                setAvailability={setAvailability}
-                                error={error}
-                                setError={setError}
-                            />
-                        ) : (                           
-                            <>
-                                {/* Step 3: Map Selection */}
-                                <div className="h-96 w-full rounded-lg overflow-hidden">
-                                    <MapSelector 
-                                        position={coordinates}
-                                        onPositionChange={setCoordinates}
-                                        onDrawingsChange={setDrawings}
-                                    />
+                        {/* Global error message */}
+                        {error && (
+                            <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                                <div className="flex items-center gap-2 text-red-500">
+                                    <FontAwesomeIcon icon={faExclamationCircle} />
+                                    <p className="text-sm font-medium">{error}</p>
                                 </div>
-                            </>
+                            </div>
                         )}
 
-                        {/* Navigation Buttons */}
-                        <div className="flex justify-between space-x-3 pt-4">
-                            {step > 1 && (
-                                <button
-                                    type="button"
-                                    onClick={() => setStep(step - 1)}
-                                    className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-                                >
-                                    <FontAwesomeIcon icon={faArrowLeft} />
-                                    Back
-                                </button>
+                        {/* Success message */}
+                        {success && (
+                            <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                                <div className="flex items-center gap-2 text-green-500">
+                                    <FontAwesomeIcon icon={faCheckCircle} />
+                                    <p className="text-sm font-medium">{success}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="space-y-4">
+                            {step === 1 ? (
+                                <TrackForm 
+                                    values={{ name, description, location, image }}
+                                    setValues={(values) => {
+                                        setName(values.name);
+                                        setDescription(values.description);
+                                        setLocation(values.location);
+                                        setImage(values.image);
+                                    }}
+                                    handleImageChange={handleImageChange}
+                                />
+                            ) : step === 2 ? (
+                                <AvailabilityForm 
+                                    availability={availability}
+                                    setAvailability={setAvailability}
+                                    error={error}
+                                    setError={setError}
+                                />
+                            ) : (                           
+                                <>
+                                    {/* Step 3: Map Selection */}
+                                    <div className="h-96 w-full rounded-lg overflow-hidden">
+                                        <MapSelector 
+                                            position={coordinates}
+                                            onPositionChange={setCoordinates}
+                                            onDrawingsChange={setDrawings}
+                                        />
+                                    </div>
+                                    <p className="text-sm text-gray-400">
+                                        Mark a location or draw a route on the map. At least one is required.
+                                    </p>
+                                </>
                             )}
-                            <div className="flex-grow"></div>
-                            {step < 3 ? (
+
+                            {/* Navigation Buttons */}
+                            <div className="flex justify-between space-x-3 pt-4">
+                                {step > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(step - 1)}
+                                        className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                                    >
+                                        <FontAwesomeIcon icon={faArrowLeft} />
+                                        Back
+                                    </button>
+                                )}
+                                <div className="flex-grow"></div>
+                                {step < 3 ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (step === 1 && !validateStep1()) return;
+                                            setStep(step + 1);
+                                        }}
+                                        className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
+                                        disabled={loading}
+                                    >
+                                        Next
+                                    </button>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={handleSubmit}
+                                        className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+                                        disabled={loading}
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <div className="h-4 w-4 border-2 border-mainBlue border-t-transparent rounded-full animate-spin"></div>
+                                                Creating...
+                                            </>
+                                        ) : "Create Track"}
+                                    </button>
+                                )}
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        if (step === 1 && !validateStep1()) return;
-                                        setStep(step + 1);
+                                        setShowCreateForm(false);
+                                        resetForm();
                                     }}
-                                    className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
+                                    className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
+                                    disabled={loading}
                                 >
-                                    Next
+                                    Cancel
                                 </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={handleSubmit}
-                                    className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
-                                >
-                                    Create Track
-                                </button>
-                            )}
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowCreateForm(false);
-                                    setStep(1);
-                                }}
-                                className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
-                            >
-                                Cancel
-                            </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             )}
 
-            
-            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 justify-center'>
-                {tracks.map((track) => (
-                    <TrackCard key={track._id} track={track} />
-                ))}
-            </div>
+            {tracks.length === 0 && !loading ? (
+                <div className="text-center py-16">
+                    <p className="text-2xl mb-4">No tracks found</p>
+                    <p className="text-gray-400">Be the first to create a track!</p>
+                </div>
+            ) : (
+                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 justify-center'>
+                    {tracks.map((track) => (
+                        <TrackCard key={track._id} track={track} />
+                    ))}
+                </div>
+            )}
 
-            <div className="flex justify-center mt-5">
-                {currentPage > 1 && (
-                    <button
-                        className="mr-2"
-                        onClick={() => handlePageChange(currentPage - 1)}
-                    >
-                        Previous
-                    </button>
-                )}
-                <span>{currentPage} of {totalPages}</span>
-                {currentPage < totalPages && (
-                    <button
-                        className="ml-2"
-                        onClick={() => handlePageChange(currentPage + 1)}
-                    >
-                        Next
-                    </button>
-                )}
-            </div>
+            {totalPages > 1 && (
+                <div className="flex justify-center mt-8">
+                    <div className="inline-flex rounded-md shadow-sm">
+                        {currentPage > 1 && (
+                            <button
+                                className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-l-lg"
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={loading}
+                            >
+                                Previous
+                            </button>
+                        )}
+                        <span className="px-4 py-2 text-sm font-medium bg-gray-800">
+                            {currentPage} of {totalPages}
+                        </span>
+                        {currentPage < totalPages && (
+                            <button
+                                className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-r-lg"
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={loading}
+                            >
+                                Next
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
