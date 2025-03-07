@@ -10,42 +10,78 @@ export const AvailabilityForm = ({ availability, setAvailability, error, setErro
         close_time: '17:00'
     });
 
+    const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+    // Gets all days in a range, handling week wraparounds.    
+    const getDaysInRange = (startDay, endDay) => {
+        const startIndex = DAYS.indexOf(startDay);
+        const endIndex = DAYS.indexOf(endDay);
+        return endIndex >= startIndex
+            ? DAYS.slice(startIndex, endIndex + 1)
+            : [...DAYS.slice(startIndex), ...DAYS.slice(0, endIndex + 1)];
+    };
+
+   //Checks if two time slots overlap.
+    const doTimesOverlap = (start1, end1, start2, end2) => start1 < end2 && start2 < end1;
+
+    //Checks if new availability overlaps with existing slots.
+    const hasOverlap = (newSlot) => {
+        const newRangeDays = getDaysInRange(newSlot.startDay, newSlot.endDay);
+        return availability.some(existingSlot => 
+            getDaysInRange(existingSlot.startDay, existingSlot.endDay).some(day => 
+                newRangeDays.includes(day)
+            ) && doTimesOverlap(newSlot.open_time, newSlot.close_time, existingSlot.open_time, existingSlot.close_time)
+        );
+    };
+
+
+    //Sorts availability slots first by day, then by open time, then by close time.
+
+    const sortAvailability = (slots) => {
+        return [...slots].sort((a, b) => {
+            const dayDiff = DAYS.indexOf(a.startDay) - DAYS.indexOf(b.startDay);
+            if (dayDiff !== 0) return dayDiff;
+            const timeDiff = a.open_time.localeCompare(b.open_time);
+            return timeDiff !== 0 ? timeDiff : a.close_time.localeCompare(b.close_time);
+        });
+    };
+
     const addAvailability = () => {
-        if (newAvailability.open_time < newAvailability.close_time) {
-            if (newAvailability.startDay === newAvailability.endDay || isDayAfter(newAvailability.startDay, newAvailability.endDay)) {
-                setAvailability([...availability, {
-                    startDay: newAvailability.startDay,
-                    endDay: newAvailability.endDay,
-                    open_time: newAvailability.open_time,
-                    close_time: newAvailability.close_time
-                }]);
-                setNewAvailability({
-                    startDay: 'Monday',
-                    endDay: 'Monday',
-                    open_time: '09:00',
-                    close_time: '17:00'
-                });
-                setError('');
-            } else {
-                setError("End day must be on or after the start day.");
-            }
-        } else {
+        if (newAvailability.open_time >= newAvailability.close_time) {
             setError("Open time must be earlier than close time.");
+            return;
         }
+
+        if (hasOverlap(newAvailability)) {
+            setError("This time slot overlaps with an existing availability.");
+            return;
+        }
+
+        setAvailability(sortAvailability([...availability, { ...newAvailability }]));
+        setError("");
     };
 
     const removeAvailability = (index) => {
         setAvailability(availability.filter((_, i) => i !== index));
     };
 
-    const isDayAfter = (day1, day2) => {
-        const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-        return days.indexOf(day1) <= days.indexOf(day2);
-    };
-
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setNewAvailability(prev => ({ ...prev, [name]: value }));
+        setNewAvailability(prev => ({
+            ...prev,
+            [name]: value,
+            ...(name === "startDay" && { endDay: value }) // Auto-update end day
+        }));
+    };
+
+    const formatTimeRange = (slot) => {
+        const formatTime = (timeStr) => {
+            const [hour, minute] = timeStr.split(":");
+            const hourNum = parseInt(hour, 10);
+            const ampm = hourNum >= 12 ? "PM" : "AM";
+            return `${hourNum % 12 || 12}:${minute} ${ampm}`;
+        };
+        return `${formatTime(slot.open_time)} - ${formatTime(slot.close_time)}`;
     };
 
     return (
@@ -53,7 +89,6 @@ export const AvailabilityForm = ({ availability, setAvailability, error, setErro
             <h4 className="text-xl font-semibold flex items-center gap-2">
                 <FontAwesomeIcon icon={faClock} />
                 Set Opening Hours
-
             </h4>
 
             {availability.length > 0 && (
@@ -62,7 +97,9 @@ export const AvailabilityForm = ({ availability, setAvailability, error, setErro
                     {availability.map((slot, index) => (
                         <div key={index} className="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
                             <span className="text-sm">
-                                {slot.startDay} to {slot.endDay}: {slot.open_time} - {slot.close_time}
+                                {slot.startDay === slot.endDay 
+                                    ? slot.startDay 
+                                    : `${slot.startDay} to ${slot.endDay}`}: {formatTimeRange(slot)}
                             </span>
                             <button
                                 type="button"
@@ -86,7 +123,7 @@ export const AvailabilityForm = ({ availability, setAvailability, error, setErro
                             onChange={handleInputChange}
                             className="w-full rounded-lg px-4 py-2 bg-gray-800 text-white focus:ring-2 focus:ring-mainRed outline-none"
                         >
-                            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
+                            {DAYS.map(day => (
                                 <option key={day} value={day}>{day}</option>
                             ))}
                         </select>
@@ -99,7 +136,7 @@ export const AvailabilityForm = ({ availability, setAvailability, error, setErro
                             onChange={handleInputChange}
                             className="w-full rounded-lg px-4 py-2 bg-gray-800 text-white focus:ring-2 focus:ring-mainRed outline-none"
                         >
-                            {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(day => (
+                            {DAYS.map(day => (
                                 <option key={day} value={day}>{day}</option>
                             ))}
                         </select>
@@ -128,8 +165,6 @@ export const AvailabilityForm = ({ availability, setAvailability, error, setErro
                         />
                     </div>
                 </div>
-
-                {error && <p className="text-sm text-red-500">{error}</p>}
 
                 <button
                     type="button"

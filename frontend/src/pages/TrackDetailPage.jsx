@@ -103,10 +103,8 @@ export default function TrackDetailPage() {
             };
     
             if (drawings.point) {
-                updateData.coordinates = {
-                    type: "Point",
-                    coordinates: [drawings.point[1], drawings.point[0]] // [lng, lat]
-                };
+                updateData.latitude = drawings.point[0];
+                updateData.longitude = drawings.point[1];
             }
     
             if (drawings.polyline && drawings.polyline.length >= 2) {

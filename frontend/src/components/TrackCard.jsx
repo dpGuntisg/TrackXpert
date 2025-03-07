@@ -19,17 +19,25 @@ export default function TrackCard({ track }) {
                 <p className='text-sm text-gray-300 line-clamp-3'>{truncatedDescription}</p>
                 <p className='text-sm text-gray-400'>{track.location}</p>
                 <div className="mt-2 text-sm">
-                    {track.availability && track.availability.length > 0 && (
-                        <div className="mt-2 text-sm text-gray-400">
-                            {track.availability.map((slot, index) => (
-                                <div key={index}>
+                {track.availability && track.availability.length > 0 && (
+                    <div className="mt-2 text-sm text-gray-400">
+                        {track.availability.slice(0, 3).map((slot, index) => (
+                            <div key={index}>
+                                <span className="mr-2">
                                     {slot.startDay === slot.endDay 
-                                        ? `${slot.startDay}: ${slot.open_time}-${slot.close_time}`
-                                        : `${slot.startDay}-${slot.endDay}: ${slot.open_time}-${slot.close_time}`}
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                                        ? slot.startDay 
+                                        : `${slot.startDay} - ${slot.endDay}`}
+                                </span>
+                                <span>
+                                    {slot.open_time} - {slot.close_time}
+                                </span>
+                            </div>
+                        ))}
+                        {track.availability.length > 3 && (
+                            <p className="text-xs text-gray-400">+{track.availability.length - 3} more</p>
+                        )}
+                    </div>
+                )}
                 </div>
             </div>
 

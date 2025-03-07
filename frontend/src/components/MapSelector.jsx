@@ -16,7 +16,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-// Custom icon for polyline points (square red icon)
+// Custom icon for polyline points
 const squareIcon = L.divIcon({
   className: 'custom-square-icon',
   html: "<div style='width: 12px; height: 12px; background: red; opacity: 0.8;'></div>",
@@ -123,7 +123,8 @@ const MapClickHandler = ({
   setIsClosed, 
   curveControlPoint,
   setCurveControlPoint,
-  addCurveSegment
+  addCurveSegment,
+  onPositionChange
 }) => {
   const map = useMap();
   
@@ -136,15 +137,21 @@ const MapClickHandler = ({
   useMapEvents({
     click(e) {
       const clickedCoord = e.latlng;
-  
-      if (mode === 'polyline') {
+      
+      // Fixed: Add handling for 'point' mode
+      if (mode === 'point') {
+        setSelectedPoint(clickedCoord);
+        if (onPositionChange) {
+          onPositionChange([clickedCoord.lat, clickedCoord.lng]);
+        }
+      } else if (mode === 'polyline') {
         // Regular polyline mode
         if (polylinePoints.length > 2) {
           const firstPoint = polylinePoints[0];
           const distance = clickedCoord.distanceTo(firstPoint);
           
           // Check if user clicked near the first point to close the polyline
-          if (distance < 20) { // Adjust sensitivity 
+          if (distance < 10) { // Adjust sensitivity 
             setPolylinePoints([...polylinePoints, firstPoint]); // Close the polyline
             setIsClosed(true);
             return;
@@ -171,26 +178,11 @@ const MapClickHandler = ({
         if (polylinePoints.length > 2) {
           const firstPoint = polylinePoints[0];
           const distance = clickedCoord.distanceTo(firstPoint);
-          if (distance < 20) {
+          if (distance < 10) {
             setPolylinePoints(prev => [...prev, firstPoint]); // Close the polyline
             setIsClosed(true);
           }
         }
-      }
-    },
-  
-    // Handle deleting or modifying points
-    setPolylinePoints(updatedPoints) {
-      setPolylinePoints(updatedPoints);
-      const firstPoint = updatedPoints[0];
-      const lastPoint = updatedPoints[updatedPoints.length - 1];
-      const distance = lastPoint ? firstPoint.distanceTo(lastPoint) : Infinity;
-      
-      // If polyline is modified, check if it is still closed
-      if (updatedPoints.length > 2 && distance < 20) {
-        setIsClosed(true);
-      } else {
-        setIsClosed(false);
       }
     },
   });
@@ -331,6 +323,13 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     initializedRef.current = true;
   }, [initialDrawings]);
 
+  // Update parent component when selected point changes
+  useEffect(() => {
+    if (selectedPoint && onPositionChange) {
+      onPositionChange([selectedPoint.lat, selectedPoint.lng]);
+    }
+  }, [selectedPoint, onPositionChange]);
+
   // Prepares drawings for saving and triggers the callback
   const prepareDrawingsForSave = () => {
     const drawings = {
@@ -466,7 +465,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         {/* Undo button */}
         <button
           onClick={handleUndo}
-          disabled={!((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)}
+          disabled={!((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) && !(mode === 'point' && selectedPoint)}
           title="Undo last action"
           className={`button undo ${(((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)) ? 'active' : ''}`}
         >
@@ -476,7 +475,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         {/* Clear button */}
         <button
           onClick={handleClear}
-          disabled={!((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)}
+          disabled={!((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) && !(mode === 'point' && selectedPoint)}
           title="Erase Current Drawing"
           className={`button clear ${(((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) || (mode === 'point' && selectedPoint)) ? 'active' : ''}`}
         >
@@ -532,6 +531,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
           curveControlPoint={curveControlPoint}
           setCurveControlPoint={setCurveControlPoint}
           addCurveSegment={addCurveSegment}
+          onPositionChange={onPositionChange}
         />
 
         {/* Display selected point as marker */}
@@ -551,7 +551,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
             />
         )}
 
-        {startPoint && (
+        {startPoint && (mode === 'polyline' || mode === 'bezier') && (
           <>
             <Marker position={startPoint} icon={startIcon}>
               <Tooltip permanent direction="right" offset={[10, 0]} opacity={0.8}>
@@ -568,7 +568,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
                 position={startPoint}
                 icon={L.divIcon({
                   className: 'start-circle-icon',
-                  html: `<div style="width: 20px; height: 20px; background: rgba(0, 0, 255, 0.3); border-radius: 50%; border: 2px solid blue;"></div>`,
+                  html: `<div style="width: 10px; height: 10px; background: rgba(0, 0, 255, 0.3); border-radius: 50%; border: 2px solid blue;"></div>`,
                   iconSize: [20, 20],
                   iconAnchor: [10, 10], 
                 })}
