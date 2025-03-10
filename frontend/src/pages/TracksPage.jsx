@@ -29,12 +29,20 @@ export default function TracksPage() {
     const token = localStorage.getItem('token');
 
     const [coordinates, setCoordinates] = useState(null);
+    const [distance, setDistance] = useState(0);
     const [availability, setAvailability] = useState([]);
 
     const [drawings, setDrawings] = useState({
         point: null,
         polyline: null
     });
+
+    const handleDrawingsChange = (newDrawings) => {
+        setDrawings(newDrawings);
+        if (newDrawings.distance) {
+            setDistance(newDrawings.distance);
+        }
+    };    
 
     const getTracks = async (page = 1) => {
         setLoading(true);
@@ -179,6 +187,7 @@ export default function TracksPage() {
       
         if (drawings.polyline && drawings.polyline.length > 1) {
             trackData.polyline = drawings.polyline; 
+            trackData.distance = drawings.distance;
         }
     
         if (!token) {
@@ -241,7 +250,7 @@ export default function TracksPage() {
     }
 
     return (
-        <div className='p-10 bg-mainBlue min-h-screen'>
+        <div className=' p-5 sm:p-10 bg-mainBlue min-h-screen'>
             <div className='flex justify-center mb-5'>
                 <h1 className='text-4xl font-bold'>Explore Tracks</h1>
             </div>
@@ -341,7 +350,7 @@ export default function TracksPage() {
                                         <MapSelector 
                                             position={coordinates}
                                             onPositionChange={setCoordinates}
-                                            onDrawingsChange={setDrawings}
+                                            onDrawingsChange={handleDrawingsChange}
                                         />
                                     </div>
                                     <p className="text-sm text-gray-400">

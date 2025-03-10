@@ -31,6 +31,7 @@ export default function TrackDetailPage() {
     const [coordinates, setCoordinates] = useState(null);
     const [step, setStep] = useState(1);
     const [availability, setAvailability] = useState([]);
+    const [distance, setDistance] = useState(0);
 
     let mapCenter = [56.9496, 24.1052];
     if (track.coordinates) {
@@ -41,7 +42,8 @@ export default function TrackDetailPage() {
     }
     const [drawings, setDrawings] = useState({
         point: null,
-        polyline: null
+        polyline: null,
+        distance:null
     });
 
     const getTrack = async () => {
@@ -59,7 +61,8 @@ export default function TrackDetailPage() {
             
             const initialDrawings = {
                 point: null,
-                polyline: null
+                polyline: null,
+                distance: null,
             };
             
             if (trackData.coordinates?.coordinates) {
@@ -69,6 +72,7 @@ export default function TrackDetailPage() {
             
             if (trackData.polyline?.coordinates) {
                 initialDrawings.polyline = trackData.polyline.coordinates.map(coord => [coord[1], coord[0]]);
+                setDistance(trackData.distance);
             }
             
             setDrawings(initialDrawings);
@@ -112,6 +116,7 @@ export default function TrackDetailPage() {
                     type: "LineString",
                     coordinates: drawings.polyline.map(([lat, lng]) => [lng, lat])
                 };
+                updateData.distance = drawings.distance;
             }
     
             // Check if at least one geometry exists

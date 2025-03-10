@@ -335,6 +335,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     const drawings = {
       point: selectedPoint ? [selectedPoint.lat, selectedPoint.lng] : null,
       polyline: polylinePoints.length > 1 ? polylinePoints.map(p => [p.lat, p.lng]) : null,
+      distance: polylinePoints.length > 1 ? calculatePolylineLength() : null
     };
     drawingsRef.current = drawings;
     if (onDrawingsChange) onDrawingsChange(drawings);

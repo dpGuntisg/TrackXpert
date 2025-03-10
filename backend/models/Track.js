@@ -28,11 +28,8 @@ const TrackSchema = new mongoose.Schema({
     coordinates: { type: [Number], required: false }
   },
   
-  polygon: {
-    type: { type: String, enum: ["Polygon"], required: false },
-    coordinates: { type: [[[Number]]], required: false }
-  },
-  
+  distance: { type: Number, default: 0 },
+    
   polyline: {
     type: { type: String, enum: ["LineString"], required: false },
     coordinates: { type: [[Number]], required: false }
