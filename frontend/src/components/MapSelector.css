@@ -95,9 +95,32 @@
 }
 
 /* Save button styles */
-.button.save {
-  background: #4169E1;
+button.save.unsaved {
+  position: relative;
+  background-color:#4169E1;
+  animation: pulse 1.5s infinite;
   color: #233438;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.save-alert {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: red;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
 }
 
 .button.fullscreen {
@@ -130,6 +153,8 @@
   margin-top: 20px;
   font-size: 12px;
 }
+
+
 
 
 

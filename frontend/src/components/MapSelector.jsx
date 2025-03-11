@@ -54,10 +54,16 @@ const SearchControl = ({ position }) => {
       provider,
       style: 'bar',
       showMarker: true,
-      showPopup: false,
+      showPopup: false, 
       autoClose: true,
+      retainZoomLevel: false,
+      animateZoom: true,
+      keepResult: false, 
       searchLabel: 'Search for address',
-      className: 'custom-search-control',
+      marker: { 
+        icon: new L.Icon.Default(),
+        draggable: false,
+      }
     });
 
     map.addControl(searchControl);
@@ -249,6 +255,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const [hoverPosition, setHoverPosition] = useState(null);  // Position of mouse hover
   const [startPoint, setStartPoint] = useState(null); //polyline starting point
   const [endPoint, setEndPoint] = useState(null); //polyline end point
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isClosed, setIsClosed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isHoveringLastPoint, setIsHoveringLastPoint] = useState(false); // New state to track hovering over last point
@@ -343,6 +350,14 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     }
   }, [polylinePoints]);
 
+  // Track changes after initial load
+  useEffect(() => {
+    if (initializedRef.current) {
+      setHasUnsavedChanges(true);
+    }
+  }, [selectedPoint, polylinePoints]);
+  
+
   useEffect(() => {
     // Initialize map with existing drawings if available
     if (!initialDrawings || initializedRef.current) return;
@@ -374,6 +389,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     };
     drawingsRef.current = drawings;
     if (onDrawingsChange) onDrawingsChange(drawings);
+    setHasUnsavedChanges(false);
     return drawings;
   };
 
@@ -529,9 +545,10 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         <button
           onClick={prepareDrawingsForSave}
           title="Save All Drawings"
-          className="button save"
+          className={`button save ${hasUnsavedChanges ? 'unsaved' : ''}`}
         >
           <FontAwesomeIcon icon={faSave} />
+          {hasUnsavedChanges && <span className="save-alert">!</span>}
         </button>
 
         {/* Fullscreen toggle button */}
@@ -554,7 +571,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
       </div>
 
       {/* Leaflet map container */}
-      <MapContainer center={center} zoom={20} style={{ height: '100%', width: '100%' }} >
+      <MapContainer center={mapCenter} zoom={20} style={{ height: '100%', width: '100%' }} >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <SearchControl />
         <MapHoverHandler 

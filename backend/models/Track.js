@@ -34,7 +34,10 @@ const TrackSchema = new mongoose.Schema({
     type: { type: String, enum: ["LineString"], required: false },
     coordinates: { type: [[Number]], required: false }
   }
-});
+
+},{timestamps:true});
+
+
 
 // Pre-save middleware for availability validation
 TrackSchema.pre("save", function (next) {
