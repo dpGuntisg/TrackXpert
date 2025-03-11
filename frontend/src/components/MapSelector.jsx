@@ -31,7 +31,7 @@ export const startIcon = L.divIcon({
 });
 
 // Custom icon for end point
-const endIcon = L.divIcon({
+export const endIcon = L.divIcon({
   className: 'custom-end-icon',
   html: "<div style='font-size: 16px;'>🏁</div>",
   iconSize: [20, 20],
@@ -43,7 +43,6 @@ const controlPointIcon = L.divIcon({
   html: "<div style='width: 10px; height: 10px; background: purple; opacity: 0.8; border-radius: 50%;'></div>",
   iconSize: [10, 10],
 });
-
 
 // Search control component for the map, allows users to search by location
 const SearchControl = ({ position }) => {
@@ -124,7 +123,9 @@ const MapClickHandler = ({
   curveControlPoint,
   setCurveControlPoint,
   addCurveSegment,
-  onPositionChange
+  onPositionChange,
+  setEndPoint,
+  hoverPosition
 }) => {
   const map = useMap();
   
@@ -156,6 +157,15 @@ const MapClickHandler = ({
             setIsClosed(true);
             return;
           }
+          
+          // Check if user clicked near the last point to end the track
+          const lastPoint = polylinePoints[polylinePoints.length - 1];
+          const distanceToLast = clickedCoord.distanceTo(lastPoint);
+          
+          if (distanceToLast < 10) { // Adjust sensitivity
+            setEndPoint(lastPoint);
+            return;
+          }
         }
         
         // Add the new point
@@ -172,6 +182,14 @@ const MapClickHandler = ({
           const lastPoint = polylinePoints[polylinePoints.length - 1];
           addCurveSegment(lastPoint, clickedCoord, curveControlPoint);
           setCurveControlPoint(null);
+          
+          // Check if user clicked near the last point to end the track
+          if (polylinePoints.length > 2) {
+            const distanceToLast = clickedCoord.distanceTo(lastPoint);
+            if (distanceToLast < 10) {
+              setEndPoint(lastPoint);
+            }
+          }
         }
         
         // Check if we need to close the polyline (e.g., when the user clicks near the first point)
@@ -190,32 +208,40 @@ const MapClickHandler = ({
   return null;
 };
   
-  
 // Handles map hover events and updates the hover position
 const MapHoverHandler = ({ 
   setHoverPosition, 
   mode, 
-  polylinePoints, 
-  curveControlPoint 
-}) => {
-  const map = useMap();
-  
+  polylinePoints,
+  curveControlPoint,
+  setIsHoveringLastPoint
+}) => {  
   useMapEvents({
     mousemove(e) { 
       setHoverPosition(e.latlng);
+      
+      // Check if hovering over the last point
+      if (polylinePoints.length > 0) {
+        const lastPoint = polylinePoints[polylinePoints.length - 1];
+        const distance = e.latlng.distanceTo(lastPoint);
+        
+        // If hovering near the last point, set isHoveringLastPoint to true
+        setIsHoveringLastPoint(distance < 10);
+      } else {
+        setIsHoveringLastPoint(false);
+      }
     },
     mouseout() { 
       setHoverPosition(null);
+      setIsHoveringLastPoint(false);
     },
   });
 
   return null;
 };
 
-
-
 // Main component for map selection with point, polyline, and bezier curve functionalities
-export const MapSelector = ({ position, onPositionChange, initialDrawings = null, onDrawingsChange }) => {
+export const MapSelector = ({ position, onPositionChange, initialDrawings = null, onDrawingsChange, center }) => {
   const [mode, setMode] = useState('point');  // Mode can be 'point', 'polyline', or 'bezier'
   const [selectedPoint, setSelectedPoint] = useState(null);  // Selected point coordinates
   const [polylinePoints, setPolylinePoints] = useState([]);  // Points for polyline
@@ -225,6 +251,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const [endPoint, setEndPoint] = useState(null); //polyline end point
   const [isClosed, setIsClosed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isHoveringLastPoint, setIsHoveringLastPoint] = useState(false); // New state to track hovering over last point
   const mapContainerRef = useRef(null);
 
   const initializedRef = useRef(false);  // Ref to track initialization state
@@ -309,6 +336,13 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     setCurveControlPoint(null);
   }, [mode]);
 
+  // Reset endpoint when clearing polyline or starting new one
+  useEffect(() => {
+    if (polylinePoints.length === 0) {
+      setEndPoint(null);
+    }
+  }, [polylinePoints]);
+
   useEffect(() => {
     // Initialize map with existing drawings if available
     if (!initialDrawings || initializedRef.current) return;
@@ -335,7 +369,8 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     const drawings = {
       point: selectedPoint ? [selectedPoint.lat, selectedPoint.lng] : null,
       polyline: polylinePoints.length > 1 ? polylinePoints.map(p => [p.lat, p.lng]) : null,
-      distance: polylinePoints.length > 1 ? calculatePolylineLength() : null
+      distance: polylinePoints.length > 1 ? calculatePolylineLength() : null,
+      endpoint: endPoint ? [endPoint.lat, endPoint.lng] : null
     };
     drawingsRef.current = drawings;
     if (onDrawingsChange) onDrawingsChange(drawings);
@@ -353,6 +388,11 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   // Undo the last action, either removing the last point or polyline
   const handleUndo = () => {
     if ((mode === 'polyline' || mode === 'bezier') && polylinePoints.length > 0) {
+      // If we have an endpoint and it's the last point, clear it
+      if (endPoint && endPoint === polylinePoints[polylinePoints.length - 1]) {
+        setEndPoint(null);
+      }
+      
       setPolylinePoints(prev => {
         const newPoints = prev.slice(0, -1);
         // If we're undoing the point that closed the track, set isClosed to false
@@ -381,7 +421,9 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     if (mode === 'polyline' || mode === 'bezier') {
       setPolylinePoints([]);
       setStartPoint(null);
+      setEndPoint(null);
       setCurveControlPoint(null);
+      setIsClosed(false);
     }
     if (mode === 'point') {
       setSelectedPoint(null);
@@ -511,10 +553,8 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         )}
       </div>
 
-
-
       {/* Leaflet map container */}
-      <MapContainer center={mapCenter} zoom={6} style={{ height: '100%', width: '100%' }} >
+      <MapContainer center={center} zoom={20} style={{ height: '100%', width: '100%' }} >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <SearchControl />
         <MapHoverHandler 
@@ -522,6 +562,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
           mode={mode}
           polylinePoints={polylinePoints}
           curveControlPoint={curveControlPoint}
+          setIsHoveringLastPoint={setIsHoveringLastPoint}
         />
         <MapClickHandler 
           mode={mode}
@@ -533,6 +574,8 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
           setCurveControlPoint={setCurveControlPoint}
           addCurveSegment={addCurveSegment}
           onPositionChange={onPositionChange}
+          setEndPoint={setEndPoint}
+          hoverPosition={hoverPosition}
         />
 
         {/* Display selected point as marker */}
@@ -540,7 +583,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         
         {/* Display polyline */}
         {polylinePoints.length > 1 && (
-          <Polyline positions={polylinePoints} color='#233438' />
+          <Polyline positions={polylinePoints} color='#ff0000' />
         )}
 
         {/* Display tooltip for initial drawing */}
@@ -558,13 +601,13 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
               <Tooltip permanent direction="right" offset={[10, 0]} opacity={0.8}>
                 {isClosed
                   ? "Track is closed"
-                  : polylinePoints.length > 2
+                  : polylinePoints.length > 2 && !endPoint
                   ? "Click here to close the track"
                   : "Start Point"}
               </Tooltip>
             </Marker>
 
-            {polylinePoints.length > 2 && !isClosed && (
+            {polylinePoints.length > 2 && !isClosed && !endPoint && (
               <Marker
                 position={startPoint}
                 icon={L.divIcon({
@@ -578,6 +621,37 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
           </>
         )}
 
+        {/* Display endpoint marker if set */}
+        {endPoint && !isClosed && (
+          <Marker position={endPoint} icon={endIcon}>
+            <Tooltip permanent direction="right" offset={[10, 0]} opacity={0.8}>
+              End Point
+            </Tooltip>
+          </Marker>
+        )}
+
+        {/* Last point hover indicator for setting endpoint */}
+        {(mode === 'polyline' || mode === 'bezier') && 
+          polylinePoints.length > 1 && 
+          !endPoint && 
+          lastPolylinePoint && 
+          isHoveringLastPoint && (
+            <>
+              <Marker 
+                position={lastPolylinePoint} 
+                icon={L.divIcon({
+                  className: 'last-point-hover',
+                  html: `<div style="width: 14px; height: 14px; background: rgba(255, 0, 0, 0.5); border-radius: 50%; border: 2px solid red;"></div>`,
+                  iconSize: [18, 18],
+                  iconAnchor: [9, 9],
+                })}
+              >
+                <Tooltip permanent direction="right" offset={[10, 0]} opacity={0.8}>
+                  Click to set as endpoint
+                </Tooltip>
+              </Marker>
+            </>
+        )}
 
         {mode === 'point' && hoverPosition && (
           <>
@@ -591,13 +665,14 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
 
         {/* Display polyline points as red square markers */}
         {(mode === 'polyline' || mode === 'bezier') && polylinePoints.map((point, index) => (
-          index > 0 && <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
+          index > 0 && 
+          (!endPoint || point !== endPoint) && 
+          <Marker key={`polyline-${index}`} position={point} icon={squareIcon} />
         ))}
         
         {/* Display control point for bezier curve */}
         {mode === 'bezier' && curveControlPoint && (
-          <Marker position={curveControlPoint} icon={controlPointIcon}>
-          </Marker>
+          <Marker position={curveControlPoint} icon={controlPointIcon} />
         )}
         
         {/* Display preview curve with control point in bezier mode */}
@@ -612,7 +687,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         )}
         
         {/* Display line connecting the last polyline point to the hover position in polyline mode */}
-        {mode === 'polyline' && lastPolylinePoint && hoverPosition && (
+        {mode === 'polyline' && lastPolylinePoint && hoverPosition && !isHoveringLastPoint && !endPoint && (
           <Polyline positions={[lastPolylinePoint, hoverPosition]} color="red" weight={2} opacity={0.7} dashArray="5,10" />
         )}
         

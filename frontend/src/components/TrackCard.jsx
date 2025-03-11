@@ -15,9 +15,12 @@ export default function TrackCard({ track }) {
                 <img src={track.image} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
             </div>
 
-            <div className="absolute bottom-4 right-4 bg-mainYellow text-mainBlue text-xs font-semibold px-3 py-1 rounded-md">
-                {FormatedDistance}
-            </div>
+            {track.distance > 0 && (
+                <div className="absolute bottom-4 right-4 bg-mainYellow text-mainBlue text-xs font-semibold px-3 py-1 opacity-80 rounded">
+                    {FormatedDistance}
+                </div>
+            
+            )}
 
             <div className="p-6 flex flex-col justify-center w-full">
                 <h3 className='font-bold text-xl text-white'>{track.name}</h3>
