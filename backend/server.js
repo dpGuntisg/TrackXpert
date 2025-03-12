@@ -3,7 +3,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import User from "./models/User.js";
-import UserRoutes from "./routes/UserRoutes.js";
+import routes from "./routes/index.js";
 import jwt from "jsonwebtoken";
 
 
@@ -20,7 +20,8 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use('/api', UserRoutes);
+app.use('/api', routes);
+
 
 
 // MongoDB Connection

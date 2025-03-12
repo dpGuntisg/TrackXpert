@@ -26,7 +26,7 @@ export default function ProfilePage() {
             }
 
             try {
-                const profileResponse = await axios.get("http://localhost:5000/api/profile", {
+                const profileResponse = await axios.get("http://localhost:5000/api/users/profile", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const user = profileResponse.data.user;
@@ -35,7 +35,7 @@ export default function ProfilePage() {
 
                 if (user?._id) {
                     try {
-                        const tracksResponse = await axios.get(`http://localhost:5000/api/profile/${user._id}/tracks`, {
+                        const tracksResponse = await axios.get(`http://localhost:5000/api/tracks/profile/${user._id}/tracks`, {
                             headers: { Authorization: `Bearer ${token}` },
                         });
                         setTracks(tracksResponse.data.tracks || []); 
@@ -69,7 +69,7 @@ export default function ProfilePage() {
     
         const token = localStorage.getItem('token');
         try {
-            const response = await axios.patch("http://localhost:5000/api/profile/update", 
+            const response = await axios.patch("http://localhost:5000/api/users/update", 
                 { username: newUsername }, 
                 { headers: { Authorization: `Bearer ${token}` } }
             );

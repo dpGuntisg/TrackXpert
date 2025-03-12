@@ -131,7 +131,8 @@ const MapClickHandler = ({
   addCurveSegment,
   onPositionChange,
   setEndPoint,
-  hoverPosition
+  hoverPosition,
+  setHasUnsavedChanges
 }) => {
   const map = useMap();
   
@@ -151,6 +152,7 @@ const MapClickHandler = ({
         if (onPositionChange) {
           onPositionChange([clickedCoord.lat, clickedCoord.lng]);
         }
+        setHasUnsavedChanges(true); // Mark changes as unsaved
       } else if (mode === 'polyline') {
         // Regular polyline mode
         if (polylinePoints.length > 2) {
@@ -161,6 +163,7 @@ const MapClickHandler = ({
           if (distance < 10) { // Adjust sensitivity 
             setPolylinePoints([...polylinePoints, firstPoint]); // Close the polyline
             setIsClosed(true);
+            setHasUnsavedChanges(true); // Mark changes as unsaved
             return;
           }
           
@@ -170,6 +173,7 @@ const MapClickHandler = ({
           
           if (distanceToLast < 10) { // Adjust sensitivity
             setEndPoint(lastPoint);
+            setHasUnsavedChanges(true); // Mark changes as unsaved
             return;
           }
         }
@@ -177,23 +181,27 @@ const MapClickHandler = ({
         // Add the new point
         setPolylinePoints(prev => [...prev, clickedCoord]);
         setIsClosed(false); // Ensure it is open after adding a new point
+        setHasUnsavedChanges(true); // Mark changes as unsaved
   
       } else if (mode === 'bezier') {
         // Bezier curve mode
         if (polylinePoints.length === 0) {
           setPolylinePoints([clickedCoord]);
+          setHasUnsavedChanges(true); // Mark changes as unsaved
         } else if (!curveControlPoint) {
           setCurveControlPoint(clickedCoord);
         } else {
           const lastPoint = polylinePoints[polylinePoints.length - 1];
           addCurveSegment(lastPoint, clickedCoord, curveControlPoint);
           setCurveControlPoint(null);
+          setHasUnsavedChanges(true); // Mark changes as unsaved
           
           // Check if user clicked near the last point to end the track
           if (polylinePoints.length > 2) {
             const distanceToLast = clickedCoord.distanceTo(lastPoint);
             if (distanceToLast < 10) {
               setEndPoint(lastPoint);
+              setHasUnsavedChanges(true); // Mark changes as unsaved
             }
           }
         }
@@ -205,6 +213,7 @@ const MapClickHandler = ({
           if (distance < 10) {
             setPolylinePoints(prev => [...prev, firstPoint]); // Close the polyline
             setIsClosed(true);
+            setHasUnsavedChanges(true); // Mark changes as unsaved
           }
         }
       }
@@ -273,6 +282,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     
     // Add all points from the curve except the first one (which is already in the polyline)
     setPolylinePoints(prev => [...prev, ...curvePoints.slice(1)]);
+    setHasUnsavedChanges(true); // Mark changes as unsaved after adding curve
   };
 
   // Handle fullscreen toggle
@@ -350,45 +360,59 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
     }
   }, [polylinePoints]);
 
-  // Track changes after initial load
+  // Initialize map with existing drawings if available
   useEffect(() => {
-    if (initializedRef.current) {
-      setHasUnsavedChanges(true);
-    }
-  }, [selectedPoint, polylinePoints]);
-  
-
-  useEffect(() => {
-    // Initialize map with existing drawings if available
     if (!initialDrawings || initializedRef.current) return;
 
-    if (initialDrawings.point) setSelectedPoint(L.latLng(initialDrawings.point[0], initialDrawings.point[1]));
-    if (initialDrawings.polyline) {
+    if (initialDrawings.point) {
+      setSelectedPoint(L.latLng(initialDrawings.point[0], initialDrawings.point[1]));
+    }
+    
+    if (initialDrawings.polyline && initialDrawings.polyline.length) {
       const polylineLatLngs = initialDrawings.polyline.map(([lat, lng]) => L.latLng(lat, lng));
       setPolylinePoints(polylineLatLngs);
+      
+      // If there's an endpoint in the initial drawings, set it
+      if (initialDrawings.endpoint) {
+        setEndPoint(L.latLng(initialDrawings.endpoint[0], initialDrawings.endpoint[1]));
+      }
     }
 
-    drawingsRef.current = { point: initialDrawings.point, polyline: initialDrawings.polyline };
+    drawingsRef.current = { 
+      point: initialDrawings.point, 
+      polyline: initialDrawings.polyline,
+      endpoint: initialDrawings.endpoint
+    };
+    
     initializedRef.current = true;
+    setHasUnsavedChanges(false); // Initial state should be "saved"
   }, [initialDrawings]);
 
   // Update parent component when selected point changes
   useEffect(() => {
-    if (selectedPoint && onPositionChange) {
+    if (selectedPoint && onPositionChange && initializedRef.current) {
       onPositionChange([selectedPoint.lat, selectedPoint.lng]);
     }
   }, [selectedPoint, onPositionChange]);
 
   // Prepares drawings for saving and triggers the callback
   const prepareDrawingsForSave = () => {
+    console.log("Saving drawings...");
+    
     const drawings = {
       point: selectedPoint ? [selectedPoint.lat, selectedPoint.lng] : null,
       polyline: polylinePoints.length > 1 ? polylinePoints.map(p => [p.lat, p.lng]) : null,
       distance: polylinePoints.length > 1 ? calculatePolylineLength() : null,
       endpoint: endPoint ? [endPoint.lat, endPoint.lng] : null
     };
+    
     drawingsRef.current = drawings;
-    if (onDrawingsChange) onDrawingsChange(drawings);
+    
+    if (onDrawingsChange) {
+      onDrawingsChange(drawings);
+      console.log("Drawings saved:", drawings);
+    }
+    
     setHasUnsavedChanges(false);
     return drawings;
   };
@@ -426,9 +450,11 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
         return newPoints;
       });
       setCurveControlPoint(null);
+      setHasUnsavedChanges(true); // Mark changes as unsaved
     } else if (mode === 'point' && selectedPoint) {
       setSelectedPoint(null);
       if (onPositionChange) onPositionChange(null);
+      setHasUnsavedChanges(true); // Mark changes as unsaved
     }
   };
 
@@ -445,7 +471,21 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
       setSelectedPoint(null);
       if (onPositionChange) onPositionChange(null);
     }
-    setTimeout(() => prepareDrawingsForSave(), 0);
+    
+    setHasUnsavedChanges(true); // Mark that changes need to be saved
+    
+    // Allow state updates to complete, then save
+    setTimeout(() => {
+      const drawings = {
+        point: null,
+        polyline: null,
+        distance: null,
+        endpoint: null
+      };
+      drawingsRef.current = drawings;
+      if (onDrawingsChange) onDrawingsChange(drawings);
+      setHasUnsavedChanges(false);
+    }, 0);
   };
 
   const calculatePolylineLength = () => {
@@ -487,6 +527,15 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const bezierPreviewPoints = showBezierPreview 
     ? createBezierCurve(lastPolylinePoint, hoverPosition, curveControlPoint) 
     : [];
+
+  // Debug information
+  console.log("Current state:", {
+    mode,
+    hasUnsavedChanges,
+    selectedPoint: selectedPoint ? [selectedPoint.lat, selectedPoint.lng] : null,
+    polylinePointsCount: polylinePoints.length,
+    endPoint: endPoint ? [endPoint.lat, endPoint.lng] : null
+  });
 
   return (
     <div 
@@ -593,6 +642,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
           onPositionChange={onPositionChange}
           setEndPoint={setEndPoint}
           hoverPosition={hoverPosition}
+          setHasUnsavedChanges={setHasUnsavedChanges}
         />
 
         {/* Display selected point as marker */}

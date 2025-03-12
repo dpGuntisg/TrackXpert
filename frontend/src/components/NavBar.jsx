@@ -15,7 +15,7 @@ const Navbar = () => {
       if (!token) return;
 
       try {
-        const response = await axios.get("http://localhost:5000/api/profile", {
+        const response = await axios.get("http://localhost:5000/api/users/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setProfile(response.data.user);
@@ -36,7 +36,7 @@ const Navbar = () => {
 
   const handleSignOut = async () => {
     const token = localStorage.getItem("token");
-    await axios.post("http://localhost:5000/api/signout", {}, {
+    await axios.post("http://localhost:5000/api/users/signout", {}, {
       headers: { Authorization: `Bearer ${token}` },
     });
     localStorage.removeItem("token");

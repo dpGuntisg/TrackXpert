@@ -144,7 +144,7 @@ export default function TracksPage() {
             const reader = new FileReader();
             reader.onloadend = () => {
                 setImage(reader.result);
-                setError(''); // Clear any previous errors when successful
+                setError('');
             };
             reader.onerror = () => {
                 setError("Failed to read image file. Please try again.");
@@ -198,7 +198,7 @@ export default function TracksPage() {
         
         try {
             await axios.post(
-                `${API_BASE_URL}/createtrack`,
+                `${API_BASE_URL}/tracks/createtrack`,
                 trackData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );

@@ -23,7 +23,7 @@ export default function SignInPage() {
 
 
     try {
-      const response = await axios.post("http://localhost:5000/api/signin", {
+      const response = await axios.post("http://localhost:5000/api/users/signin", {
         email,
         password,
       });
