@@ -1,12 +1,29 @@
 import Track from "../models/Track.js";
+import Image from "../models/Images.js";
+
+async function createImage(base64String, mimeType) {
+  const image = await Image.create({
+    data: base64String,
+    mimeType: mimeType,
+  });
+  return image;
+}
 
 class TrackService {
-    static async createTrack(userId,{ name, description, location, image, availability, latitude, longitude, distance, polyline }) {
-        console.log("Incoming data:", { userId, name, description, location, image, availability, latitude, longitude, distance, polyline });
-      
+    static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline }) {
+
         const created_by = userId;
-        const trackData = { name, description, location, image, availability, created_by, distance };
-      
+        const trackData = { name, description, location, images:[], availability, created_by, distance };
+
+        if (images && Array.isArray(images)) {
+          const imageIds = [];
+          for (let image of images) {
+            const imageData = await createImage(image.data, image.mimeType);
+            imageIds.push(imageData._id);  // Collect image IDs
+          }
+          trackData.images = imageIds;  // Assign the array of image IDs to the track's images field
+        }
+
         // Add point geometry if latitude and longitude are provided
         if (latitude && longitude) {
           trackData.coordinates = {
@@ -18,7 +35,7 @@ class TrackService {
         // Add polyline geometry if polyline is provided
         if (polyline === null || polyline === undefined) {
           trackData.polyline = undefined;
-        } else if (polyline && Array.isArray(polyline)) { // Fix here, added missing parenthesis
+        } else if (polyline && Array.isArray(polyline)) {
           if (polyline.length > 1) {
             trackData.polyline = {
               type: "LineString",
@@ -44,6 +61,15 @@ class TrackService {
     const track = await Track.findById(trackId);
     if (!track) throw new Error("Track not found");
     if (track.created_by.toString() !== userId) throw new Error("Unauthorized");
+
+    if (updates.images && Array.isArray(updates.images)) {
+      const imageIds = [];
+      for (let image of updates.images) {
+        const imageData = await createImage(image.data, image.mimeType); // Save new images
+        imageIds.push(imageData._id);  // Collect image IDs
+      }
+      updates.images = imageIds;  // Assign the new image IDs to the images field
+    }
     
     Object.assign(track, updates);
     

@@ -96,7 +96,7 @@ export default function TrackDetailPage() {
         name: "", 
         description: "", 
         location: "", 
-        image: "", 
+        images: [], 
         created_by: "", 
         distance: 0,
         availability: [],
@@ -152,7 +152,7 @@ export default function TrackDetailPage() {
                 name: trackData.name,
                 description: trackData.description,
                 location: trackData.location,
-                image: trackData.image
+                images: trackData.images
             });
             
             setAvailability(trackData.availability || []);
@@ -206,7 +206,7 @@ export default function TrackDetailPage() {
                     setError("Track location must be at least 5 characters long.");
                     return false;
                 }
-                if (!editValues.image) {
+                if (!editValues.images) {
                     setError("Track image is required.");
                     return false;
                 }

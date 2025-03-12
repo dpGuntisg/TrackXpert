@@ -15,7 +15,7 @@ export default function TracksPage() {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [location, setLocation] = useState('');
-    const [image, setImage] = useState('');
+    const [images, setImages] = useState([]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -83,7 +83,7 @@ export default function TracksPage() {
         setName('');
         setDescription('');
         setLocation('');
-        setImage('');
+        setImages([]);
         setCoordinates(null);
         setAvailability([]);
         setDrawings({
@@ -118,38 +118,46 @@ export default function TracksPage() {
             setError("Track location is too long (maximum 50 characters).");
             return false;
         }
-        if (!image) {
-            setError("Track image is required.");
+        if (!images) {
+            setError("At least one track image is required.");
             return false;
         }
         setError("");
         return true;
     };
 
+
     const handleImageChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Check file size (limit to 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                setError("Image size exceeds 5MB limit. Please choose a smaller image.");
-                return;
+        const files = e.target.files;
+        if (files) {
+            const newImages = [];
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                // Check file size (limit to 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    setError("Image size exceeds 5MB limit. Please choose a smaller image.");
+                    return;
+                }
+                
+                // Check file type
+                if (!file.type.match('image.*')) {
+                    setError("Please upload an image file (jpg, png, etc).");
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    newImages.push({ data: reader.result, mimeType: file.type });
+                    if (newImages.length === files.length) {
+                        setImages(newImages);
+                        setError('');
+                    }
+                };
+                reader.onerror = () => {
+                    setError("Failed to read image file. Please try again.");
+                };
+                reader.readAsDataURL(file);
             }
-            
-            // Check file type
-            if (!file.type.match('image.*')) {
-                setError("Please upload an image file (jpg, png, etc).");
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImage(reader.result);
-                setError('');
-            };
-            reader.onerror = () => {
-                setError("Failed to read image file. Please try again.");
-            };
-            reader.readAsDataURL(file);
         }
     };
 
@@ -175,7 +183,7 @@ export default function TracksPage() {
             name, 
             description, 
             location, 
-            image,
+            images,
             availability: availability.length > 0 ? availability : undefined
         };
       
@@ -327,12 +335,12 @@ export default function TracksPage() {
                         <div className="space-y-4">
                             {step === 1 ? (
                                 <TrackForm 
-                                    values={{ name, description, location, image }}
+                                    values={{ name, description, location, images }}
                                     setValues={(values) => {
                                         setName(values.name);
                                         setDescription(values.description);
                                         setLocation(values.location);
-                                        setImage(values.image);
+                                        setImages(values.images);
                                     }}
                                     handleImageChange={handleImageChange}
                                 />

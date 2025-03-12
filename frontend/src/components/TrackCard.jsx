@@ -12,7 +12,7 @@ export default function TrackCard({ track }) {
             className='flex flex-col bg-mainBlue drop-shadow-lg outline outline-12 outline-mainRed overflow-hidden hover:scale-105 transition-all ease-in-out duration-300 h-[500px]'>
             
             <div className='w-full h-3/5'>
-                <img src={track.image} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
+                <img src={track.images} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
             </div>
 
             {track.distance > 0 && (
