@@ -116,6 +116,7 @@ export default function TrackDetailPage() {
         polyline: null,
         distance: null
     });
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     // Format distance with memoization
     const formattedDistance = useMemo(() => {
@@ -230,6 +231,19 @@ export default function TrackDetailPage() {
         }
         setError("");
     }, [validateStep]);
+
+    
+    const goToNextImage = () => {
+        setCurrentImageIndex((prevIndex) =>
+            prevIndex === track.images.length - 1 ? 0 : prevIndex + 1
+        );
+    };
+    
+    const goToPreviousImage = () => {
+        setCurrentImageIndex((prevIndex) =>
+            prevIndex === 0 ? track.images.length - 1 : prevIndex - 1
+        );
+    };
 
     // Handle image change
     const handleImageChange = useCallback((e) => {
@@ -380,29 +394,47 @@ export default function TrackDetailPage() {
             )}
 
             <div className="max-w-4xl mx-auto space-y-8">
-                <div className="relative group">
-                    <div className="relative h-96 rounded overflow-hidden shadow-xl">
-                        <img 
-                            src={track.image || 'default-image.jpg'} 
-                            alt={track.name}
-                            className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
-                    </div>
+            <div className="relative group">
+                <div className="relative h-96 rounded overflow-hidden shadow-xl">
+                    <img 
+                        src={track.images[currentImageIndex].data} 
+                        alt={track.name}
+                        className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
                     
-                    <div className="absolute bottom-6 left-6 space-y-2">
-                        <h1 className="text-4xl font-bold drop-shadow-lg">{track.name}</h1>
-                        <div className="flex flex-row items-center space-x-2 text-gray-300">
-                            <FontAwesomeIcon icon={faLocationDot} />
-                            <span className="font-medium">{track.location}</span>
-                        </div>
-                        {track.distance > 0 && (
-                            <span className="text-gray-300 text-xs font-semibold px-3 py-1 opacity-80 rounded">
-                                Length: {formattedDistance}
-                            </span>
+                        {/* Navigation Buttons */}
+                        {track.images.length > 1 && (
+                            <>
+                                <button
+                                    onClick={goToPreviousImage}
+                                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
+                                >
+                                    {"<"}
+                                </button>
+                                <button
+                                    onClick={goToNextImage}
+                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
+                                >
+                                    {">"}
+                                </button>
+                            </>
                         )}
-                    </div>
                 </div>
+                
+                <div className="absolute bottom-6 left-6 space-y-2">
+                    <h1 className="text-4xl font-bold drop-shadow-lg">{track.name}</h1>
+                    <div className="flex flex-row items-center space-x-2 text-gray-300">
+                        <FontAwesomeIcon icon={faLocationDot} />
+                        <span className="font-medium">{track.location}</span>
+                    </div>
+                    {track.distance > 0 && (
+                        <span className="text-gray-300 text-xs font-semibold px-3 py-1 opacity-80 rounded">
+                            Length: {formattedDistance}
+                        </span>
+                    )}
+                </div>
+            </div>
 
                 {/* Owner Actions */}
                 {userId === track.created_by?._id && (

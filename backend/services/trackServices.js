@@ -1,19 +1,20 @@
 import Track from "../models/Track.js";
 import Image from "../models/Images.js";
-
-async function createImage(base64String, mimeType) {
-  const image = await Image.create({
-    data: base64String,
-    mimeType: mimeType,
-  });
-  return image;
-}
+import { createImage } from "./helpers/imageHelper.js";
 
 class TrackService {
     static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline }) {
 
         const created_by = userId;
-        const trackData = { name, description, location, images:[], availability, created_by, distance };
+        const trackData = { 
+          name, 
+          description,
+          location,
+          images:[],
+          availability,
+          created_by,
+          distance 
+        };
 
         if (images && Array.isArray(images)) {
           const imageIds = [];
@@ -100,7 +101,7 @@ class TrackService {
 
   static async getAllTracks({ page = 1, limit = 6 }) {
     const skip = (page - 1) * limit;
-    const tracks = await Track.find().skip(skip).limit(limit);
+    const tracks = await Track.find().skip(skip).limit(limit).populate("images", "data mimeType");
     const totalTracks = await Track.countDocuments();
     
     return {
@@ -112,7 +113,9 @@ class TrackService {
   }
 
   static async getTrackById(trackId) {
-    const track = await Track.findById(trackId).populate("created_by", "username _id");
+    const track = await Track.findById(trackId)
+    .populate("created_by", "username _id",)
+    .populate("images", "data mimeType");
     if (!track) throw new Error("Track not found");
     return track;
   }
@@ -129,7 +132,9 @@ class TrackService {
   static async getTracksByUserId(userId) {
     if (!userId) throw new Error("User ID is required");
     
-    const tracks = await Track.find({ created_by: userId }).populate("created_by", "username email");
+    const tracks = await Track.find({ created_by: userId })
+    .populate("created_by", "username email",)
+    .populate("images", "data mimeType");
     if (!tracks.length) throw new Error("No tracks found for this user");
     
     return tracks;

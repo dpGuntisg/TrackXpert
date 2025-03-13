@@ -6,13 +6,14 @@ export default function TrackCard({ track }) {
 
     const truncatedDescription = track.description.length > 200 ? track.description.substring(0, 200) + "..." : track.description;
     const FormatedDistance = `${parseFloat(track.distance).toFixed(2).replace('.', ',')} km`;
+    const firstImage = track.images?.[0]?.data;
 
     return (
         <Link to={`/tracks/${track._id}`} 
             className='flex flex-col bg-mainBlue drop-shadow-lg outline outline-12 outline-mainRed overflow-hidden hover:scale-105 transition-all ease-in-out duration-300 h-[500px]'>
             
             <div className='w-full h-3/5'>
-                <img src={track.images} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
+                <img src={firstImage} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
             </div>
 
             {track.distance > 0 && (

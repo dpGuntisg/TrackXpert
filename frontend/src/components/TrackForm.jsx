@@ -70,6 +70,7 @@ export const TrackForm = ({
         <input
           type="file"
           accept="image/*"
+          multiple
           onChange={handleImageChange}
           className={`w-full rounded-lg px-4 py-2 focus:ring-2 focus:ring-mainRed outline-none
             file:bg-mainYellow file:hover:bg-yellow-400 file:text-mainBlue file:border-0 
