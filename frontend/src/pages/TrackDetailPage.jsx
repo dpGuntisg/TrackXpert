@@ -207,8 +207,8 @@ export default function TrackDetailPage() {
                     setError("Track location must be at least 5 characters long.");
                     return false;
                 }
-                if (!editValues.images) {
-                    setError("Track image is required.");
+                if (!editValues.images || editValues.images.length === 0) {
+                    setError("At least one track image is required.");
                     return false;
                 }
                 return true;
@@ -244,6 +244,12 @@ export default function TrackDetailPage() {
             prevIndex === 0 ? track.images.length - 1 : prevIndex - 1
         );
     };
+    
+    useEffect(() => {
+        if (track.images && currentImageIndex >= track.images.length) {
+          setCurrentImageIndex(Math.max(0, track.images.length - 1));
+        }
+      }, [track.images, currentImageIndex]);
 
     // Handle image change
     const handleImageChange = useCallback((e) => {
@@ -346,6 +352,8 @@ export default function TrackDetailPage() {
                         values={editValues} 
                         setValues={setEditValues}
                         handleImageChange={handleImageChange}
+                        currentImageIndex={currentImageIndex}
+                        setCurrentImageIndex={setCurrentImageIndex}
                     />
                 );
             case 2:
@@ -375,7 +383,7 @@ export default function TrackDetailPage() {
             default:
                 return null;
         }
-    }, [step, editValues, drawings, availability, error, handleImageChange, handleDrawingsChange]);
+    }, [step, editValues, drawings, availability, error, handleImageChange, handleDrawingsChange, currentImageIndex]);
 
     // Render loading state
     if (loading) {

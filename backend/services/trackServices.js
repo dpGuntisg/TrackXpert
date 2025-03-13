@@ -58,46 +58,67 @@ class TrackService {
       
         return await Track.create(trackData);
       }
-  static async updateTrack(trackId, userId, updates) {
-    const track = await Track.findById(trackId);
-    if (!track) throw new Error("Track not found");
-    if (track.created_by.toString() !== userId) throw new Error("Unauthorized");
-
-    if (updates.images && Array.isArray(updates.images)) {
-      const imageIds = [];
-      for (let image of updates.images) {
-        const imageData = await createImage(image.data, image.mimeType); // Save new images
-        imageIds.push(imageData._id);  // Collect image IDs
+      static async updateTrack(trackId, userId, updates) {
+        const track = await Track.findById(trackId);
+        if (!track) throw new Error("Track not found");
+        if (track.created_by.toString() !== userId) throw new Error("Unauthorized");
+      
+        // Track the IDs of images to be deleted
+        const imagesToDelete = [];
+      
+        if (updates.images && Array.isArray(updates.images)) {
+          const imageIds = [];
+          for (let image of updates.images) {
+            // If the image is new (doesn't have an _id), create it
+            if (!image._id) {
+              const imageData = await createImage(image.data, image.mimeType);
+              imageIds.push(imageData._id);
+            } else {
+              // If the image already exists, keep its ID
+              imageIds.push(image._id);
+            }
+          }
+      
+          // Find images that are no longer in the updated list
+          const existingImageIds = track.images.map(img => img.toString());
+          imagesToDelete.push(...existingImageIds.filter(id => !imageIds.includes(id)));
+      
+          updates.images = imageIds; // Assign the new image IDs to the images field
+        }
+      
+        // Delete images that are no longer associated with the track
+        if (imagesToDelete.length > 0) {
+          await Image.deleteMany({ _id: { $in: imagesToDelete } });
+        }
+      
+        // Update the track with the new data
+        Object.assign(track, updates);
+      
+        // Handle geometry updates
+        if (updates.latitude !== undefined && updates.longitude !== undefined) {
+          track.coordinates = updates.latitude === null || updates.longitude === null ? undefined : {
+            type: "Point",
+            coordinates: [parseFloat(updates.longitude), parseFloat(updates.latitude)]
+          };
+        }
+      
+        if (updates.polyline !== undefined) {
+          if (updates.polyline === null) {
+            track.polyline = undefined;
+          } else if (updates.polyline.type && updates.polyline.coordinates) {
+            track.polyline = updates.polyline;
+          } else if (Array.isArray(updates.polyline) && updates.polyline.length > 1) {
+            track.polyline = {
+              type: "LineString",
+              coordinates: updates.polyline.map(point => [parseFloat(point[1]), parseFloat(point[0])])
+            };
+          } else {
+            throw new Error("Invalid polyline data");
+          }
+        }
+      
+        return await track.save();
       }
-      updates.images = imageIds;  // Assign the new image IDs to the images field
-    }
-    
-    Object.assign(track, updates);
-    
-    if (updates.latitude !== undefined && updates.longitude !== undefined) {
-      track.coordinates = updates.latitude === null || updates.longitude === null ? undefined : {
-        type: "Point",
-        coordinates: [parseFloat(updates.longitude), parseFloat(updates.latitude)]
-      };
-    }
-    
-    if (updates.polyline !== undefined) {
-      if (updates.polyline === null) {
-        track.polyline = undefined;
-      } else if (updates.polyline.type && updates.polyline.coordinates) {
-        track.polyline = updates.polyline;
-      } else if (Array.isArray(updates.polyline) && updates.polyline.length > 1) {
-        track.polyline = {
-          type: "LineString",
-          coordinates: updates.polyline.map(point => [parseFloat(point[1]), parseFloat(point[0])])
-        };
-      } else {
-        throw new Error("Invalid polyline data");
-      }
-    }
-    
-    return await track.save();
-  }
 
   static async getAllTracks({ page = 1, limit = 6 }) {
     const skip = (page - 1) * limit;

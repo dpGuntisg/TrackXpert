@@ -12,10 +12,19 @@ const API_BASE_URL = 'http://localhost:5000/api';
 
 export default function TracksPage() {
     const [tracks, setTracks] = useState([]);
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [location, setLocation] = useState('');
-    const [images, setImages] = useState([]);
+    const [formValues, setFormValues] = useState({
+        name: '',
+        description: '',
+        location: '',
+        images: []
+    });
+    const [formTouched, setFormTouched] = useState({
+        name: false,
+        description: false,
+        location: false,
+        images: false
+    });
+    const [formErrors, setFormErrors] = useState({});
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -80,10 +89,19 @@ export default function TracksPage() {
     };
 
     const resetForm = () => {
-        setName('');
-        setDescription('');
-        setLocation('');
-        setImages([]);
+        setFormValues({
+            name: '',
+            description: '',
+            location: '',
+            images: []
+        });
+        setFormTouched({
+            name: false,
+            description: false,
+            location: false,
+            images: false
+        });
+        setFormErrors({});
         setCoordinates(null);
         setAvailability([]);
         setDrawings({
@@ -91,74 +109,58 @@ export default function TracksPage() {
             polyline: null
         });
         setStep(1);
+        setError('');
     };
 
     const validateStep1 = () => {
-        if (!name || name.length < 5) {
-            setError("Track name must be at least 5 characters long.");
-            return false;
-        }
-        if (name.length > 100) {
-            setError("Track name is too long (maximum 100 characters).");
-            return false;
-        }
-        if (!description || description.length < 10) {
-            setError("Track description must be at least 10 characters long.");
-            return false;
-        }
-        if (description.length > 15000) {
-            setError("Track description is too long (maximum 15000 characters).");
-            return false;
-        }
-        if (!location || location.length < 5) {
-            setError("Track location must be at least 5 characters long.");
-            return false;
-        }
-        if (location.length > 50) {
-            setError("Track location is too long (maximum 50 characters).");
-            return false;
-        }
-        if (!images) {
-            setError("At least one track image is required.");
-            return false;
-        }
-        setError("");
-        return true;
-    };
+        const errors = {};
+        let isValid = true;
 
-
-    const handleImageChange = (e) => {
-        const files = e.target.files;
-        if (files) {
-            const newImages = [];
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                // Check file size (limit to 5MB)
-                if (file.size > 5 * 1024 * 1024) {
-                    setError("Image size exceeds 5MB limit. Please choose a smaller image.");
-                    return;
-                }
-                
-                // Check file type
-                if (!file.type.match('image.*')) {
-                    setError("Please upload an image file (jpg, png, etc).");
-                    return;
-                }
-                
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    newImages.push({ data: reader.result, mimeType: file.type });
-                    if (newImages.length === files.length) {
-                        setImages(newImages);
-                        setError('');
-                    }
-                };
-                reader.onerror = () => {
-                    setError("Failed to read image file. Please try again.");
-                };
-                reader.readAsDataURL(file);
-            }
+        if (!formValues.name || formValues.name.length < 5) {
+            errors.name = "Track name must be at least 5 characters long.";
+            isValid = false;
+        } else if (formValues.name.length > 100) {
+            errors.name = "Track name is too long (maximum 100 characters).";
+            isValid = false;
         }
+
+        if (!formValues.description || formValues.description.length < 10) {
+            errors.description = "Track description must be at least 10 characters long.";
+            isValid = false;
+        } else if (formValues.description.length > 15000) {
+            errors.description = "Track description is too long (maximum 15000 characters).";
+            isValid = false;
+        }
+
+        if (!formValues.location || formValues.location.length < 5) {
+            errors.location = "Track location must be at least 5 characters long.";
+            isValid = false;
+        } else if (formValues.location.length > 50) {
+            errors.location = "Track location is too long (maximum 50 characters).";
+            isValid = false;
+        }
+
+        if (!formValues.images || formValues.images.length === 0) {
+            errors.images = "At least one track image is required.";
+            isValid = false;
+        }
+
+        setFormErrors(errors);
+        
+        // If there are errors, mark all fields as touched to show errors
+        if (!isValid) {
+            setFormTouched({
+                name: true,
+                description: true,
+                location: true,
+                images: true
+            });
+            setError("Please fix all errors before proceeding.");
+        } else {
+            setError("");
+        }
+        
+        return isValid;
     };
 
     const handleSubmit = async () => {
@@ -180,10 +182,10 @@ export default function TracksPage() {
         }
 
         const trackData = {
-            name, 
-            description, 
-            location, 
-            images,
+            name: formValues.name, 
+            description: formValues.description, 
+            location: formValues.location, 
+            images: formValues.images,
             availability: availability.length > 0 ? availability : undefined
         };
       
@@ -335,14 +337,10 @@ export default function TracksPage() {
                         <div className="space-y-4">
                             {step === 1 ? (
                                 <TrackForm 
-                                    values={{ name, description, location, images }}
-                                    setValues={(values) => {
-                                        setName(values.name);
-                                        setDescription(values.description);
-                                        setLocation(values.location);
-                                        setImages(values.images);
-                                    }}
-                                    handleImageChange={handleImageChange}
+                                    values={formValues}
+                                    setValues={setFormValues}
+                                    errors={formErrors}
+                                    touched={formTouched}
                                 />
                             ) : step === 2 ? (
                                 <AvailabilityForm 
@@ -399,71 +397,71 @@ export default function TracksPage() {
                                         className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
                                         disabled={loading}
                                     >
-                                        {loading ? (
-                                            <>
-                                                <div className="h-4 w-4 border-2 border-mainBlue border-t-transparent rounded-full animate-spin"></div>
-                                                Creating...
-                                            </>
-                                        ) : "Create Track"}
-                                    </button>
-                                )}
-                                <button
-                                    type="button"
-                                    onClick={() => {
-                                        setShowCreateForm(false);
-                                        resetForm();
-                                    }}
-                                    className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
-                                    disabled={loading}
-                                >
-                                    Cancel
+                                {loading ? (
+                                        <>
+                                            <div className="h-4 w-4 border-2 border-mainBlue border-t-transparent rounded-full animate-spin"></div>
+                                            Creating...
+                                        </>
+                                    ) : "Create Track"}
                                 </button>
-                            </div>
+                            )}
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowCreateForm(false);
+                                    resetForm();
+                                }}
+                                className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
+                                disabled={loading}
+                            >
+                                Cancel
+                            </button>
                         </div>
                     </div>
                 </div>
-            )}
+            </div>
+        )}
 
-            {tracks.length === 0 && !loading ? (
-                <div className="text-center py-16">
-                    <p className="text-2xl mb-4">No tracks found</p>
-                    <p className="text-gray-400">Be the first to create a track!</p>
-                </div>
-            ) : (
-                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 justify-center'>
-                    {tracks.map((track) => (
-                        <TrackCard key={track._id} track={track} />
-                    ))}
-                </div>
-            )}
+        {tracks.length === 0 && !loading ? (
+            <div className="text-center py-16">
+                <p className="text-2xl mb-4">No tracks found</p>
+                <p className="text-gray-400">Be the first to create a track!</p>
+            </div>
+        ) : (
+            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 justify-center'>
+                {tracks.map((track) => (
+                    <TrackCard key={track._id} track={track} />
+                ))}
+            </div>
+        )}
 
-            {totalPages > 1 && (
-                <div className="flex justify-center mt-8">
-                    <div className="inline-flex rounded-md shadow-sm">
-                        {currentPage > 1 && (
-                            <button
-                                className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-l-lg"
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={loading}
-                            >
-                                Previous
-                            </button>
-                        )}
-                        <span className="px-4 py-2 text-sm font-medium bg-gray-800">
-                            {currentPage} of {totalPages}
-                        </span>
-                        {currentPage < totalPages && (
-                            <button
-                                className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-r-lg"
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={loading}
-                            >
-                                Next
-                            </button>
-                        )}
-                    </div>
+        {totalPages > 1 && (
+            <div className="flex justify-center mt-8">
+                <div className="inline-flex rounded-md shadow-sm">
+                    {currentPage > 1 && (
+                        <button
+                            className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-l-lg"
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={loading}
+                        >
+                            Previous
+                        </button>
+                    )}
+                    <span className="px-4 py-2 text-sm font-medium bg-gray-800">
+                        {currentPage} of {totalPages}
+                    </span>
+                    {currentPage < totalPages && (
+                        <button
+                            className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-r-lg"
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={loading}
+                        >
+                            Next
+                        </button>
+                    )}
                 </div>
-            )}
-        </div>
-    );
+            </div>
+        )}
+    </div>
+);
 }
