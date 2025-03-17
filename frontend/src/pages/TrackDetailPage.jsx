@@ -246,10 +246,12 @@ export default function TrackDetailPage() {
     };
     
     useEffect(() => {
-        if (track.images && currentImageIndex >= track.images.length) {
-          setCurrentImageIndex(Math.max(0, track.images.length - 1));
+        if (track.images.length === 0) {
+            setCurrentImageIndex(0);
+        } else if (currentImageIndex >= track.images.length) {
+            setCurrentImageIndex(track.images.length - 1);
         }
-      }, [track.images, currentImageIndex]);
+    }, [track.images, currentImageIndex]);
 
     // Handle image change
     const handleImageChange = useCallback((e) => {
@@ -404,13 +406,19 @@ export default function TrackDetailPage() {
             <div className="max-w-4xl mx-auto space-y-8">
             <div className="relative group">
                 <div className="relative h-96 rounded overflow-hidden shadow-xl">
-                    <img 
-                        src={track.images[currentImageIndex].data} 
-                        alt={track.name}
-                        className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {track.images.length > 0 && track.images[currentImageIndex] ? (
+                        <img 
+                            src={track.images[currentImageIndex].data} 
+                            alt={track.name}
+                            className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
+                        />
+                    ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            No images available
+                        </div>
+                    )}
+
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
-                    
                         {/* Navigation Buttons */}
                         {track.images.length > 1 && (
                             <>
@@ -465,24 +473,41 @@ export default function TrackDetailPage() {
                 )}
 
                 {/* Availability Section */}
-                {track.availability && track.availability.length > 0 && (
-                    <div className="mt-2 text-sm text-gray-400">
-                        {track.availability.map((slot, index) => (
-                            <div key={index}>
-                                {slot.startDay === slot.endDay 
-                                    ? `${slot.startDay}: ${slot.open_time}-${slot.close_time}`
-                                    : `${slot.startDay}-${slot.endDay}: ${slot.open_time}-${slot.close_time}`}
-                            </div>
-                        ))}
-                    </div>
-                )}
+                <div className="p-6 ">
+                    <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2">
+                        Open Hours
+                    </h2>
+                    {track.availability && track.availability.length > 0 && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4 text-sm text-gray-400">
+                            {track.availability.map((slot, index) => (
+                                <div
+                                    key={index}
+                                    className="flex flex-col items-center gap-4 p-6 rounded-lg bg-gray-800 w-full hover:bg-gray-700 transition duration-300"
+                                >
+                                    <div className="text-center">
+                                        <span className="font-bold text-white">
+                                            {slot.startDay === slot.endDay
+                                                ? slot.startDay
+                                                : `${slot.startDay} - ${slot.endDay}`}
+                                        </span>
+                                    </div>
+                                    <div className="text-center">
+                                        <span className="text-gray-300 font-semibold">
+                                            {slot.open_time} - {slot.close_time}
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
 
                 {/* Description Section */}
                 <div className="p-6 rounded-xl">
                     <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2">
                         Track Details
                     </h2>
-                    <p className="text-gray-300 leading-relaxed">{track.description}</p>
+                    <p className="text-white leading-7 tracking-wide text-lg whitespace-pre-line break-words">{track.description}</p>
                 </div>
             
                 {/* Map display (only when not in edit mode) */}

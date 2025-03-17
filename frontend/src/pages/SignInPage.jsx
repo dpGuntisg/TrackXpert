@@ -33,7 +33,13 @@ export default function SignInPage() {
         window.location.href = "/";
       }
     } catch (error) {
-      setError(error.response.data.message);
+      if (error.response) {
+        setError(error.response.data.message || "An error occurred on the server");
+      } else if (error.request) {
+        setError("No response from the server. Please check your internet connection.");
+      } else {
+        setError("An unexpected error occurred. Please try again.");
+      }
     }
   };
 
