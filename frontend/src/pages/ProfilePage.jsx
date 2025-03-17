@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImagePortrait, faPencil } from '@fortawesome/free-solid-svg-icons';
+import { faImagePortrait, faPencil, faExclamationCircle} from '@fortawesome/free-solid-svg-icons';
 import TrackCard from '../components/TrackCard.jsx';
-
 export default function ProfilePage() {
     const [profile, setProfile] = useState(null);
     const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [serverError, setServerError] = useState(null);
 
     const [editMode, setEditMode] = useState(false);
     const [newUsername, setNewUsername] = useState('');
@@ -17,7 +17,7 @@ export default function ProfilePage() {
         const fetchData = async () => {
             const token = localStorage.getItem('token');
             if (!token) {
-                setError("User is not authenticated");
+                setServerError("User is not authenticated");
                 setLoading(false);
                 setTimeout(() => {
                     window.location.href = "/signin";
@@ -48,10 +48,10 @@ export default function ProfilePage() {
             } catch (error) {
                 if (error.response?.status === 401) {
                     localStorage.removeItem('token');
-                    setError("Session expired.");
+                    setServerError("Session expired.");
                     setTimeout(() => { window.location.href = "/signin"; }, 2000);
                 } else {
-                    setError("Failed to get profile information");
+                    setServerError("Failed to get profile information");
                     setTimeout(() => { window.location.href = "/signin"; }, 2000);
                 }
                 setLoading(false);
@@ -63,7 +63,7 @@ export default function ProfilePage() {
 
     const handleProfileEdit = async () => {
         if (!newUsername || !newUsername.trim()) {
-            alert("Username cannot be empty");
+            setError("Username cannot be empty");
             return;
         }
     
@@ -81,13 +81,17 @@ export default function ProfilePage() {
             setEditMode(false);
             setNewUsername(response.data.username);
             setEditMode(false);
+            setError(null);
         } catch (error) {
             console.error("Failed to update username", error);
+            setError(error.response.data.message || "Failed to update username");
         }
     };
 
     const toggleEditMode = () => {
         setEditMode(!editMode);
+        setError(null);
+        setNewUsername(profile?.username || '');
     }
 
     if (loading) {
@@ -101,11 +105,11 @@ export default function ProfilePage() {
         );
     }
 
-    if (error) {
+    if (serverError) {
         return (
             <div className="flex h-screen w-screen items-center justify-center bg-mainBlue">
                 <div className="flex flex-col items-center">
-                    <p className="text-3xl">{error}</p>
+                    <p className="text-3xl">{serverError}</p>
                     <p className="">Please log in or try again later.</p>
                 </div>
             </div>
@@ -128,6 +132,14 @@ export default function ProfilePage() {
 
                         {editMode ? (
                             <div className="flex items-center">
+                                {error && (
+                                    <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                                        <div className="flex items-center gap-2 text-red-500">
+                                            <FontAwesomeIcon icon={faExclamationCircle} />
+                                            <p className="text-sm font-medium">{error}</p>
+                                        </div>
+                                    </div>
+                                )}
                                 <input 
                                     type="text"
                                     className="border-b border-mainRed bg-transparent p-1 text-2xl font-semibold focus:outline-none"
@@ -158,7 +170,7 @@ export default function ProfilePage() {
                     <h2 className='ml-2 text-2xl font-semibold '>Liked</h2>
                 </div>
                 <div className='border-b-4 border-mainRed mb-4'></div>
-                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20">
                     {tracks.length > 0 ? (
                         tracks.map(track => (
                             <TrackCard 

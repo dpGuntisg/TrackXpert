@@ -45,6 +45,14 @@ class UserService {
         return user;
     }
 
+    static async getCreatorInfo(userId) {
+        const user = await User.findById(userId).select("username email");
+        if (!user) {
+            throw new Error("User not found");
+        }
+        return user;
+    }
+
     static async logUserOut(token) {
         await Token.findOneAndDelete({ token });
         return { message: "User logged out successfully" };
@@ -59,6 +67,12 @@ class UserService {
         if (!username || typeof username !== 'string') {
             throw new Error("Invalid username");
         }
+        if (username.length < 3) {
+            throw new Error("Username must be at least 3 characters long");
+        }
+        if (username.length > 20) {
+            throw new Error("Username must be at most 20 characters long");
+        }
     
         const updatedUser = await User.findByIdAndUpdate(
             userId,
@@ -69,8 +83,7 @@ class UserService {
             throw new Error("User not found");
         }
         return updatedUser;
-    }
-    
+    }    
 }
 
 export default UserService;

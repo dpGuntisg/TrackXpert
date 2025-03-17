@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from "react-router-dom";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faLocationDot} from '@fortawesome/free-solid-svg-icons';
 
 
 export default function TrackCard({ track }) {
@@ -12,8 +14,14 @@ export default function TrackCard({ track }) {
         <Link to={`/tracks/${track._id}`} 
             className='flex flex-col bg-mainBlue drop-shadow-lg outline outline-12 outline-mainRed overflow-hidden hover:scale-105 transition-all ease-in-out duration-300 h-[500px]'>
             
-            <div className='w-full h-3/5'>
+            <div className='relative w-full h-3/5'>
                 <img src={firstImage} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
+                <div className="absolute bottom-4 left-4 space-y-2 bg-gray-800 bg-opacity-50 p-2">
+                    <div className='flex items-center space-x-2'>
+                        <FontAwesomeIcon icon={faLocationDot} color='white' />
+                        <p className='font-bold text-sm text-gray-300'>{track.location}</p>
+                    </div>
+                </div>
             </div>
 
             {track.distance > 0 && (
@@ -26,7 +34,6 @@ export default function TrackCard({ track }) {
             <div className="p-6 flex flex-col justify-center w-full">
                 <h3 className='font-bold text-xl text-white'>{track.name}</h3>
                 <p className='text-sm text-gray-300 line-clamp-3'>{truncatedDescription}</p>
-                <p className='text-sm text-gray-400'>{track.location}</p>
                 <div className="mt-2 text-sm">
                 {track.availability && track.availability.length > 0 && (
                     <div className="mt-2 text-sm text-gray-400">
