@@ -1,6 +1,8 @@
 import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import Token from "../models/Token.js";
+import Image from "../models/Images.js";
+import { createImage } from "./helpers/imageHelper.js";
 const JWT_SECRET = "process.env.JWT_SECRET";
 
 class UserService {
@@ -94,7 +96,7 @@ class UserService {
         return await User.find().select("-password");
     }
     
-    static async updateUser(userId, body) {
+    static async updateUser(userId, body, imageFile) {
         const { username } = body;
         
         if (!username) {
@@ -112,10 +114,21 @@ class UserService {
         if (username.length > 20) {
             throw new Error("Username must be at most 20 characters long");
         }
-   
+        let profileImage;
+        if (imageFile) {
+            const { data, mimeType } = imageFile;
+            profileImage = await createImage(data, mimeType);  
+        }
+
+        const updatedUserData = { username };
+        if (profileImage) {
+            updatedUserData.profile_image = profileImage._id; 
+        }
+
         const updatedUser = await User.findByIdAndUpdate(
             userId,
-            { username },
+            updatedUserData,
+            { username: req.body.username },
             { new: true }
         );
         
