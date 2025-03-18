@@ -8,6 +8,7 @@ import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import { MapSelector, startIcon, endIcon} from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
+import UserContact from "../components/UserContact.jsx";
 
 // Constants
 const API_BASE_URL = "http://localhost:5000/api";
@@ -474,6 +475,7 @@ export default function TrackDetailPage() {
 
                 {/* Availability Section */}
                 <div className="p-6 ">
+                <UserContact created_by={track.created_by} />
                     <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2">
                         Open Hours
                     </h2>

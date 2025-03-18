@@ -22,14 +22,6 @@ router.post("/signin", async (req, res) => {
   }
 });
 
-router.get("/createdby", async (req, res) =>{
-  try {
-    const creator = await UserService.getCreatorInfo(req.params.userId);
-    res.json(creator);
-  } catch (error) {
-    res.status(404).json({ message: error.message });
-  }
-});
 
 router.get("/profile", verifyToken, async (req, res) => {
   try {

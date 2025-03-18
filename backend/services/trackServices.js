@@ -135,7 +135,7 @@ class TrackService {
 
   static async getTrackById(trackId) {
     const track = await Track.findById(trackId)
-    .populate("created_by", "username _id",)
+    .populate('created_by')
     .populate("images", "data mimeType");
     if (!track) throw new Error("Track not found");
     return track;
