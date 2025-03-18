@@ -143,7 +143,7 @@ export const TrackForm = ({
         
         {/* Images Display */}
         {values.images && values.images.length > 0 && (
-          <div className="mb-4">
+          <div className="mb-4 max-h-48 overflow-y-auto">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               {values.images.map((image, index) => (
                 <div 

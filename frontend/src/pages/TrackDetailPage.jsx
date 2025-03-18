@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { jwtDecode } from 'jwt-decode';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler, faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock } from '@fortawesome/free-solid-svg-icons';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import { MapSelector, startIcon, endIcon} from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
@@ -15,8 +15,8 @@ const API_BASE_URL = "http://localhost:5000/api";
 
 // Extract modals into separate components
 const DeleteConfirmationModal = ({ onCancel, onConfirm }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-    <div className="bg-mainBlue rounded-xl p-6 max-w-md w-full">
+  <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
+    <div className="bg-mainBlue rounded-xl p-6 max-w-md w-full shadow-2xl border border-gray-700">
       <h3 className="text-xl font-bold mb-4">Delete Track</h3>
       <p className="text-gray-300 mb-6">
         Are you sure you want to permanently delete this track? This action cannot be undone.
@@ -24,13 +24,13 @@ const DeleteConfirmationModal = ({ onCancel, onConfirm }) => (
       <div className="flex justify-end space-x-3">
         <button
           onClick={onCancel}
-          className="bg-mainYellow hover:bg-yellow-200 text-mainBlue rounded-lg font-medium px-4 py-2"
+          className="bg-mainYellow hover:bg-yellow-200 text-mainBlue rounded-lg font-medium px-4 py-2 transition-all"
         >
           Cancel
         </button>
         <button
           onClick={onConfirm}
-          className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
+          className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-all"
         >
           Confirm Delete
         </button>
@@ -56,7 +56,7 @@ const TrackMap = React.memo(({ coordinates, polyline }) => {
   }, [polyline]);
 
   return (
-    <div className="z-0 h-96 w-full rounded overflow-hidden">
+    <div className="z-0 h-96 w-full rounded-xl overflow-hidden shadow-lg border border-gray-700">
       <MapContainer
         center={mapCenter}
         zoom={13}
@@ -73,7 +73,7 @@ const TrackMap = React.memo(({ coordinates, polyline }) => {
 
         {polyline?.coordinates && polylinePositions.length > 0 && (
         <>
-            <Polyline positions={polylinePositions} />
+            <Polyline positions={polylinePositions} pathOptions={{ color: '#FF0000', weight: 4 }} />
             <Marker 
             position={[polyline.coordinates[0][1], polyline.coordinates[0][0]]} 
             icon={startIcon}
@@ -118,6 +118,7 @@ export default function TrackDetailPage() {
         distance: null
     });
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
+    const [activeTab, setActiveTab] = useState('details'); // 'details', 'map', or 'availability'
 
     // Format distance with memoization
     const formattedDistance = useMemo(() => {
@@ -233,7 +234,6 @@ export default function TrackDetailPage() {
         setError("");
     }, [validateStep]);
 
-    
     const goToNextImage = () => {
         setCurrentImageIndex((prevIndex) =>
             prevIndex === track.images.length - 1 ? 0 : prevIndex + 1
@@ -391,69 +391,173 @@ export default function TrackDetailPage() {
     // Render loading state
     if (loading) {
         return (
-            <div className="text-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-500 mx-auto"></div>
-                <p className="mt-4 text-gray-400">Loading track details...</p>
+            <div className="text-center py-12 min-h-screen flex items-center justify-center">
+                <div className="space-y-4">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-500 mx-auto"></div>
+                    <p className="mt-4 text-gray-400 text-lg">Loading track details...</p>
+                </div>
             </div>
         );
     }
 
+    // Render tab content
+    const renderTabContent = () => {
+        switch(activeTab) {
+            case 'details':
+                return (
+                    <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
+                        <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
+                            <FontAwesomeIcon icon={faCircleInfo} className="mr-2 text-mainYellow" />
+                            Track Details
+                        </h2>
+                        <p className="text-white leading-7 tracking-wide text-lg whitespace-pre-line break-words">{track.description}</p>
+                    </div>
+                );
+            case 'map':
+                return (
+                !editMode && (
+                    (track.coordinates || track.polyline) ? (
+                        <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
+                            <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
+                                <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-mainYellow" />
+                                Track Map
+                            </h2>
+                            <TrackMap 
+                                coordinates={track.coordinates} 
+                                polyline={track.polyline} 
+                            />
+                        </div>
+                    ) : (
+                        <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
+                            <p className="text-center text-gray-400 py-8">No map data available for this track.</p>
+                        </div>
+                    )
+                ));
+            case 'availability':
+                return (
+                    <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
+                        <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
+                            <FontAwesomeIcon icon={faClock} className="mr-2 text-mainYellow" />
+                            Open Hours
+                        </h2>
+                        {track.availability && track.availability.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                                {track.availability.map((slot, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex flex-col items-center p-6 rounded-lg bg-gray-800 hover:bg-gray-700 transition duration-300 border border-gray-700 shadow-md"
+                                    >
+                                        <div className="text-center mb-2">
+                                            <span className="font-bold text-white text-lg">
+                                                {slot.startDay === slot.endDay
+                                                    ? slot.startDay
+                                                    : `${slot.startDay} - ${slot.endDay}`}
+                                            </span>
+                                        </div>
+                                        <div className="text-center flex items-center">
+                                            <FontAwesomeIcon icon={faClock} className="mr-2 text-mainYellow" />
+                                            <span className="text-gray-300 font-semibold">
+                                                {slot.open_time} - {slot.close_time}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-center text-gray-400 py-8">No availability information for this track.</p>
+                        )}
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
     return (
-        <div className="min-h-screen p-6">
+        <div className="min-h-screen p-4 md:p-6 bg-mainBlue">
             {serverError && (
-                <p className="text-red-400 text-center mb-8 text-lg">{serverError}</p>
+                <div className="max-w-4xl mx-auto mb-6">
+                    <div className="bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
+                        <p className="text-center">{serverError}</p>
+                    </div>
+                </div>
             )}
 
             <div className="max-w-4xl mx-auto space-y-8">
-            <div className="relative group">
-                <div className="relative h-96 rounded overflow-hidden shadow-xl">
-                    {track.images.length > 0 && track.images[currentImageIndex] ? (
-                        <img 
-                            src={track.images[currentImageIndex].data} 
-                            alt={track.name}
-                            className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
-                        />
-                    ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            No images available
-                        </div>
-                    )}
+                {/* Hero section with image */}
+                <div className="relative group">
+                    <div className="relative h-96 rounded-xl overflow-hidden shadow-xl border border-gray-700">
+                        {track.images.length > 0 && track.images[currentImageIndex] ? (
+                            <img 
+                                src={track.images[currentImageIndex].data} 
+                                alt={track.name}
+                                className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
+                            />
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-400">
+                                No images available
+                            </div>
+                        )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-transparent to-transparent" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
+                        
+                        {/* Image pagination */}
+                        {track.images.length > 1 && (
+                            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                                {track.images.map((_, idx) => (
+                                    <button 
+                                        key={idx}
+                                        onClick={() => setCurrentImageIndex(idx)}
+                                        className={`w-2 h-2 rounded-full ${currentImageIndex === idx ? 'bg-mainYellow' : 'bg-white/50'}`}
+                                        aria-label={`Go to image ${idx + 1}`}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
                         {/* Navigation Buttons */}
                         {track.images.length > 1 && (
                             <>
                                 <button
                                     onClick={goToPreviousImage}
-                                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
+                                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-all"
+                                    aria-label="Previous image"
                                 >
-                                    {"<"}
+                                    <FontAwesomeIcon icon={faChevronLeft} />
                                 </button>
                                 <button
                                     onClick={goToNextImage}
-                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70"
+                                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-all"
+                                    aria-label="Next image"
                                 >
-                                    {">"}
+                                    <FontAwesomeIcon icon={faChevronRight} />
                                 </button>
                             </>
                         )}
-                </div>
-                
-                <div className="absolute bottom-6 left-6 space-y-2">
-                    <h1 className="text-4xl font-bold drop-shadow-lg">{track.name}</h1>
-                    <div className="flex flex-row items-center space-x-2 text-gray-300">
-                        <FontAwesomeIcon icon={faLocationDot} />
-                        <span className="font-medium">{track.location}</span>
                     </div>
-                    {track.distance > 0 && (
-                        <span className="text-gray-300 text-xs font-semibold px-3 py-1 opacity-80 rounded">
-                            Length: {formattedDistance}
-                        </span>
-                    )}
+                    
+                    {/* Track title and basic info overlay */}
+                    <div className="absolute bottom-6 left-6 space-y-2 max-w-3/4">
+                        <h1 className="text-4xl font-bold drop-shadow-lg">{track.name}</h1>
+                        <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2 bg-black/40 rounded-full px-3 py-1">
+                                <FontAwesomeIcon icon={faLocationDot} className="text-mainYellow" />
+                                <span className="font-medium">{track.location}</span>
+                            </div>
+                            {track.distance > 0 && (
+                                <div className="flex items-center space-x-2 bg-black/40 rounded-full px-3 py-1">
+                                    <FontAwesomeIcon icon={faRuler} className="text-mainYellow" />
+                                    <span className="font-medium">{formattedDistance}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-                {/* Owner Actions */}
+                {/* User Contact Card */}
+
+
+                {/* Action buttons for track owner */}
                 {userId === track.created_by?._id && (
                     <div className="flex space-x-4 justify-end">
                         <button
@@ -465,80 +569,67 @@ export default function TrackDetailPage() {
                         </button>
                         <button
                             onClick={() => setDeleteConfirmation(true)}
-                            className="font-semibold hover:text-mainRed px-6 py-2 rounded-lg transition-colors flex items-center"
+                            className="font-semibold px-6 py-2 rounded-lg hover:text-mainRed transition-colors flex items-center"
                         >
-                            <FontAwesomeIcon icon={faTrash} className="mr-2" />
+                            <FontAwesomeIcon icon={faTrash} className="mr-2"/>
                             Delete Track
                         </button>
                     </div>
                 )}
 
-                {/* Availability Section */}
-                <div className="p-6 ">
-                <UserContact created_by={track.created_by} />
-                    <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2">
-                        Open Hours
-                    </h2>
-                    {track.availability && track.availability.length > 0 && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4 text-sm text-gray-400">
-                            {track.availability.map((slot, index) => (
-                                <div
-                                    key={index}
-                                    className="flex flex-col items-center gap-4 p-6 rounded-lg bg-gray-800 w-full hover:bg-gray-700 transition duration-300"
-                                >
-                                    <div className="text-center">
-                                        <span className="font-bold text-white">
-                                            {slot.startDay === slot.endDay
-                                                ? slot.startDay
-                                                : `${slot.startDay} - ${slot.endDay}`}
-                                        </span>
-                                    </div>
-                                    <div className="text-center">
-                                        <span className="text-gray-300 font-semibold">
-                                            {slot.open_time} - {slot.close_time}
-                                        </span>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
+                {/* Tabs Navigation */}
+                <div className="flex border-b border-gray-700">
+                    <button 
+                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'details' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
+                        onClick={() => setActiveTab('details')}
+                    >
+                        <FontAwesomeIcon icon={faCircleInfo} className="mr-2" />
+                        Details
+                    </button>
+                    <button 
+                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'map' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
+                        onClick={() => setActiveTab('map')}
+                    >
+                        <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2" />
+                        Map
+                    </button>
+                    <button 
+                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'availability' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
+                        onClick={() => setActiveTab('availability')}
+                    >
+                        <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
+                        Hours
+                    </button>
                 </div>
 
-                {/* Description Section */}
-                <div className="p-6 rounded-xl">
-                    <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2">
-                        Track Details
-                    </h2>
-                    <p className="text-white leading-7 tracking-wide text-lg whitespace-pre-line break-words">{track.description}</p>
-                </div>
-            
-                {/* Map display (only when not in edit mode) */}
-                {(track.coordinates || track.polyline) && !editMode && (
-                    <TrackMap 
-                        coordinates={track.coordinates} 
-                        polyline={track.polyline} 
-                    />
-                )}
+                {/* Tab Content */}
+                {renderTabContent()}
 
                 {/* Edit Modal */}
                 {editMode && (
-                    <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-                        <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4">
+                    <div className="fixed z-50 inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
+                        <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 shadow-2xl border border-gray-700">
                             <div className="flex justify-between items-center">
-                                <h3 className="text-2xl font-bold mb-4">Edit Track ({step}/3)</h3>
+                                <h3 className="text-2xl font-bold">Edit Track <span className="text-mainYellow">({step}/3)</span></h3>
                                 <button 
                                     type="button" 
                                     onClick={resetEditState} 
-                                    className="text-gray-300 hover:text-white"
+                                    className="text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors"
                                 >
-                                    <FontAwesomeIcon icon={faTimes} className="text-xl" />
+                                    <FontAwesomeIcon icon={faTimes} />
                                 </button>
                             </div>
 
-                            {error && <p className="text-red-500 font-semibold text-lg mb-4">{error}</p>}
+                            {error && (
+                                <div className="bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
+                                    <p>{error}</p>
+                                </div>
+                            )}
 
                             {/* Step Content */}
-                            {renderEditStep()}
+                            <div className=" p-4 rounded-lg border border-gray-700">
+                                {renderEditStep()}
+                            </div>
 
                             {/* Navigation Controls */}
                             <div className="flex justify-between space-x-3 pt-4">

@@ -45,7 +45,8 @@ const Navbar = () => {
 
   const navLinkClass = ({ isActive }) =>
     `relative hover:bg-mainRed w-full text-left rounded transition-all duration-50
-     sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent sm:justify-center ${isActive ? "text-mainRed font-bold" : ""}`;
+     sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent sm:justify-center 
+     ${isActive ? "text-mainRed font-bold drop-shadow-[0px_0px_10px_rgba(254,1,1,0.9)]" : ""}`;
 
   return (
     <nav className="p-6 sticky top-0 z-50 bg-mainBlue">
