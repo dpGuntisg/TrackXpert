@@ -5,14 +5,16 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 
 export default function SignUpPage() {
-  const [username, setUsername] = useState("");
+  const [name, setName] = useState("");
+  const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [touched, setTouched] = useState({ 
-    username: false,
+    name: false,
+    surname: false,
     email: false,
     password: false,
     confirmPassword: false 
@@ -25,42 +27,16 @@ export default function SignUpPage() {
   const handleRegister = async (e) => {
     e.preventDefault();
     setError("");
-    setTouched({ username: true, email: true, password: true, confirmPassword: true });
-
-    // Validation checks
-    if (!username || !email || !password || !confirmPassword) {
-      setError("All fields are required");
-      return;
-    }
-
-    if (username.length < 3) {
-      setError("Username must be at least 3 characters long");
-      return;
-    }
-
-    if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-      setError("Invalid email format");
-      return;
-    }
-
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long");
-      return;
-    }
-
-    if (!/(?=.*[A-Z])(?=.*\d)(?=.*[a-z]).{8,}/.test(password)) {
-      setError("Password must contain at least one uppercase letter, one lowercase letter and a number.");
-      return;
-    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
     }
-
+    
     try {
       const response = await axios.post("http://localhost:5000/api/users/signup", {
-        username,
+        name,
+        surname,
         email,
         password,
       });
@@ -71,8 +47,8 @@ export default function SignUpPage() {
         window.location.href = "/";
       }
     } catch (error) {
-      if (error.response && error.response.status === 409) {
-        setError("Username or email already exists");
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
       } else {
         setError("An error occurred. Please try again later.");
       }
@@ -138,26 +114,56 @@ export default function SignUpPage() {
           )}
 
           <form onSubmit={handleRegister} className="space-y-4">
-            <div className="space-y-1">
-              <label htmlFor="username" className="text-sm font-medium text-gray-300">
-                Username
-              </label>
-              <input
-                className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
-                  ${touched.username && !username 
+          <div className="space-y-6">
+            {/* Name and Surname Fields */}
+            <div className="flex space-x-6">
+              {/* Name Field */}
+              <div className="w-1/2">
+                <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+                  Name
+                </label>
+                <input
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed 
+                    ${touched.name && !name
                     ? 'border-red-500 focus:border-red-500' 
                     : 'border-gray-700 focus:border-mainRed'}`}
-                type="text"
-                id="username"
-                placeholder="Enter your username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                onBlur={() => handleBlur('username')}
-              />
-              {touched.username && !username && (
-                <p className="text-red-500 text-sm mt-1">Username is required</p>
-              )}
+                  type="text"
+                  id="name"
+                  placeholder="Enter your name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onBlur={() => handleBlur('name')}
+                />
+                {touched.name && !name && (
+                  <p className="text-red-500 text-sm mt-1">Name is required</p>
+                )}
+              </div>
+
+              {/* Surname Field */}
+              <div className="w-1/2">
+                <label htmlFor="surname" className="block text-sm font-medium text-gray-300">
+                  Surname
+                </label>
+                <input
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed 
+                    ${touched.surname && !surname
+                    ? 'border-red-500 focus:border-red-500' 
+                    : 'border-gray-700 focus:border-mainRed'}`}
+                  type="text"
+                  id="surname"
+                  placeholder="Enter your surname"
+                  value={surname}
+                  onChange={(e) => setSurname(e.target.value)}
+                  onBlur={() => handleBlur('surname')}
+                />
+                {touched.surname && !surname && (
+                  <p className="text-red-500 text-sm mt-1">Surname is required</p>
+                )}
+              </div>
             </div>
+          </div>
+
+
 
             <div className="space-y-1">
               <label htmlFor="email" className="text-sm font-medium text-gray-300">

@@ -14,27 +14,21 @@ export default function SignInPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-
-    if (!email || !password) {
-      setError("All fields are required");
-      setTouched({ email: true, password: true });
-      return;
-    }
-
-
+  
     try {
       const response = await axios.post("http://localhost:5000/api/users/signin", {
         email,
         password,
       });
+      
       if (response.status === 200) {
         localStorage.setItem("token", response.data.token);
         setSuccess("Sign in successful");
         window.location.href = "/";
       }
     } catch (error) {
-      if (error.response) {
-        setError(error.response.data.message || "An error occurred on the server");
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
       } else if (error.request) {
         setError("No response from the server. Please check your internet connection.");
       } else {

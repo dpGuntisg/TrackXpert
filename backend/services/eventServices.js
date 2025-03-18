@@ -8,6 +8,7 @@ class EventService {
     static async createEvent(userId, { name, description, date, tracks, capacity, status, registrationDeadline, images }) {
         try {
             const created_by = userId;
+            const tracks = tracks.map(track => track._id);
             const eventData = {
                 created_by,
                 name,
