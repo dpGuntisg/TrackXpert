@@ -18,6 +18,8 @@ export default function ProfilePage() {
     const [serverError, setServerError] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [newUsername, setNewUsername] = useState('');
+    const [newName, setNewName] = useState('');
+    const [newSurname, setNewSurname] = useState('');
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
 
@@ -106,6 +108,8 @@ export default function ProfilePage() {
 
         try {
             const updateData = {
+                name: newName,
+                surname:newSurname,
                 username: newUsername,
             };
 
@@ -127,6 +131,8 @@ export default function ProfilePage() {
             setProfile(prev => ({
                 ...prev,
                 username: response.data.updatedUser.username,
+                name: response.data.updatedUser.name,
+                surname: response.data.updatedUser.surname,
                 profile_image: response.data.updatedUser.profile_image
             }));
 
@@ -143,6 +149,8 @@ export default function ProfilePage() {
         setEditMode(!editMode);
         setError(null);
         setNewUsername(profile?.username || '');
+        setNewName(profile?.name || '');
+        setNewSurname(profile?.surname || '');
         setImage(null);
         setPreviewImage(null);
     };
@@ -223,22 +231,54 @@ export default function ProfilePage() {
                                         </div>
                                     </div>
                                 )}
-                                <div className="flex items-center">
+                                <div className="flex flex-col space-y-2">
+                                    <label htmlFor="username" className="block text-sm font-medium text-gray-300">
+                                        Username
+                                    </label>
                                     <input
                                         type="text"
-                                        className="border-b border-mainRed bg-transparent p-1 text-2xl font-semibold focus:outline-none"
+                                        id="username"
+                                        className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed`}
                                         value={newUsername}
                                         placeholder='Username'
                                         onChange={(e) => setNewUsername(e.target.value)}
                                     />
-                                    <button className="ml-2 bg-mainYellow text-mainBlue px-2 py-2 rounded"
+                                    <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+                                        Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed`}
+                                        value={newName}
+                                        placeholder='Name'
+                                        onChange={(e) => setNewName(e.target.value)}
+                                    />
+                                    <label htmlFor="surname" className="block text-sm font-medium text-gray-300">
+                                        Surname
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="surname"
+                                        className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed`}
+                                        value={newSurname}
+                                        placeholder='Surname'
+                                        onChange={(e) => setNewSurname(e.target.value)}
+                                    />
+                                    <button className="mt-6 bg-mainYellow text-mainBlue px-4 py-3 rounded-lg font-medium hover:bg-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800"
                                             onClick={handleProfileEdit}>
                                         Save
                                     </button>
                                 </div>
                             </div>
                         ) : (
-                            <p className='text-2xl font-semibold'>{profile.username}</p>
+                            <div>
+                                <div className='flex flex-row space-x-2'>
+                                    <p className='text-2xl font-semibold'>{profile.name}</p>
+                                    <p className='text-2xl font-semibold'>{profile.surname}</p>
+                                </div>
+                                <p className='text-2xl font-semibold'>{profile.username}</p>
+                            </div>
                         )}
 
                         <p>{profile.email}</p>
@@ -255,7 +295,7 @@ export default function ProfilePage() {
                 </div>
                 <div className='border-b-4 border-mainRed mb-4'></div>
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20">
-                    {tracks && tracks.length > 0 ? ( // Add this check for tracks being defined
+                    {tracks && tracks.length > 0 ? (
                         tracks.map(track => (
                             <TrackCard
                                 key={track._id}

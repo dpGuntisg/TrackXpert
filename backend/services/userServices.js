@@ -108,8 +108,12 @@ class UserService {
             throw new Error("User not found");
         }
 
-        if (updates.username) {
-            user.username = updates.username;
+        const allowedUpdates = ['username', 'name', 'surname'];
+
+        for (const key in updates) {
+            if (updates.hasOwnProperty(key) && allowedUpdates.includes(key)) {
+                user[key] = updates[key];
+            }
         }
 
         if (updates.profile_image && updates.profile_image.data && updates.profile_image.mimeType) {
