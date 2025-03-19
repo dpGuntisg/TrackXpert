@@ -483,10 +483,10 @@ export default function TrackDetailPage() {
                 </div>
             )}
 
-            <div className="max-w-4xl mx-auto space-y-8">
+            <div className="max-w-4xl mx-auto">
                 {/* Hero section with image */}
                 <div className="relative group">
-                    <div className="relative h-96 rounded-xl overflow-hidden shadow-xl border border-gray-700">
+                    <div className="relative h-96 rounded-tr-xl rounded-tl-xl overflow-hidden shadow-xl border border-gray-700">
                         {track.images.length > 0 && track.images[currentImageIndex] ? (
                             <img 
                                 src={track.images[currentImageIndex].data} 
@@ -559,7 +559,7 @@ export default function TrackDetailPage() {
 
                 {/* Action buttons for track owner */}
                 {userId === track.created_by?._id && (
-                    <div className="flex space-x-4 justify-end">
+                    <div className="flex space-x-4 justify-end mt-8">
                         <button
                             onClick={() => setEditMode(true)}
                             className="font-semibold px-6 py-2 rounded-lg hover:text-mainRed transition-colors flex items-center"
@@ -578,7 +578,7 @@ export default function TrackDetailPage() {
                 )}
 
                 {/* Tabs Navigation */}
-                <div className="flex border-b border-gray-700">
+                <div className="flex border-b border-gray-700 mt-8">
                     <button 
                         className={`px-6 py-3 font-medium flex items-center ${activeTab === 'details' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                         onClick={() => setActiveTab('details')}

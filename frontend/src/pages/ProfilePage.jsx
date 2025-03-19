@@ -6,13 +6,13 @@ import TrackCard from '../components/TrackCard.jsx';
 
 export default function ProfilePage() {
     const [profile, setProfile] = useState({
-        name:"",
+        name: "",
         surname: "",
         username: "",
-        profile_image:"",
+        profile_image: null,
         email: "",
     });
-    const [tracks, setTracks] = useState([]);
+    const [tracks, setTracks] = useState();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [serverError, setServerError] = useState(null);
@@ -22,7 +22,7 @@ export default function ProfilePage() {
     const [previewImage, setPreviewImage] = useState(null);
 
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchProfile = async () => {
             const token = localStorage.getItem('token');
             if (!token) {
                 setServerError("User is not authenticated");
@@ -32,22 +32,13 @@ export default function ProfilePage() {
                 }, 2000);
                 return;
             }
-
+    
             try {
                 const profileResponse = await axios.get("http://localhost:5000/api/users/profile", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 const user = profileResponse.data.user;
                 setProfile(user);
-
-                if (user?._id) {
-                    const tracksResponse = await axios.get(`http://localhost:5000/api/tracks/profile/${user._id}/tracks`, {
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
-                    setTracks(tracksResponse.data.tracks || []);
-                }
-
-                setLoading(false);
             } catch (error) {
                 if (error.response?.status === 401) {
                     localStorage.removeItem('token');
@@ -57,12 +48,32 @@ export default function ProfilePage() {
                     setServerError("Failed to get profile information");
                     setTimeout(() => { window.location.href = "/signin"; }, 2000);
                 }
-                setLoading(false);
+            } finally {
+                setLoading(false); 
+            }
+        };
+    
+        fetchProfile();
+    }, []);
+
+    useEffect(() => {
+        const fetchTracks = async () => {
+            const token = localStorage.getItem('token');
+            if (profile?._id && token) {
+                try {
+                    const tracksResponse = await axios.get(`http://localhost:5000/api/tracks/profile/${profile._id}/tracks`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setTracks(tracksResponse.data.tracks || []);
+                } catch (tracksError) {
+                    console.error("Failed to fetch tracks", tracksError);
+                }
             }
         };
 
-        fetchData();
-    }, []);
+        fetchTracks();
+    }, [profile?._id]);
+
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -108,7 +119,7 @@ export default function ProfilePage() {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json', // Or 'multipart/form-data' if you prefer
+                        'Content-Type': 'application/json', 
                     }
                 }
             );
@@ -161,7 +172,7 @@ export default function ProfilePage() {
     return (
         <div className='p-10'>
             {profile ? (
-                <div className='flex'>
+                <div className='flex bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700'>
                     <div className="flex flex-col items-center relative">
                         {previewImage ? (
                             <img
@@ -244,11 +255,11 @@ export default function ProfilePage() {
                 </div>
                 <div className='border-b-4 border-mainRed mb-4'></div>
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20">
-                    {tracks.length > 0 ? (
+                    {tracks && tracks.length > 0 ? ( // Add this check for tracks being defined
                         tracks.map(track => (
-                            <TrackCard 
-                                key={track._id} 
-                                track={track} 
+                            <TrackCard
+                                key={track._id}
+                                track={track}
                             />
                         ))
                     ) : (
