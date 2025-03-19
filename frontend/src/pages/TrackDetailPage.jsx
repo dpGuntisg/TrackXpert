@@ -555,7 +555,7 @@ export default function TrackDetailPage() {
                 </div>
 
                 {/* User Contact Card */}
-
+                <UserContact created_by={track.created_by} />
 
                 {/* Action buttons for track owner */}
                 {userId === track.created_by?._id && (
