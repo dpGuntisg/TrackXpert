@@ -72,7 +72,9 @@ class UserService {
     }
     
     static async getUserProfile(userId) {
-        const user = await User.findById(userId).select("-password");
+        const user = await User.findById(userId)
+        .populate("profile_image", "data mimeType")
+        .select("-password");
         if (!user) {
             throw new Error("User not found");
         }
@@ -96,48 +98,38 @@ class UserService {
         return await User.find().select("-password");
     }
     
-    static async updateUser(userId, body, imageFile) {
-        const { username } = body;
-        
-        if (!username) {
-            throw new Error("Username is required");
-        }
-        
-        if (username.includes(' ')) { 
-            throw new Error("Username cannot contain spaces");
-        }
-        
-        if (username.length < 3) {
-            throw new Error("Username must be at least 3 characters long");
-        }
-        
-        if (username.length > 20) {
-            throw new Error("Username must be at most 20 characters long");
-        }
-        let profileImage;
-        if (imageFile) {
-            const { data, mimeType } = imageFile;
-            profileImage = await createImage(data, mimeType);  
+    static async updateUser(userIdToUpdate, loggedInUserId, updates) {
+        if (userIdToUpdate !== loggedInUserId) {
+            throw new Error("Unauthorized");
         }
 
-        const updatedUserData = { username };
-        if (profileImage) {
-            updatedUserData.profile_image = profileImage._id; 
-        }
-
-        const updatedUser = await User.findByIdAndUpdate(
-            userId,
-            updatedUserData,
-            { username: req.body.username },
-            { new: true }
-        );
-        
-        if (!updatedUser) {
+        const user = await User.findById(userIdToUpdate);
+        if (!user) {
             throw new Error("User not found");
         }
-        
+
+        if (updates.username) {
+            user.username = updates.username;
+        }
+
+        if (updates.profile_image && updates.profile_image.data && updates.profile_image.mimeType) {
+            // If a new profile image object is provided
+            if (user.profile_image) {
+                await Image.findByIdAndDelete(user.profile_image);
+            }
+            const profileImageData = await createImage(updates.profile_image.data, updates.profile_image.mimeType);
+            user.profile_image = profileImageData._id;
+        } else if (updates.profile_image === null) {
+            // If profile_image is explicitly set to null, remove it
+            if (user.profile_image) {
+                await Image.findByIdAndDelete(user.profile_image);
+            }
+            user.profile_image = undefined;
+        }
+
+        const updatedUser = await user.save();
         return updatedUser;
-    }    
+    }
 }
 
 export default UserService;

@@ -5,12 +5,17 @@ import { faImagePortrait, faPencil, faExclamationCircle, faUpload } from '@forta
 import TrackCard from '../components/TrackCard.jsx';
 
 export default function ProfilePage() {
-    const [profile, setProfile] = useState(null);
+    const [profile, setProfile] = useState({
+        name:"",
+        surname: "",
+        username: "",
+        profile_image:"",
+        email: "",
+    });
     const [tracks, setTracks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [serverError, setServerError] = useState(null);
-
     const [editMode, setEditMode] = useState(false);
     const [newUsername, setNewUsername] = useState('');
     const [image, setImage] = useState(null);
@@ -34,31 +39,12 @@ export default function ProfilePage() {
                 });
                 const user = profileResponse.data.user;
                 setProfile(user);
-                setNewUsername(user.username || '');
-
-                // If user has a profile image, fetch it
-                if (user?.profile_image) {
-                    try {
-                        const imageResponse = await axios.get(`http://localhost:5000/api/images/${user.profile_image}`, {
-                            headers: { Authorization: `Bearer ${token}` },
-                            responseType: 'blob'
-                        });
-                        const imageUrl = URL.createObjectURL(imageResponse.data);
-                        setPreviewImage(imageUrl);
-                    } catch (imageError) {
-                        console.error('Failed to fetch profile image', imageError);
-                    }
-                }
 
                 if (user?._id) {
-                    try {
-                        const tracksResponse = await axios.get(`http://localhost:5000/api/tracks/profile/${user._id}/tracks`, {
-                            headers: { Authorization: `Bearer ${token}` },
-                        });
-                        setTracks(tracksResponse.data.tracks || []); 
-                    } catch (trackError) {
-                        console.error('Failed to fetch tracks', trackError);
-                    }
+                    const tracksResponse = await axios.get(`http://localhost:5000/api/tracks/profile/${user._id}/tracks`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setTracks(tracksResponse.data.tracks || []);
                 }
 
                 setLoading(false);
@@ -77,87 +63,77 @@ export default function ProfilePage() {
 
         fetchData();
     }, []);
+    const handleImageUpload = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImage({
+                    data: reader.result,
+                    mimeType: file.type,
+                });
+                setPreviewImage(reader.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            setImage(null);
+            setPreviewImage(null);
+        }
+    };
 
     const handleProfileEdit = async () => {
-        if (!newUsername || !newUsername.trim()) {
+        if (!newUsername.trim()) {
             setError("Username cannot be empty");
             return;
         }
-    
+
         const token = localStorage.getItem('token');
+        if (!token) {
+            setError("Not authenticated");
+            return;
+        }
+
         try {
-            // Prepare form data for multipart/form-data request
-            const formData = new FormData();
-            formData.append('username', newUsername);
-            
-            // Only append image if there's a new one
+            const updateData = {
+                username: newUsername,
+            };
+
             if (image) {
-                formData.append('profileImage', image);
+                updateData.profile_image = image;
             }
-            
+
             const response = await axios.patch(
-                "http://localhost:5000/api/users/update", 
-                formData,
-                { 
-                    headers: { 
+                "http://localhost:5000/api/users/update",
+                updateData,
+                {
+                    headers: {
                         Authorization: `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data'
-                    } 
+                        'Content-Type': 'application/json', // Or 'multipart/form-data' if you prefer
+                    }
                 }
             );
-     
-            // Update local state with the response
+
             setProfile(prev => ({
                 ...prev,
-                username: response.data.username,
-                profile_image: response.data.profile_image
+                username: response.data.updatedUser.username,
+                profile_image: response.data.updatedUser.profile_image
             }));
-            
+
             setEditMode(false);
             setError(null);
-            
-            // If we got a new image in the update, refresh the page to show it
-            if (image) {
-                window.location.reload();
-            }
+
         } catch (error) {
             console.error("Failed to update profile", error);
             setError(error.response?.data?.message || "Failed to update profile");
         }
     };
-
+    
     const toggleEditMode = () => {
         setEditMode(!editMode);
         setError(null);
         setNewUsername(profile?.username || '');
-        setImage(null); // Reset image when toggling edit mode
-    }
-
-    const handleImageUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Check file type
-            if (!file.type.match('image.*')) {
-                setError('Please select an image file');
-                return;
-            }
-            
-            // Check file size (limit to 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                setError('Image size should be less than 5MB');
-                return;
-            }
-            
-            // Store the file for upload
-            setImage(file);
-            
-            // Create preview
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setPreviewImage(reader.result);
-            };
-            reader.readAsDataURL(file);
-        }
+        setImage(null);
+        setPreviewImage(null);
     };
 
     if (loading) {
@@ -188,26 +164,32 @@ export default function ProfilePage() {
                 <div className='flex'>
                     <div className="flex flex-col items-center relative">
                         {previewImage ? (
-                            <img 
-                                src={previewImage} 
-                                alt="Profile" 
-                                className="w-40 h-40 rounded-full object-cover" 
+                            <img
+                                src={previewImage}
+                                alt="Profile"
+                                className="w-40 h-40 rounded-full object-cover"
+                            />
+                        ) : profile.profile_image ? (
+                            <img
+                                src={profile.profile_image.data}
+                                alt="Profile"
+                                className="w-40 h-40 rounded-full object-cover"
                             />
                         ) : (
                             <FontAwesomeIcon icon={faImagePortrait} size="10x" className="mr-4" />
                         )}
-                        
+
                         {editMode && (
                             <div className="mt-4">
                                 <label htmlFor="profileImage" className="cursor-pointer flex items-center justify-center bg-mainYellow text-mainBlue px-4 py-2 rounded">
                                     <FontAwesomeIcon icon={faUpload} className="mr-2" />
                                     Upload Photo
                                 </label>
-                                <input 
-                                    id="profileImage" 
-                                    type="file" 
-                                    accept="image/*" 
-                                    onChange={handleImageUpload} 
+                                <input
+                                    id="profileImage"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageUpload}
                                     className="hidden"
                                 />
                             </div>
@@ -231,14 +213,14 @@ export default function ProfilePage() {
                                     </div>
                                 )}
                                 <div className="flex items-center">
-                                    <input 
+                                    <input
                                         type="text"
                                         className="border-b border-mainRed bg-transparent p-1 text-2xl font-semibold focus:outline-none"
                                         value={newUsername}
                                         placeholder='Username'
                                         onChange={(e) => setNewUsername(e.target.value)}
                                     />
-                                    <button className="ml-2 bg-mainYellow text-mainBlue px-2 py-2 rounded" 
+                                    <button className="ml-2 bg-mainYellow text-mainBlue px-2 py-2 rounded"
                                             onClick={handleProfileEdit}>
                                         Save
                                     </button>
