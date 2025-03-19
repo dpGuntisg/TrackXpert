@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImagePortrait, faPencil, faExclamationCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
@@ -22,6 +23,8 @@ export default function ProfilePage() {
     const [newSurname, setNewSurname] = useState('');
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
+    const navigate = useNavigate();
+    
 
     useEffect(() => {
         const fetchProfile = async () => {
@@ -93,6 +96,26 @@ export default function ProfilePage() {
             setPreviewImage(null);
         }
     };
+
+    const handleProfileDelete = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error("Unauthorized: No token found.");
+            }
+    
+            await axios.delete("http://localhost:5000/api/users/delete", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+    
+            localStorage.removeItem('token');
+            navigate("/signup");
+        } catch (error) {
+            console.error("Error deleting profile:", error);
+            setError(error.response?.data?.message || "Error deleting profile.");
+        }
+    };
+    
 
     const handleProfileEdit = async () => {
         if (!newUsername.trim()) {
@@ -270,6 +293,7 @@ export default function ProfilePage() {
                                         Save
                                     </button>
                                 </div>
+                                <button onClick={handleProfileDelete}> Delete Profile </button>
                             </div>
                         ) : (
                             <div>

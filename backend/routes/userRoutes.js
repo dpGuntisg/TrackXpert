@@ -59,4 +59,14 @@ router.patch("/update", verifyToken, async (req, res) => {
   }
 });
 
+router.delete("/delete", verifyToken, async (req, res) => {
+  try {
+    const loggedInUserId = req.userId
+    await UserService.deleteProfile(loggedInUserId, loggedInUserId);
+    res.status(200).json({ message: "Profile deleted successfully",});
+  } catch (error) {
+    res.status(error.status || 500).json({ message: error.message });
+  }
+});
+
 export default router;

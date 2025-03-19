@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import jwt from "jsonwebtoken";
 import Token from "../models/Token.js";
 import Image from "../models/Images.js";
+import Track from "../models/Track.js";
 import { createImage } from "./helpers/imageHelper.js";
 const JWT_SECRET = "process.env.JWT_SECRET";
 
@@ -134,6 +135,33 @@ class UserService {
         const updatedUser = await user.save();
         return updatedUser;
     }
+
+    static async deleteProfile(profileIdToDelete, loggedInUserId) {
+        try {
+            if (profileIdToDelete !== loggedInUserId) {
+                throw new Error("Unauthorized");
+            }
+            const user = await User.findById(profileIdToDelete);
+            if (!user) {
+                throw new Error("User not found");
+            }
+    
+            await Token.deleteMany({ userId: profileIdToDelete });
+    
+            if (user.profile_image) {
+                await Image.findByIdAndDelete(user.profile_image);
+            }
+
+            await Track.deleteMany({ created_by: profileIdToDelete });
+    
+            await User.findByIdAndDelete(profileIdToDelete);
+    
+            return { message: "User deleted successfully" };
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
+    
 }
 
 export default UserService;
