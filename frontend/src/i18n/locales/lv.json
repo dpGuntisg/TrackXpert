@@ -92,9 +92,10 @@
     "save": "Saglabāt maršrutu"
   },
   "tracks": {
+    "title": "Izpēti Trases",
     "noTracks": "Trases nav atrastas",
     "beFirst": "Esiet pirmais, kurš izveido trasi!",
-    "addTrack": "+ Pievienot Trasi",
+    "addTrack": "Pievienot Trasi",
     "createTrack": "Izveidot Trasi",
     "editTrack": "Rediģēt Trasi",
     "deleteTrack": "Dzēst Trasi",
@@ -151,5 +152,27 @@
     "title": "Lapa nav atrasta",
     "description": "Meklētā lapa neeksistē.",
     "backHome": "Atpakaļ uz sākumlapu"
+  },
+  "availability": {
+    "title": "Darba Laiks",
+    "selectedTimeSlots": "Izvēlētie Laika Periodi",
+    "addOpeningTimes": "Pievienot Darba Laiku",
+    "startDay": "Sākuma Diena",
+    "endDay": "Beigu Diena",
+    "openTime": "Atvēršanas Laiks",
+    "closeTime": "Aizvēršanas Laiks",
+    "days": {
+      "Monday": "Pirmdiena",
+      "Tuesday": "Otrdiena",
+      "Wednesday": "Trešdiena",
+      "Thursday": "Ceturtdiena",
+      "Friday": "Piektdiena",
+      "Saturday": "Sestdiena",
+      "Sunday": "Svētdiena"
+    },
+    "errors": {
+      "openTimeBefore": "Atvēršanas laikam jābūt pirms aizvēršanas laika",
+      "overlap": "Laika periodi nedrīkst pārklāties"
+    }
   }
 } 

@@ -1,14 +1,24 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot} from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
 export default function TrackCard({ track }) {
     const { t } = useTranslation();
-    const truncatedDescription = track.description.length > 200 ? track.description.substring(0, 200) + "..." : track.description;
+    const truncatedDescription = track.description.length > 150 
+        ? track.description.substring(0, 150) + "..."
+        : track.description;
     const FormatedDistance = `${parseFloat(track.distance).toFixed(2).replace('.', ',')} km`;
     const firstImage = track.images?.[0]?.data;
+
+    // Function to format time in 12-hour format
+    const formatTime = (timeStr) => {
+        const [hour, minute] = timeStr.split(":");
+        const hourNum = parseInt(hour, 10);
+        const ampm = hourNum >= 12 ? "PM" : "AM";
+        return `${hourNum % 12 || 12}:${minute} ${ampm}`;
+    };
 
     return (
         <Link to={`/tracks/${track._id}`} 
@@ -41,11 +51,11 @@ export default function TrackCard({ track }) {
                             <div key={index}>
                                 <span className="mr-2">
                                     {slot.startDay === slot.endDay 
-                                        ? slot.startDay 
-                                        : `${slot.startDay} - ${slot.endDay}`}
+                                        ? t(`availability.days.${slot.startDay}`)
+                                        : `${t(`availability.days.${slot.startDay}`)} - ${t(`availability.days.${slot.endDay}`)}`}
                                 </span>
                                 <span>
-                                    {slot.open_time} - {slot.close_time}
+                                    {formatTime(slot.open_time)} - {formatTime(slot.close_time)}
                                 </span>
                             </div>
                         ))}

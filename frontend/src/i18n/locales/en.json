@@ -141,6 +141,28 @@
       "error": "Failed to create track. Please try again."
     }
   },
+  "availability": {
+    "title": "Opening Hours",
+    "selectedTimeSlots": "Selected Time Slots",
+    "addOpeningTimes": "Add Opening Times",
+    "startDay": "Start Day",
+    "endDay": "End Day",
+    "openTime": "Opening Time",
+    "closeTime": "Closing Time",
+    "days": {
+      "Monday": "Monday",
+      "Tuesday": "Tuesday",
+      "Wednesday": "Wednesday",
+      "Thursday": "Thursday",
+      "Friday": "Friday",
+      "Saturday": "Saturday",
+      "Sunday": "Sunday"
+    },
+    "errors": {
+      "openTimeBefore": "Opening time must be before closing time",
+      "overlap": "Time slots cannot overlap"
+    }
+  },
   "map": {
     "search": "Search location",
     "draw": "Draw",

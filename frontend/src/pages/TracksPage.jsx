@@ -264,7 +264,7 @@ export default function TracksPage() {
     return (
         <div className=' p-5 sm:p-10 bg-mainBlue min-h-screen'>
             <div className='flex justify-center mb-5'>
-                <h1 className='text-4xl font-bold'>{t('tracks.exploreTracks')}</h1>
+                <h1 className='text-4xl font-bold'>{t('tracks.title')}</h1>
             </div>
 
             {serverError && (

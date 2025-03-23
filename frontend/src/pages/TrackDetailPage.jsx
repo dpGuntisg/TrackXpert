@@ -390,6 +390,14 @@ export default function TrackDetailPage() {
         }
     }, [step, editValues, drawings, availability, error, handleImageChange, handleDrawingsChange, currentImageIndex]);
 
+    // Function to format time in 12-hour format
+    const formatTime = (timeStr) => {
+        const [hour, minute] = timeStr.split(":");
+        const hourNum = parseInt(hour, 10);
+        const ampm = hourNum >= 12 ? "PM" : "AM";
+        return `${hourNum % 12 || 12}:${minute} ${ampm}`;
+    };
+
     // Render loading state
     if (loading) {
         return (
@@ -452,14 +460,14 @@ export default function TrackDetailPage() {
                                         <div className="text-center mb-2">
                                             <span className="font-bold text-white text-lg">
                                                 {slot.startDay === slot.endDay
-                                                    ? slot.startDay
-                                                    : `${slot.startDay} - ${slot.endDay}`}
+                                                    ? t(`availability.days.${slot.startDay}`)
+                                                    : `${t(`availability.days.${slot.startDay}`)} - ${t(`availability.days.${slot.endDay}`)}`}
                                             </span>
                                         </div>
                                         <div className="text-center flex items-center">
                                             <FontAwesomeIcon icon={faClock} className="mr-2 text-mainYellow" />
                                             <span className="text-gray-300 font-semibold">
-                                                {slot.open_time} - {slot.close_time}
+                                                {formatTime(slot.open_time)} - {formatTime(slot.close_time)}
                                             </span>
                                         </div>
                                     </div>
