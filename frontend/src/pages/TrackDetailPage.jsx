@@ -405,7 +405,7 @@ export default function TrackDetailPage() {
         switch(activeTab) {
             case 'details':
                 return (
-                    <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
+                    <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg min-h-56">
                         <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
                             <FontAwesomeIcon icon={faCircleInfo} className="mr-2 text-mainYellow" />
                             Track Details
@@ -417,7 +417,7 @@ export default function TrackDetailPage() {
                 return (
                 !editMode && (
                     (track.coordinates || track.polyline) ? (
-                        <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
+                        <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg">
                             <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-mainYellow" />
                                 Track Map
@@ -428,14 +428,14 @@ export default function TrackDetailPage() {
                             />
                         </div>
                     ) : (
-                        <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
+                        <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg">
                             <p className="text-center text-gray-400 py-8">No map data available for this track.</p>
                         </div>
                     )
                 ));
             case 'availability':
                 return (
-                    <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg border border-gray-700">
+                    <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg">
                         <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
                             <FontAwesomeIcon icon={faClock} className="mr-2 text-mainYellow" />
                             Open Hours
@@ -474,27 +474,27 @@ export default function TrackDetailPage() {
     };
 
     return (
-        <div className="min-h-screen p-4 md:p-6 bg-mainBlue">
+        <div className="min-h-screen p-4 md:p-8 lg:p-12 bg-mainBlue">
             {serverError && (
-                <div className="max-w-4xl mx-auto mb-6">
-                    <div className="bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
-                        <p className="text-center">{serverError}</p>
+                <div className="max-w-6xl mx-auto mb-8">
+                    <div className="bg-mainRed/20 border border-mainRed text-white p-6 rounded-lg">
+                        <p className="text-center text-lg">{serverError}</p>
                     </div>
                 </div>
             )}
 
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-7xl mx-auto">
                 {/* Hero section with image */}
                 <div className="relative group">
-                    <div className="relative h-96 rounded-tr-xl rounded-tl-xl overflow-hidden shadow-xl border border-gray-700">
+                    <div className="relative h-[32rem] md:h-[40rem] lg:h-[48rem] rounded-tr-xl rounded-tl-xl overflow-hidden shadow-xl border border-gray-700">
                         {track.images.length > 0 && track.images[currentImageIndex] ? (
                             <img 
                                 src={track.images[currentImageIndex].data} 
                                 alt={track.name}
-                                className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-105"
+                                className="w-full h-full object-cover object-center transform transition-transform duration-500 group-hover:scale-105"
                             />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-400">
+                            <div className="w-full h-full flex items-center justify-center bg-gray-800/50 text-gray-400">
                                 No images available
                             </div>
                         )}
@@ -578,7 +578,7 @@ export default function TrackDetailPage() {
                 )}
 
                 {/* Tabs Navigation */}
-                <div className="flex border-b border-gray-700 mt-8">
+                <div className="flex border-gray-700 mt-8">
                     <button 
                         className={`px-6 py-3 font-medium flex items-center ${activeTab === 'details' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                         onClick={() => setActiveTab('details')}
@@ -627,7 +627,7 @@ export default function TrackDetailPage() {
                             )}
 
                             {/* Step Content */}
-                            <div className=" p-4 rounded-lg border border-gray-700">
+                            <div className=" p-4 rounded-lg">
                                 {renderEditStep()}
                             </div>
 

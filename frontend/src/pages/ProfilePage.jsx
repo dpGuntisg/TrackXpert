@@ -25,7 +25,6 @@ export default function ProfilePage() {
     const [previewImage, setPreviewImage] = useState(null);
     const navigate = useNavigate();
     
-
     useEffect(() => {
         const fetchProfile = async () => {
             const token = localStorage.getItem('token');
@@ -116,7 +115,6 @@ export default function ProfilePage() {
         }
     };
     
-
     const handleProfileEdit = async () => {
         if (!newUsername.trim()) {
             setError("Username cannot be empty");
@@ -130,16 +128,19 @@ export default function ProfilePage() {
         }
 
         try {
+            // Create update data object
             const updateData = {
                 name: newName,
-                surname:newSurname,
+                surname: newSurname,
                 username: newUsername,
             };
 
+            // Add image if it exists
             if (image) {
                 updateData.profile_image = image;
             }
 
+            // Send update request
             const response = await axios.patch(
                 "http://localhost:5000/api/users/update",
                 updateData,
@@ -151,6 +152,7 @@ export default function ProfilePage() {
                 }
             );
 
+            // Update local state with response data
             setProfile(prev => ({
                 ...prev,
                 username: response.data.updatedUser.username,
@@ -159,6 +161,7 @@ export default function ProfilePage() {
                 profile_image: response.data.updatedUser.profile_image
             }));
 
+            // Exit edit mode and clear error
             setEditMode(false);
             setError(null);
 
@@ -203,109 +206,142 @@ export default function ProfilePage() {
     return (
         <div className='p-10'>
             {profile ? (
-                <div className='flex bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700'>
-                    <div className="flex flex-col items-center relative">
-                        {previewImage ? (
-                            <img
-                                src={previewImage}
-                                alt="Profile"
-                                className="w-40 h-40 rounded-full object-cover"
-                            />
-                        ) : profile.profile_image ? (
-                            <img
-                                src={profile.profile_image.data}
-                                alt="Profile"
-                                className="w-40 h-40 rounded-full object-cover"
-                            />
-                        ) : (
-                            <FontAwesomeIcon icon={faImagePortrait} size="10x" className="mr-4" />
-                        )}
-
-                        {editMode && (
-                            <div className="mt-4">
-                                <label htmlFor="profileImage" className="cursor-pointer flex items-center justify-center bg-mainYellow text-mainBlue px-4 py-2 rounded">
-                                    <FontAwesomeIcon icon={faUpload} className="mr-2" />
-                                    Upload Photo
-                                </label>
-                                <input
-                                    id="profileImage"
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageUpload}
-                                    className="hidden"
-                                />
-                            </div>
-                        )}
-                    </div>
-                    <div className="ml-8">
-                        <button className='text-xl font-semibold px-2 py-1 hover:text-mainRed transition-all duration-200'
-                                onClick={toggleEditMode}>
+                <div className='bg-gray-800/50 rounded-lg p-6 shadow-lg'>
+                    <div className="flex justify-end">
+                        <button 
+                            className='text-xl font-semibold px-4 py-2 rounded-lg hover:text-mainRed transition-all duration-200'
+                            onClick={toggleEditMode}
+                        >
                             <FontAwesomeIcon icon={faPencil} className="mr-2"/>
-                            {editMode ? "Cancel" : "Edit"}
+                            {editMode ? "Cancel Editing" : "Edit Profile"}
                         </button>
+                    </div>
+                    
+                    {/* Profile information section */}
+                    <div className="flex flex-col md:flex-row gap-8">
+                        {/* Left column - Profile picture */}
+                        <div className="flex flex-col items-center">
+                            {previewImage ? (
+                                <img
+                                    src={previewImage}
+                                    alt="Profile"
+                                    className="w-40 h-40 rounded-full object-cover"
+                                />
+                            ) : profile.profile_image ? (
+                                <img
+                                    src={profile.profile_image.data}
+                                    alt="Profile"
+                                    className="w-40 h-40 rounded-full object-cover"
+                                />
+                            ) : (
+                                <FontAwesomeIcon icon={faImagePortrait} size="6x" className="w-40 h-40 p-8 rounded-full" />
+                            )}
 
-                        {editMode ? (
-                            <div className="flex flex-col">
-                                {error && (
-                                    <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                                        <div className="flex items-center gap-2 text-red-500">
-                                            <FontAwesomeIcon icon={faExclamationCircle} />
-                                            <p className="text-sm font-medium">{error}</p>
-                                        </div>
-                                    </div>
-                                )}
-                                <div className="flex flex-col space-y-2">
-                                    <label htmlFor="username" className="block text-sm font-medium text-gray-300">
-                                        Username
+                            {editMode && (
+                                <div className="mt-4">
+                                    <label htmlFor="profileImage" className="cursor-pointer flex items-center justify-center bg-mainYellow text-mainBlue px-4 py-2 rounded">
+                                        <FontAwesomeIcon icon={faUpload} className="mr-2" />
+                                        Upload Photo
                                     </label>
                                     <input
-                                        type="text"
-                                        id="username"
-                                        className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed`}
-                                        value={newUsername}
-                                        placeholder='Username'
-                                        onChange={(e) => setNewUsername(e.target.value)}
+                                        id="profileImage"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageUpload}
+                                        className="hidden"
                                     />
-                                    <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                                        Name
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="name"
-                                        className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed`}
-                                        value={newName}
-                                        placeholder='Name'
-                                        onChange={(e) => setNewName(e.target.value)}
-                                    />
-                                    <label htmlFor="surname" className="block text-sm font-medium text-gray-300">
-                                        Surname
-                                    </label>
-                                    <input
-                                        type="text"
-                                        id="surname"
-                                        className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed`}
-                                        value={newSurname}
-                                        placeholder='Surname'
-                                        onChange={(e) => setNewSurname(e.target.value)}
-                                    />
-                                    <button className="mt-6 bg-mainYellow text-mainBlue px-4 py-3 rounded-lg font-medium hover:bg-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800"
-                                            onClick={handleProfileEdit}>
-                                        Save
-                                    </button>
                                 </div>
-                                <button onClick={handleProfileDelete}> Delete Profile </button>
-                            </div>
-                        ) : (
-                            <div>
-                                <div className='flex flex-row space-x-2'>
+                            )}
+                        </div>
+
+                        {/* Right column - User info */}
+                        <div className="flex-1">
+                            {/* Always display the user information */}
+                            <div className="mb-6">
+                                <div className='flex flex-row space-x-2 mb-2'>
                                     <p className='text-2xl font-semibold'>{profile.name}</p>
                                     <p className='text-2xl font-semibold'>{profile.surname}</p>
                                 </div>
-                                <p className='text-2xl font-semibold'>{profile.username}</p>
+                                <p className='text-xl font-semibold text-white mb-2'>@{profile.username}</p>
+                                <p className='text-gray-400'>{profile.email}</p>
                             </div>
-                        )}
 
-                        <p>{profile.email}</p>
+                            {/* Edit form shown conditionally under the user info */}
+                            {editMode && (
+                                <div className="border-t border-gray-700 pt-6 mt-4">
+                                    <h3 className="text-xl font-semibold mb-4">Edit Profile</h3>
+                                    
+                                    {error && (
+                                        <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                                            <div className="flex items-center gap-2 text-red-500">
+                                                <FontAwesomeIcon icon={faExclamationCircle} />
+                                                <p className="text-sm font-medium">{error}</p>
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                                        <div>
+                                            <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
+                                                Name
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="name"
+                                                className="w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
+                                                value={newName}
+                                                placeholder='Name'
+                                                onChange={(e) => setNewName(e.target.value)}
+                                            />
+                                        </div>
+                                        
+                                        <div>
+                                            <label htmlFor="surname" className="block text-sm font-medium text-gray-300 mb-1">
+                                                Surname
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="surname"
+                                                className="w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
+                                                value={newSurname}
+                                                placeholder='Surname'
+                                                onChange={(e) => setNewSurname(e.target.value)}
+                                            />
+                                        </div>
+                                        
+                                        <div className="md:col-span-2">
+                                            <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1">
+                                                Username
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="username"
+                                                className="w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
+                                                value={newUsername}
+                                                placeholder='Username'
+                                                onChange={(e) => setNewUsername(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex space-x-4">
+                                        <button 
+                                            className="bg-mainYellow text-mainBlue px-6 py-3 rounded-lg font-medium hover:bg-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800"
+                                            onClick={handleProfileEdit}
+                                        >
+                                            Save Changes
+                                        </button>
+                                        
+                                        <button 
+                                            className="bg-red-500/20 text-red-400 border border-red-500/30 px-6 py-3 rounded-lg font-medium hover:bg-red-500/30 transition-colors duration-200"
+                                            onClick={handleProfileDelete}
+                                        > 
+                                            Delete Profile 
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
             ) : (
