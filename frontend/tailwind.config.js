@@ -7,6 +7,8 @@ module.exports = {
         mainBlue: "#233438",
         mainYellow: "#F7FEBE",
         mainRed: "#F04642",
+        accentBlue: "#1d2c2f",
+        inputBlue: "#273a3f",
       },
     },
   },

@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 const UserSchema = new Schema({
   name: { type: String},
   surname: { type: String},
-  phonenumber: { type: String, unique: true },
+  phonenumber: { type: String, sparse: true },
   profile_image: { type: mongoose.Schema.Types.ObjectId, ref: 'Image'},
   username: { type: String, unique: true },
   email: { type: String, required: true, unique: true, match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ },
@@ -23,6 +23,6 @@ UserSchema.methods.comparePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
-
+UserSchema.index({ phonenumber: 1 }, { sparse: true, unique: true });
 
 export default mongoose.model("User", UserSchema);

@@ -2,17 +2,17 @@ import React from 'react';
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot} from '@fortawesome/free-solid-svg-icons';
-
+import { useTranslation } from 'react-i18next';
 
 export default function TrackCard({ track }) {
-
+    const { t } = useTranslation();
     const truncatedDescription = track.description.length > 200 ? track.description.substring(0, 200) + "..." : track.description;
     const FormatedDistance = `${parseFloat(track.distance).toFixed(2).replace('.', ',')} km`;
     const firstImage = track.images?.[0]?.data;
 
     return (
         <Link to={`/tracks/${track._id}`} 
-        className='flex flex-col bg-gray-800/50 drop-shadow-lg outline outline-12 outline-mainRed overflow-hidden hover:scale-105 transition-all ease-in-out duration-300
+        className='flex flex-col bg-accentBlue drop-shadow-lg outline outline-12 outline-mainRed overflow-hidden hover:scale-105 transition-all ease-in-out duration-300
             h-[500px] w-full sm:w-auto sm:min-w-[340px] max-w-sm md:max-w-md lg:max-w-lg rounded'>
           
             <div className='relative w-full h-3/5'>
@@ -29,7 +29,6 @@ export default function TrackCard({ track }) {
                 <div className="absolute bottom-4 right-4 bg-mainYellow text-mainBlue text-xs font-semibold px-3 py-1 opacity-80 rounded">
                     {FormatedDistance}
                 </div>
-            
             )}
 
             <div className="p-6 flex flex-col justify-center w-full">
@@ -51,16 +50,15 @@ export default function TrackCard({ track }) {
                             </div>
                         ))}
                         {track.availability.length > 3 && (
-                            <p className="text-xs text-gray-400">+{track.availability.length - 3} more</p>
+                            <p className="text-xs text-gray-400">+{track.availability.length - 3} {t('tracks.more')}</p>
                         )}
                     </div>
                 )}
                 </div>
             </div>
 
-
             <div className='fixed bottom-2 left-1/2 transform -translate-x-1/2'>
-                <span className="mt-2 text-sm font-semibold">View Details</span>
+                <span className="mt-2 text-sm font-semibold">{t('tracks.viewDetails')}</span>
             </div>
         </Link>
     );

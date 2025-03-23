@@ -101,13 +101,13 @@ export default function SignInPage() {
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-4 bg-accentBlue p-6 rounded-lg shadow-lg">
             <div className="space-y-1">
               <label htmlFor="email" className="text-sm font-medium text-gray-300">
                 Email
               </label>
               <input
-                className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
+                className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none
                   ${touched.email && !email 
                     ? 'border-red-500 focus:border-red-500' 
                     : 'border-gray-700 focus:border-mainRed'}`}
@@ -128,7 +128,7 @@ export default function SignInPage() {
                 Password
               </label>
               <input
-                className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
+                className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none
                   ${touched.password && !password 
                     ? 'border-red-500 focus:border-red-500' 
                     : 'border-gray-700 focus:border-mainRed'}`}

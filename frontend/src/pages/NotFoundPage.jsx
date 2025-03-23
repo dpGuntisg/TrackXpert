@@ -1,17 +1,23 @@
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function NotFoundPage() {
-  return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-6xl font-bold text-mainRed mb-4">404</h1>
-      <p className="text-xl mb-6">
-        The page you're looking for doesn't exist. Please return to the home page.
-      </p>
-      <Link to="/">
-        <button className="text-2xl bg-mainRed px-4 py-2 rounded hover:bg-red-700 transition-all duration-200">
-          Go back
-        </button>
-      </Link>
-    </div>
-  );
+    const { t } = useTranslation();
+
+    return (
+        <div className="min-h-screen flex items-center justify-center bg-mainBlue">
+            <div className="text-center">
+                <h1 className="text-9xl font-bold text-mainRed">404</h1>
+                <h2 className="text-4xl font-bold mt-4">{t('notFound.title')}</h2>
+                <p className="text-gray-400 mt-4">{t('notFound.description')}</p>
+                <Link
+                    to="/"
+                    className="inline-block mt-8 px-6 py-3 bg-mainRed  rounded-lg font-medium hover:bg-red-700 transition-colors duration-200"
+                >
+                    {t('notFound.backHome')}
+                </Link>
+            </div>
+        </div>
+    );
 }

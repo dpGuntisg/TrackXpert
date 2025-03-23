@@ -9,30 +9,31 @@ import { MapSelector, startIcon, endIcon} from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
 import UserContact from "../components/UserContact.jsx";
+import { useTranslation } from 'react-i18next';
 
 // Constants
 const API_BASE_URL = "http://localhost:5000/api";
 
 // Extract modals into separate components
-const DeleteConfirmationModal = ({ onCancel, onConfirm }) => (
+const DeleteConfirmationModal = ({ onCancel, onConfirm, t }) => (
   <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
     <div className="bg-mainBlue rounded-xl p-6 max-w-md w-full shadow-2xl border border-gray-700">
-      <h3 className="text-xl font-bold mb-4">Delete Track</h3>
+      <h3 className="text-xl font-bold mb-4">{t('tracks.deleteTrack')}</h3>
       <p className="text-gray-300 mb-6">
-        Are you sure you want to permanently delete this track? This action cannot be undone.
+        {t('tracks.confirmDelete')}
       </p>
       <div className="flex justify-end space-x-3">
         <button
           onClick={onCancel}
           className="bg-mainYellow hover:bg-yellow-200 text-mainBlue rounded-lg font-medium px-4 py-2 transition-all"
         >
-          Cancel
+          {t('tracks.cancel')}
         </button>
         <button
           onClick={onConfirm}
           className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-all"
         >
-          Confirm Delete
+          {t('tracks.confirmDelete')}
         </button>
       </div>
     </div>
@@ -90,6 +91,7 @@ const TrackMap = React.memo(({ coordinates, polyline }) => {
 });
 
 export default function TrackDetailPage() {
+    const { t } = useTranslation();
     const { id: trackId } = useParams();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
@@ -182,11 +184,11 @@ export default function TrackDetailPage() {
             
             setDrawings(initialDrawings);
         } catch (error) {
-            setServerError(error.response?.data?.message || "Error fetching the track.");
+            setServerError(error.response?.data?.message || t('tracks.error'));
         } finally {
             setLoading(false);
         }
-    }, [trackId]);
+    }, [trackId, t]);
 
     // Load track data on component mount
     useEffect(() => {
@@ -198,19 +200,19 @@ export default function TrackDetailPage() {
         switch(step) {
             case 1:
                 if (!editValues.name?.trim() || editValues.name.length < 5) {
-                    setError("Track name must be at least 5 characters long.");
+                    setError(t('tracks.form.validation.nameTooShort'));
                     return false;
                 }
                 if (!editValues.description?.trim() || editValues.description.length < 10) {
-                    setError("Track description must be at least 10 characters long.");
+                    setError(t('tracks.form.validation.descriptionTooShort'));
                     return false;
                 }
                 if (!editValues.location?.trim() || editValues.location.length < 5) {
-                    setError("Track location must be at least 5 characters long.");
+                    setError(t('tracks.form.validation.locationTooShort'));
                     return false;
                 }
                 if (!editValues.images || editValues.images.length === 0) {
-                    setError("At least one track image is required.");
+                    setError(t('tracks.form.validation.imageRequired'));
                     return false;
                 }
                 return true;
@@ -221,7 +223,7 @@ export default function TrackDetailPage() {
             default:
                 return true;
         }
-    }, [step, editValues]);
+    }, [step, editValues, t]);
 
     // Handle navigation between steps
     const handleStepNavigation = useCallback((direction) => {
@@ -294,7 +296,7 @@ export default function TrackDetailPage() {
             // Check if at least one geometry exists
             const hasGeometry = drawings.point || (drawings.polyline && drawings.polyline.length >= 2);
             if (!hasGeometry) {
-                setError("At least one geometry (point or polyline) is required.");
+                setError(t('tracks.form.validation.geometryRequired'));
                 return;
             }
     
@@ -309,9 +311,9 @@ export default function TrackDetailPage() {
             setStep(1);
             getTrack();
         } catch (error) {
-            setError(error.response?.data?.message || "Error updating track");
+            setError(error.response?.data?.message || t('tracks.error'));
         }
-    }, [editValues, availability, drawings, trackId, getTrack]);
+    }, [editValues, availability, drawings, trackId, getTrack, t]);
 
     // Delete track
     const handleDelete = useCallback(async () => {
@@ -323,9 +325,9 @@ export default function TrackDetailPage() {
             navigate("/tracks");
         } catch (error) {
             console.error("Error deleting track:", error);
-            setError(error.response?.data?.message || "Error deleting the track.");
+            setError(error.response?.data?.message || t('tracks.error'));
         }
-    }, [trackId, navigate]);
+    }, [trackId, navigate, t]);
 
     // Reset edit state
     const resetEditState = useCallback(() => {
@@ -394,7 +396,7 @@ export default function TrackDetailPage() {
             <div className="text-center py-12 min-h-screen flex items-center justify-center">
                 <div className="space-y-4">
                     <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-500 mx-auto"></div>
-                    <p className="mt-4 text-gray-400 text-lg">Loading track details...</p>
+                    <p className="mt-4 text-gray-400 text-lg">{t('tracks.loading')}</p>
                 </div>
             </div>
         );
@@ -405,10 +407,10 @@ export default function TrackDetailPage() {
         switch(activeTab) {
             case 'details':
                 return (
-                    <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg min-h-56">
+                    <div className="bg-accentBlue p-6 rounded-xl shadow-lg min-h-56">
                         <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
                             <FontAwesomeIcon icon={faCircleInfo} className="mr-2 text-mainYellow" />
-                            Track Details
+                            {t('tracks.details')}
                         </h2>
                         <p className="text-white leading-7 tracking-wide text-lg whitespace-pre-line break-words">{track.description}</p>
                     </div>
@@ -417,10 +419,10 @@ export default function TrackDetailPage() {
                 return (
                 !editMode && (
                     (track.coordinates || track.polyline) ? (
-                        <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg">
+                        <div className="bg-accentBlue p-6 rounded-xl shadow-lg">
                             <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
                                 <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-mainYellow" />
-                                Track Map
+                                {t('tracks.map')}
                             </h2>
                             <TrackMap 
                                 coordinates={track.coordinates} 
@@ -428,17 +430,17 @@ export default function TrackDetailPage() {
                             />
                         </div>
                     ) : (
-                        <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg">
-                            <p className="text-center text-gray-400 py-8">No map data available for this track.</p>
+                        <div className="bg-accentBlue p-6 rounded-xl shadow-lg">
+                            <p className="text-center text-gray-400 py-8">{t('tracks.noMapData')}</p>
                         </div>
                     )
                 ));
             case 'availability':
                 return (
-                    <div className="bg-gray-800/50 p-6 rounded-xl shadow-lg">
+                    <div className="bg-accentBlue p-6 rounded-xl shadow-lg">
                         <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
                             <FontAwesomeIcon icon={faClock} className="mr-2 text-mainYellow" />
-                            Open Hours
+                            {t('tracks.hours')}
                         </h2>
                         {track.availability && track.availability.length > 0 ? (
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
@@ -464,7 +466,7 @@ export default function TrackDetailPage() {
                                 ))}
                             </div>
                         ) : (
-                            <p className="text-center text-gray-400 py-8">No availability information for this track.</p>
+                            <p className="text-center text-gray-400 py-8">{t('tracks.noAvailability')}</p>
                         )}
                     </div>
                 );
@@ -494,8 +496,8 @@ export default function TrackDetailPage() {
                                 className="w-full h-full object-cover object-center transform transition-transform duration-500 group-hover:scale-105"
                             />
                         ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-800/50 text-gray-400">
-                                No images available
+                            <div className="w-full h-full flex items-center justify-center bg-accentBlue text-gray-400">
+                                {t('tracks.noImages')}
                             </div>
                         )}
 
@@ -509,7 +511,7 @@ export default function TrackDetailPage() {
                                         key={idx}
                                         onClick={() => setCurrentImageIndex(idx)}
                                         className={`w-2 h-2 rounded-full ${currentImageIndex === idx ? 'bg-mainYellow' : 'bg-white/50'}`}
-                                        aria-label={`Go to image ${idx + 1}`}
+                                        aria-label={t('tracks.goToImage', { number: idx + 1 })}
                                     />
                                 ))}
                             </div>
@@ -521,14 +523,14 @@ export default function TrackDetailPage() {
                                 <button
                                     onClick={goToPreviousImage}
                                     className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-all"
-                                    aria-label="Previous image"
+                                    aria-label={t('tracks.previousImage')}
                                 >
                                     <FontAwesomeIcon icon={faChevronLeft} />
                                 </button>
                                 <button
                                     onClick={goToNextImage}
                                     className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-all"
-                                    aria-label="Next image"
+                                    aria-label={t('tracks.nextImage')}
                                 >
                                     <FontAwesomeIcon icon={faChevronRight} />
                                 </button>
@@ -565,14 +567,14 @@ export default function TrackDetailPage() {
                             className="font-semibold px-6 py-2 rounded-lg hover:text-mainRed transition-colors flex items-center"
                         >
                             <FontAwesomeIcon icon={faPencil} className="mr-2"/>
-                            Edit Track
+                            {t('tracks.editTrack')}
                         </button>
                         <button
                             onClick={() => setDeleteConfirmation(true)}
                             className="font-semibold px-6 py-2 rounded-lg hover:text-mainRed transition-colors flex items-center"
                         >
                             <FontAwesomeIcon icon={faTrash} className="mr-2"/>
-                            Delete Track
+                            {t('tracks.deleteTrack')}
                         </button>
                     </div>
                 )}
@@ -584,21 +586,21 @@ export default function TrackDetailPage() {
                         onClick={() => setActiveTab('details')}
                     >
                         <FontAwesomeIcon icon={faCircleInfo} className="mr-2" />
-                        Details
+                        {t('tracks.details')}
                     </button>
                     <button 
                         className={`px-6 py-3 font-medium flex items-center ${activeTab === 'map' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                         onClick={() => setActiveTab('map')}
                     >
                         <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2" />
-                        Map
+                        {t('tracks.map')}
                     </button>
                     <button 
                         className={`px-6 py-3 font-medium flex items-center ${activeTab === 'availability' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                         onClick={() => setActiveTab('availability')}
                     >
                         <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
-                        Hours
+                        {t('tracks.hours')}
                     </button>
                 </div>
 
@@ -610,7 +612,7 @@ export default function TrackDetailPage() {
                     <div className="fixed z-50 inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
                         <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 shadow-2xl border border-gray-700">
                             <div className="flex justify-between items-center">
-                                <h3 className="text-2xl font-bold">Edit Track <span className="text-mainYellow">({step}/3)</span></h3>
+                                <h3 className="text-2xl font-bold">{t('tracks.editTrack')} <span className="text-mainYellow">({step}/3)</span></h3>
                                 <button 
                                     type="button" 
                                     onClick={resetEditState} 
@@ -644,7 +646,7 @@ export default function TrackDetailPage() {
                                     }`}
                                 >
                                     <FontAwesomeIcon icon={faArrowLeft} />
-                                    Back
+                                    {t('tracks.back')}
                                 </button>
                                 <div className="flex-grow"></div>
                                 {step < 3 ? (
@@ -653,7 +655,7 @@ export default function TrackDetailPage() {
                                         onClick={() => handleStepNavigation('next')}
                                         className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
                                     >
-                                        Next
+                                        {t('tracks.next')}
                                     </button>
                                 ) : (
                                     <button
@@ -661,7 +663,7 @@ export default function TrackDetailPage() {
                                         onClick={handleEdit}
                                         className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
                                     >
-                                        Save Changes
+                                        {t('tracks.saveChanges')}
                                     </button>
                                 )}
                                 <button
@@ -669,7 +671,7 @@ export default function TrackDetailPage() {
                                     onClick={resetEditState}
                                     className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
                                 >
-                                    Cancel
+                                    {t('tracks.cancel')}
                                 </button>
                             </div>
                         </div>
@@ -681,6 +683,7 @@ export default function TrackDetailPage() {
                     <DeleteConfirmationModal 
                         onCancel={() => setDeleteConfirmation(false)}
                         onConfirm={handleDelete}
+                        t={t}
                     />
                 )}
             </div>

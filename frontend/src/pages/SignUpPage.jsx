@@ -123,7 +123,7 @@ export default function SignUpPage() {
                   Name
                 </label>
                 <input
-                  className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed 
+                  className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed 
                     ${touched.name && !name
                     ? 'border-red-500 focus:border-red-500' 
                     : 'border-gray-700 focus:border-mainRed'}`}
@@ -145,7 +145,7 @@ export default function SignUpPage() {
                   Surname
                 </label>
                 <input
-                  className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed 
+                  className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed 
                     ${touched.surname && !surname
                     ? 'border-red-500 focus:border-red-500' 
                     : 'border-gray-700 focus:border-mainRed'}`}
@@ -170,7 +170,7 @@ export default function SignUpPage() {
                 Email
               </label>
               <input
-                className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
+                className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none
                   ${touched.email && !email 
                     ? 'border-red-500 focus:border-red-500' 
                     : 'border-gray-700 focus:border-mainRed'}`}
@@ -191,7 +191,7 @@ export default function SignUpPage() {
                 Password
               </label>
               <input
-                className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
+                className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none
                   ${touched.password && !password 
                     ? 'border-red-500 focus:border-red-500' 
                     : 'border-gray-700 focus:border-mainRed'}`}
@@ -212,7 +212,7 @@ export default function SignUpPage() {
                 Confirm Password
               </label>
               <input
-                className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
+                className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none
                   ${touched.confirmPassword && !confirmPassword 
                     ? 'border-red-500 focus:border-red-500' 
                     : 'border-gray-700 focus:border-mainRed'}`}

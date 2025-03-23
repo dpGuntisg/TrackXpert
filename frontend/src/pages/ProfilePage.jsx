@@ -4,8 +4,10 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImagePortrait, faPencil, faExclamationCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
 import TrackCard from '../components/TrackCard.jsx';
+import { useTranslation } from 'react-i18next';
 
 export default function ProfilePage() {
+    const { t } = useTranslation();
     const [profile, setProfile] = useState({
         name: "",
         surname: "",
@@ -29,7 +31,7 @@ export default function ProfilePage() {
         const fetchProfile = async () => {
             const token = localStorage.getItem('token');
             if (!token) {
-                setServerError("User is not authenticated");
+                setServerError(t('profile.notAuthenticated'));
                 setLoading(false);
                 setTimeout(() => {
                     window.location.href = "/signin";
@@ -46,10 +48,10 @@ export default function ProfilePage() {
             } catch (error) {
                 if (error.response?.status === 401) {
                     localStorage.removeItem('token');
-                    setServerError("Session expired.");
+                    setServerError(t('auth.sessionExpired'));
                     setTimeout(() => { window.location.href = "/signin"; }, 2000);
                 } else {
-                    setServerError("Failed to get profile information");
+                    setServerError(t('profile.fetchError'));
                     setTimeout(() => { window.location.href = "/signin"; }, 2000);
                 }
             } finally {
@@ -58,7 +60,7 @@ export default function ProfilePage() {
         };
     
         fetchProfile();
-    }, []);
+    }, [t]);
 
     useEffect(() => {
         const fetchTracks = async () => {
@@ -70,13 +72,13 @@ export default function ProfilePage() {
                     });
                     setTracks(tracksResponse.data.tracks || []);
                 } catch (tracksError) {
-                    console.error("Failed to fetch tracks", tracksError);
+                    console.error(t('profile.tracksError'), tracksError);
                 }
             }
         };
 
         fetchTracks();
-    }, [profile?._id]);
+    }, [profile?._id, t]);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -100,7 +102,7 @@ export default function ProfilePage() {
         try {
             const token = localStorage.getItem('token');
             if (!token) {
-                throw new Error("Unauthorized: No token found.");
+                throw new Error(t('profile.notAuthenticated'));
             }
     
             await axios.delete("http://localhost:5000/api/users/delete", {
@@ -110,20 +112,20 @@ export default function ProfilePage() {
             localStorage.removeItem('token');
             navigate("/signup");
         } catch (error) {
-            console.error("Error deleting profile:", error);
-            setError(error.response?.data?.message || "Error deleting profile.");
+            console.error(t('profile.deleteError'), error);
+            setError(error.response?.data?.message || t('profile.deleteError'));
         }
     };
     
     const handleProfileEdit = async () => {
         if (!newUsername.trim()) {
-            setError("Username cannot be empty");
+            setError(t('profile.validation.usernameRequired'));
             return;
         }
 
         const token = localStorage.getItem('token');
         if (!token) {
-            setError("Not authenticated");
+            setError(t('profile.notAuthenticated'));
             return;
         }
 
@@ -166,8 +168,8 @@ export default function ProfilePage() {
             setError(null);
 
         } catch (error) {
-            console.error("Failed to update profile", error);
-            setError(error.response?.data?.message || "Failed to update profile");
+            console.error(t('profile.updateError'), error);
+            setError(error.response?.data?.message || t('profile.updateError'));
         }
     };
     
@@ -186,7 +188,7 @@ export default function ProfilePage() {
             <div className="flex h-screen w-screen items-center justify-center bg-mainBlue">
                 <div className="flex flex-col items-center">
                     <div className="loader ease-linear rounded-full border-4 border-t-4 border-mainRed h-12 w-12 mb-4"></div>
-                    <p className="text-lg">Loading...</p>
+                    <p className="text-lg">{t('common.loading')}</p>
                 </div>
             </div>
         );
@@ -197,7 +199,7 @@ export default function ProfilePage() {
             <div className="flex h-screen w-screen items-center justify-center bg-mainBlue">
                 <div className="flex flex-col items-center">
                     <p className="text-3xl">{serverError}</p>
-                    <p className="">Please log in or try again later.</p>
+                    <p className="">{t('profile.loginPrompt')}</p>
                 </div>
             </div>
         );
@@ -206,14 +208,14 @@ export default function ProfilePage() {
     return (
         <div className='p-10'>
             {profile ? (
-                <div className='bg-gray-800/50 rounded-lg p-6 shadow-lg'>
+                <div className='bg-accentBlue rounded-lg p-6 shadow-lg'>
                     <div className="flex justify-end">
                         <button 
                             className='text-xl font-semibold px-4 py-2 rounded-lg hover:text-mainRed transition-all duration-200'
                             onClick={toggleEditMode}
                         >
                             <FontAwesomeIcon icon={faPencil} className="mr-2"/>
-                            {editMode ? "Cancel Editing" : "Edit Profile"}
+                            {editMode ? t('profile.cancelEdit') : t('profile.editProfile')}
                         </button>
                     </div>
                     
@@ -224,13 +226,13 @@ export default function ProfilePage() {
                             {previewImage ? (
                                 <img
                                     src={previewImage}
-                                    alt="Profile"
+                                    alt={t('profile.profilePicture')}
                                     className="w-40 h-40 rounded-full object-cover"
                                 />
                             ) : profile.profile_image ? (
                                 <img
                                     src={profile.profile_image.data}
-                                    alt="Profile"
+                                    alt={t('profile.profilePicture')}
                                     className="w-40 h-40 rounded-full object-cover"
                                 />
                             ) : (
@@ -241,7 +243,7 @@ export default function ProfilePage() {
                                 <div className="mt-4">
                                     <label htmlFor="profileImage" className="cursor-pointer flex items-center justify-center bg-mainYellow text-mainBlue px-4 py-2 rounded">
                                         <FontAwesomeIcon icon={faUpload} className="mr-2" />
-                                        Upload Photo
+                                        {t('profile.uploadPhoto')}
                                     </label>
                                     <input
                                         id="profileImage"
@@ -262,14 +264,14 @@ export default function ProfilePage() {
                                     <p className='text-2xl font-semibold'>{profile.name}</p>
                                     <p className='text-2xl font-semibold'>{profile.surname}</p>
                                 </div>
-                                <p className='text-xl font-semibold text-white mb-2'>@{profile.username}</p>
+                                <p className='text-xl font-semibold text-white mb-2'>{profile.username}</p>
                                 <p className='text-gray-400'>{profile.email}</p>
                             </div>
 
                             {/* Edit form shown conditionally under the user info */}
                             {editMode && (
                                 <div className="border-t border-gray-700 pt-6 mt-4">
-                                    <h3 className="text-xl font-semibold mb-4">Edit Profile</h3>
+                                    <h3 className="text-xl font-semibold mb-4">{t('profile.editProfile')}</h3>
                                     
                                     {error && (
                                         <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
@@ -283,42 +285,42 @@ export default function ProfilePage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                                         <div>
                                             <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
-                                                Name
+                                                {t('profile.name')}
                                             </label>
                                             <input
                                                 type="text"
                                                 id="name"
-                                                className="w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
+                                                className="w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
                                                 value={newName}
-                                                placeholder='Name'
+                                                placeholder={t('profile.namePlaceholder')}
                                                 onChange={(e) => setNewName(e.target.value)}
                                             />
                                         </div>
                                         
                                         <div>
                                             <label htmlFor="surname" className="block text-sm font-medium text-gray-300 mb-1">
-                                                Surname
+                                                {t('profile.surname')}
                                             </label>
                                             <input
                                                 type="text"
                                                 id="surname"
-                                                className="w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
+                                                className="w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
                                                 value={newSurname}
-                                                placeholder='Surname'
+                                                placeholder={t('profile.surnamePlaceholder')}
                                                 onChange={(e) => setNewSurname(e.target.value)}
                                             />
                                         </div>
                                         
                                         <div className="md:col-span-2">
                                             <label htmlFor="username" className="block text-sm font-medium text-gray-300 mb-1">
-                                                Username
+                                                {t('profile.username')}
                                             </label>
                                             <input
                                                 type="text"
                                                 id="username"
-                                                className="w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
+                                                className="w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
                                                 value={newUsername}
-                                                placeholder='Username'
+                                                placeholder={t('profile.usernamePlaceholder')}
                                                 onChange={(e) => setNewUsername(e.target.value)}
                                             />
                                         </div>
@@ -329,14 +331,14 @@ export default function ProfilePage() {
                                             className="bg-mainYellow text-mainBlue px-6 py-3 rounded-lg font-medium hover:bg-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800"
                                             onClick={handleProfileEdit}
                                         >
-                                            Save Changes
+                                            {t('profile.saveChanges')}
                                         </button>
                                         
                                         <button 
                                             className="bg-red-500/20 text-red-400 border border-red-500/30 px-6 py-3 rounded-lg font-medium hover:bg-red-500/30 transition-colors duration-200"
                                             onClick={handleProfileDelete}
                                         > 
-                                            Delete Profile 
+                                            {t('profile.deleteProfile')} 
                                         </button>
                                     </div>
                                 </div>
@@ -345,13 +347,13 @@ export default function ProfilePage() {
                     </div>
                 </div>
             ) : (
-                <p>No profile data found.</p>
+                <p>{t('profile.noData')}</p>
             )}
 
             <div className='mt-10'>
                 <div className='flex flex-row'>
-                    <h2 className='text-2xl font-semibold '>Created Tracks</h2>
-                    <h2 className='ml-2 text-2xl font-semibold '>Liked</h2>
+                    <h2 className='text-2xl font-semibold '>{t('profile.createdTracks')}</h2>
+                    <h2 className='ml-2 text-2xl font-semibold '>{t('profile.likedTracks')}</h2>
                 </div>
                 <div className='border-b-4 border-mainRed mb-4'></div>
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20">
@@ -363,7 +365,7 @@ export default function ProfilePage() {
                             />
                         ))
                     ) : (
-                        <p>No tracks created yet.</p>
+                        <p>{t('profile.noTracks')}</p>
                     )}
                 </ul>
             </div>

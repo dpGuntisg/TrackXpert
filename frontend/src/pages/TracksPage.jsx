@@ -6,11 +6,13 @@ import AvailabilityForm from '../components/ AvailabilityForm.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faArrowLeft, faExclamationCircle, faCheckCircle} from '@fortawesome/free-solid-svg-icons';
 import { MapSelector } from '../components/MapSelector';
+import { useTranslation } from 'react-i18next';
 
 // Base URL for API requests
 const API_BASE_URL = 'http://localhost:5000/api';
 
 export default function TracksPage() {
+    const { t } = useTranslation();
     const [tracks, setTracks] = useState([]);
     const [formValues, setFormValues] = useState({
         name: '',
@@ -117,31 +119,31 @@ export default function TracksPage() {
         let isValid = true;
 
         if (!formValues.name || formValues.name.length < 5) {
-            errors.name = "Track name must be at least 5 characters long.";
+            errors.name = t('tracks.form.validation.nameTooShort');
             isValid = false;
         } else if (formValues.name.length > 100) {
-            errors.name = "Track name is too long (maximum 100 characters).";
+            errors.name = t('tracks.form.validation.nameTooLong');
             isValid = false;
         }
 
         if (!formValues.description || formValues.description.length < 10) {
-            errors.description = "Track description must be at least 10 characters long.";
+            errors.description = t('tracks.form.validation.descriptionTooShort');
             isValid = false;
         } else if (formValues.description.length > 15000) {
-            errors.description = "Track description is too long (maximum 15000 characters).";
+            errors.description = t('tracks.form.validation.descriptionTooLong');
             isValid = false;
         }
 
         if (!formValues.location || formValues.location.length < 5) {
-            errors.location = "Track location must be at least 5 characters long.";
+            errors.location = t('tracks.form.validation.locationTooShort');
             isValid = false;
         } else if (formValues.location.length > 50) {
-            errors.location = "Track location is too long (maximum 50 characters).";
+            errors.location = t('tracks.form.validation.locationTooLong');
             isValid = false;
         }
 
         if (!formValues.images || formValues.images.length === 0) {
-            errors.images = "At least one track image is required.";
+            errors.images = t('tracks.form.validation.imageRequired');
             isValid = false;
         }
 
@@ -155,7 +157,7 @@ export default function TracksPage() {
                 location: true,
                 images: true
             });
-            setError("Please fix all errors before proceeding.");
+            setError(t('tracks.form.validation.fixErrors'));
         } else {
             setError("");
         }
@@ -176,7 +178,7 @@ export default function TracksPage() {
         
         // Validate map data
         if (!coordinates && (!drawings.polyline || drawings.polyline.length < 2)) {
-            setError("Please mark a location or draw a route on the map.");
+            setError(t('tracks.form.validation.geometryRequired'));
             setLoading(false);
             return;
         }
@@ -201,7 +203,7 @@ export default function TracksPage() {
         }
     
         if (!token) {
-            setServerError("User is not authenticated. Please log in and try again.");
+            setServerError(t('tracks.form.validation.notAuthenticated'));
             setLoading(false);
             return;
         }
@@ -212,12 +214,12 @@ export default function TracksPage() {
                 trackData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
-            setSuccess("Track created successfully!");
+            setSuccess(t('tracks.form.success'));
             resetForm();
             setShowCreateForm(false);
             getTracks(currentPage);
         } catch (error) {
-            const errorMessage = error.response?.data?.message || "Failed to create track. Please try again.";
+            const errorMessage = error.response?.data?.message || t('tracks.form.error');
             console.error('Track creation error:', errorMessage);
             setError(errorMessage);
         } finally {
@@ -230,7 +232,7 @@ export default function TracksPage() {
             <div className="flex h-screen w-screen items-center justify-center bg-mainBlue">
                 <div className="flex flex-col items-center">
                     <div className="loader ease-linear rounded-full border-4 border-t-4 border-mainRed h-12 w-12 mb-4"></div>
-                    <p className="text-lg">Loading tracks...</p>
+                    <p className="text-lg">{t('tracks.loading')}</p>
                 </div>
             </div>
         );
@@ -243,7 +245,7 @@ export default function TracksPage() {
                     <div className="text-mainRed text-5xl mb-4">
                         <FontAwesomeIcon icon={faExclamationCircle} />
                     </div>
-                    <p className="text-3xl mb-3">Something went wrong</p>
+                    <p className="text-3xl mb-3">{t('tracks.error')}</p>
                     <p className="text-lg mb-6">{serverError}</p>
                     <button 
                         onClick={() => {
@@ -252,7 +254,7 @@ export default function TracksPage() {
                         }}
                         className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium"
                     >
-                        Try Again
+                        {t('tracks.tryAgain')}
                     </button>
                 </div>
             </div>
@@ -262,7 +264,7 @@ export default function TracksPage() {
     return (
         <div className=' p-5 sm:p-10 bg-mainBlue min-h-screen'>
             <div className='flex justify-center mb-5'>
-                <h1 className='text-4xl font-bold'>Explore Tracks</h1>
+                <h1 className='text-4xl font-bold'>{t('tracks.exploreTracks')}</h1>
             </div>
 
             {serverError && (
@@ -278,7 +280,7 @@ export default function TracksPage() {
                         }}
                         className="text-mainYellow hover:text-yellow-400 text-sm mt-2 font-medium"
                     >
-                        Retry
+                        {t('tracks.retry')}
                     </button>
                 </div>
             )}
@@ -288,10 +290,10 @@ export default function TracksPage() {
                     <button
                         className="sm:bottom-8 sm:right-6 z-50 fixed bottom-0 h-12 w-20 rounded bg-mainRed text-white flex items-center justify-center hover:scale-110 transition-all ease-in-out duration-300 shadow-lg hover:shadow-xl"
                         onClick={toggleCreateForm}
-                        aria-label="Add new track"
+                        aria-label={t('tracks.addTrack')}
                     >
                         <span className="text-2xl font-bold flex flex-col items-center">
-                            <span className="text-xs">+ Add Track</span>
+                            <span className="text-xs">{t('tracks.addTrack')}</span>
                         </span>
                     </button>
                 )}
@@ -301,14 +303,14 @@ export default function TracksPage() {
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto">
                     <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 my-8">
                         <div className="flex justify-between items-center">
-                            <h3 className="text-2xl font-bold">Create Track ({step}/3)</h3>
+                            <h3 className="text-2xl font-bold">{t('tracks.createTrack')} ({step}/3)</h3>
                             <button
                                 onClick={() => {
                                     setShowCreateForm(false);
                                     resetForm();
                                 }}
                                 className="text-gray-300 hover:text-white"
-                                aria-label="Close form"
+                                aria-label={t('tracks.cancel')}
                             >
                                 <FontAwesomeIcon icon={faTimes} className="text-xl" />
                             </button>
@@ -360,7 +362,7 @@ export default function TracksPage() {
                                         />
                                     </div>
                                     <p className="text-sm text-gray-400">
-                                        Mark a location or draw a route on the map. At least one is required.
+                                        {t('tracks.form.mapInstructions')}
                                     </p>
                                 </>
                             )}
@@ -374,7 +376,7 @@ export default function TracksPage() {
                                         className="bg-gray-600 hover:bg-gray-700 px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
                                     >
                                         <FontAwesomeIcon icon={faArrowLeft} />
-                                        Back
+                                        {t('tracks.back')}
                                     </button>
                                 )}
                                 <div className="flex-grow"></div>
@@ -388,7 +390,7 @@ export default function TracksPage() {
                                         className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
                                         disabled={loading}
                                     >
-                                        Next
+                                        {t('tracks.next')}
                                     </button>
                                 ) : (
                                     <button
@@ -397,71 +399,71 @@ export default function TracksPage() {
                                         className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
                                         disabled={loading}
                                     >
-                                {loading ? (
-                                        <>
-                                            <div className="h-4 w-4 border-2 border-mainBlue border-t-transparent rounded-full animate-spin"></div>
-                                            Creating...
-                                        </>
-                                    ) : "Create Track"}
+                                        {loading ? (
+                                            <>
+                                                <div className="h-4 w-4 border-2 border-mainBlue border-t-transparent rounded-full animate-spin"></div>
+                                                {t('tracks.creating')}
+                                            </>
+                                        ) : t('tracks.createTrack')}
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setShowCreateForm(false);
+                                        resetForm();
+                                    }}
+                                    className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
+                                    disabled={loading}
+                                >
+                                    {t('tracks.cancel')}
                                 </button>
-                            )}
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setShowCreateForm(false);
-                                    resetForm();
-                                }}
-                                className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
-                                disabled={loading}
-                            >
-                                Cancel
-                            </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        )}
+            )}
 
-        {tracks.length === 0 && !loading ? (
-            <div className="text-center py-16">
-                <p className="text-2xl mb-4">No tracks found</p>
-                <p className="text-gray-400">Be the first to create a track!</p>
-            </div>
-        ) : (
-            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 justify-center'>
-                {tracks.map((track) => (
-                    <TrackCard key={track._id} track={track} />
-                ))}
-            </div>
-        )}
-
-        {totalPages > 1 && (
-            <div className="flex justify-center mt-8">
-                <div className="inline-flex rounded-md shadow-sm">
-                    {currentPage > 1 && (
-                        <button
-                            className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-l-lg"
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={loading}
-                        >
-                            Previous
-                        </button>
-                    )}
-                    <span className="px-4 py-2 text-sm font-medium bg-gray-800">
-                        {currentPage} of {totalPages}
-                    </span>
-                    {currentPage < totalPages && (
-                        <button
-                            className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-r-lg"
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={loading}
-                        >
-                            Next
-                        </button>
-                    )}
+            {tracks.length === 0 && !loading ? (
+                <div className="text-center py-16">
+                    <p className="text-2xl mb-4">{t('tracks.noTracks')}</p>
+                    <p className="text-gray-400">{t('tracks.beFirst')}</p>
                 </div>
-            </div>
-        )}
-    </div>
-);
+            ) : (
+                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 justify-center'>
+                    {tracks.map((track) => (
+                        <TrackCard key={track._id} track={track} />
+                    ))}
+                </div>
+            )}
+
+            {totalPages > 1 && (
+                <div className="flex justify-center mt-8">
+                    <div className="inline-flex rounded-md shadow-sm">
+                        {currentPage > 1 && (
+                            <button
+                                className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-l-lg"
+                                onClick={() => handlePageChange(currentPage - 1)}
+                                disabled={loading}
+                            >
+                                {t('tracks.previous')}
+                            </button>
+                        )}
+                        <span className="px-4 py-2 text-sm font-medium bg-gray-800">
+                            {currentPage} {t('tracks.of')} {totalPages}
+                        </span>
+                        {currentPage < totalPages && (
+                            <button
+                                className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-r-lg"
+                                onClick={() => handlePageChange(currentPage + 1)}
+                                disabled={loading}
+                            >
+                                {t('tracks.next')}
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 }

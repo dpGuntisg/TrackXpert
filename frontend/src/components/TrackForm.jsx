@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { useTranslation } from 'react-i18next';
 
 export const TrackForm = ({ 
   values, 
@@ -10,6 +11,7 @@ export const TrackForm = ({
   currentImageIndex,
   setCurrentImageIndex
 }) => {
+  const { t } = useTranslation();
   const [imagePreviews, setImagePreviews] = useState([]);
 
   const handleImageChange = (e) => {
@@ -85,10 +87,10 @@ export const TrackForm = ({
   return (
     <div className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Track Name</label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">{t('tracks.form.trackName')}</label>
         <input
           type="text"
-          placeholder="Enter the track name *"
+          placeholder={t('tracks.form.enterTrackName')}
           value={values.name || ''}
           onChange={(e) => handleInputChange('name', e.target.value)}
           className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
@@ -103,11 +105,11 @@ export const TrackForm = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">{t('tracks.form.description')}</label>
         <textarea
           value={values.description || ''}
           onChange={(e) => handleInputChange('description', e.target.value)}
-          placeholder="Enter the track description *"
+          placeholder={t('tracks.form.enterDescription')}
           className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
             ${errors.description && touched.description ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}
           rows="4"
@@ -121,10 +123,10 @@ export const TrackForm = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-1">Location</label>
+        <label className="block text-sm font-medium text-gray-300 mb-1">{t('tracks.form.location')}</label>
         <input
           type="text"
-          placeholder="Enter the track location *"
+          placeholder={t('tracks.form.enterLocation')}
           value={values.location || ''}
           onChange={(e) => handleInputChange('location', e.target.value)}
           className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
@@ -139,7 +141,7 @@ export const TrackForm = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">Track Images</label>
+        <label className="block text-sm font-medium text-gray-300 mb-2">{t('tracks.form.trackImages')}</label>
         
         {/* Images Display */}
         {values.images && values.images.length > 0 && (
@@ -183,7 +185,7 @@ export const TrackForm = ({
             className="flex items-center justify-center w-full py-3 px-4 bg-gray-800 border border-gray-700 hover:border-mainRed rounded-lg cursor-pointer transition-colors"
           >
             <FontAwesomeIcon icon={faPlus} className="mr-2" />
-            <span>Add Images</span>
+            <span>{t('tracks.form.addImages')}</span>
           </label>
           {errors.images && touched.images && (
             <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
