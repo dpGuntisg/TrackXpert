@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImagePortrait, faPencil, faExclamationCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 import TrackCard from '../components/TrackCard.jsx';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { useTranslation } from 'react-i18next';
@@ -48,6 +50,7 @@ export default function ProfilePage() {
                 });
                 const user = profileResponse.data.user;
                 setProfile(user);
+                console.log(user);
             } catch (error) {
                 if (error.response?.status === 401) {
                     localStorage.removeItem('token');
@@ -143,7 +146,10 @@ export default function ProfilePage() {
 
             // Add image if it exists
             if (image) {
-                updateData.profile_image = image;
+                updateData.profile_image = {
+                    data: image.data,
+                    mimeType: image.mimeType
+                };
             }
 
             // Send update request
@@ -159,16 +165,21 @@ export default function ProfilePage() {
             );
 
             // Update local state with response data
+            const updatedUser = response.data.updatedUser;
+            
+            // Update profile state with new data
             setProfile(prev => ({
                 ...prev,
-                username: response.data.updatedUser.username,
-                name: response.data.updatedUser.name,
-                surname: response.data.updatedUser.surname,
-                profile_image: response.data.updatedUser.profile_image,
-                phonenumber: response.data.updatedUser.phonenumber
+                username: updatedUser.username,
+                name: updatedUser.name,
+                surname: updatedUser.surname,
+                profile_image: updatedUser.profile_image,
+                phonenumber: updatedUser.phonenumber
             }));
 
-            // Exit edit mode and clear error
+            // Clear temporary states and exit edit mode
+            setImage(null);
+            setPreviewImage(null);
             setEditMode(false);
             setError(null);
 
@@ -185,8 +196,10 @@ export default function ProfilePage() {
         setNewName(profile?.name || '');
         setNewSurname(profile?.surname || '');
         setNewPhonenumber(profile?.phonenumber || '');
-        setImage(profile?.profile_image || null);
-        setPreviewImage(null);
+        if (!editMode) {
+            setImage(null);
+            setPreviewImage(null);
+        }
     };
 
     if (loading) {
@@ -217,7 +230,7 @@ export default function ProfilePage() {
                 <div className='bg-accentBlue rounded-lg p-6 shadow-lg'>
                     <div className="flex justify-end">
                         <button 
-                            className='text-xl font-semibold px-4 py-2 rounded-lg hover:text-mainRed transition-all duration-200'
+                            className='font-semibold px-4 py-2 rounded-lg hover:text-mainRed transition-all duration-200'
                             onClick={toggleEditMode}
                         >
                             <FontAwesomeIcon icon={faPencil} className="mr-2"/>
@@ -262,9 +275,7 @@ export default function ProfilePage() {
                             )}
                         </div>
 
-                        {/* Right column - User info */}
                         <div className="flex-1">
-                            {/* Always display the user information */}
                             <div className="mb-6">
                                 <div className='flex flex-row space-x-2 mb-2'>
                                     <p className='text-2xl font-semibold'>{profile.name}</p>
@@ -272,10 +283,9 @@ export default function ProfilePage() {
                                 </div>
                                 <p className='text-xl font-semibold text-white mb-2'>{profile.username}</p>
                                 <p className='text-gray-400'>{profile.email}</p>
-                                <p className='text-gray-400'>{profile.phonenumber}</p>
+                                <p className='text-gray-400'>+{profile.phonenumber}</p>
                             </div>
 
-                            {/* Edit form shown conditionally under the user info */}
                             {editMode && (
                                 <div className="border-t border-gray-700 pt-6 mt-4">
                                     <h3 className="text-xl font-semibold mb-4">{t('profile.editProfile')}</h3>
@@ -333,13 +343,28 @@ export default function ProfilePage() {
                                             <label htmlFor="phonenumber" className="block text-sm font-medium text-gray-300 mb-1">
                                                 {t('profile.phonenumber')}
                                             </label>
-                                            <input
-                                                type="text"
-                                                id="phonenumber"
-                                                className="w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
+                                            <PhoneInput
+                                                country={'lv'}
                                                 value={newPhonenumber}
-                                                placeholder={t('profile.phonenumberPlaceholder')}
-                                                onChange={(e) => setNewPhonenumber(e.target.value)}
+                                                onChange={(value) => setNewPhonenumber(value)}
+                                                inputProps={{
+                                                    id: 'phonenumber',
+                                                    className: 'w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed'
+                                                }}
+                                                containerClass="phone-input-container"
+                                                buttonClass="phone-input-button"
+                                                dropdownClass="phone-input-dropdown"
+                                                searchClass="phone-input-search"
+                                                searchPlaceholder={t('profile.searchCountry')}
+                                                enableSearch={true}
+                                                disableSearchIcon={false}
+                                                searchNotFound={t('profile.countryNotFound')}
+                                                inputStyle={{
+                                                    width: '100%',
+                                                    paddingLeft: '3.5rem',
+                                                    fontSize: '1rem',
+                                                    height: '3rem'
+                                                }}
                                             />
                                         </div>
                                     </div>

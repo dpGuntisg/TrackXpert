@@ -87,6 +87,8 @@
     "updateError": "Neizdevās atjaunināt profilu",
     "deleteError": "Kļūda dzēšot profilu",
     "tracksError": "Neizdevās iegūt trases",
+    "searchCountry": "Meklēt valsti",
+    "countryNotFound": "Valsts nav atrasta",
     "validation": {
       "usernameRequired": "Lietotājvārds nevar būt tukšs"
     }

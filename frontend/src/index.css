@@ -15,3 +15,136 @@ code {
   font-family: 'Source Code Pro', Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
+/* Apply to the entire phone input container */
+.phone-input-container {
+  @apply w-full;
+}
+.flag-dropdown {
+  @apply border-gray-700 !important;
+  @apply bg-inputBlue !important;
+  @apply rounded-l-lg !important;
+}
+
+.selected-flag {
+  @apply bg-inputBlue !important;
+  @apply rounded-l-lg !important;
+}
+
+/* Dropdown for country selection */
+.phone-input-dropdown {
+  @apply bg-accentBlue border border-gray-700 rounded-lg shadow-lg !important;
+  @apply mt-2 !important;
+}
+
+/* Search input inside the dropdown */
+.phone-input-search {
+  @apply bg-inputBlue border border-gray-700 text-mainYellow !important;
+  @apply w-full !important;
+}
+
+.phone-input-search-box {
+  @apply bg-inputBlue !important;
+  @apply rounded-lg !important;
+  @apply border-gray-700 !important;
+  @apply text-mainYellow !important;
+  @apply pl-4 !important;
+}
+
+li.country.highlight {
+  @apply bg-gray-700 !important;
+}
+
+li.country:hover {
+  @apply bg-gray-700 !important;
+}
+
+.phone-input-search::placeholder {
+  @apply text-gray-400 !important;
+}
+
+.phone-input-search:focus {
+  @apply outline-none ring-2 ring-mainRed border-mainRed !important;
+}
+
+/* Country list in the dropdown */
+.react-phone-input-2 .country-list {
+  @apply bg-accentBlue border border-gray-700 !important;
+  @apply max-h-[300px] overflow-y-auto !important;
+}
+
+.react-phone-input-2 .country-list .country {
+  @apply text-mainYellow hover:bg-gray-700 !important;
+  @apply py-2 px-4 !important;
+}
+
+.react-phone-input-2 .country-list .country.highlight {
+  @apply bg-gray-700 !important;
+}
+
+/* Style for the selected flag element */
+.react-phone-input-2 .selected-flag {
+  @apply bg-inputBlue border-r border-gray-700 !important;
+  @apply w-[50px] !important;
+}
+
+.react-phone-input-2 .selected-flag:hover {
+  @apply bg-gray-700 !important;
+}
+
+.react-phone-input-2 .flag-dropdown {
+  @apply border-gray-700 !important;
+}
+
+/* Form input field for the phone number */
+.react-phone-input-2 .form-control {
+  @apply bg-inputBlue border border-gray-700 text-mainYellow rounded-r-lg !important;
+  @apply pl-4 !important;
+  @apply w-full !important;
+}
+
+.react-phone-input-2 .form-control:focus {
+  @apply outline-none ring-2 ring-mainRed border-mainRed !important;
+}
+
+/* Fix for the flag dropdown arrow */
+.react-phone-input-2 .arrow {
+  @apply border-t-mainYellow !important;
+}
+
+/* Custom scroll bar for country list */
+.react-phone-input-2 .country-list::-webkit-scrollbar {
+  @apply w-2 !important;
+}
+
+.react-phone-input-2 .country-list::-webkit-scrollbar-track {
+  @apply bg-accentBlue !important;
+}
+
+.react-phone-input-2 .country-list::-webkit-scrollbar-thumb {
+  @apply bg-gray-700 rounded-full !important;
+}
+
+.react-phone-input-2 .country-list::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-600 !important;
+}
+
+/* Ensure the search box is styled properly */
+.react-phone-input-2 .search {
+  @apply bg-inputBlue !important;
+  @apply border border-gray-700 !important;
+  @apply text-mainYellow !important;
+}
+
+.react-phone-input-2 .search:focus {
+  @apply outline-none ring-2 ring-mainRed border-mainRed !important;
+}
+
+/* Hover effect for country list items */
+.react-phone-input-2 .country-list .country:hover {
+  @apply bg-gray-700 !important;
+}
+
+/* Add padding for the dropdown items when focused */
+.react-phone-input-2 .country-list .country:focus {
+  @apply bg-gray-700 !important;
+}

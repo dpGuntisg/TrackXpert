@@ -86,6 +86,8 @@
     "updateError": "Failed to update profile",
     "deleteError": "Error deleting profile",
     "tracksError": "Failed to fetch tracks",
+    "searchCountry": "Search for a country",
+    "countryNotFound": "No countries found",
     "validation": {
       "usernameRequired": "Username cannot be empty"
     }
