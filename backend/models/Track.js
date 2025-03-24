@@ -70,7 +70,8 @@ const TrackSchema = new mongoose.Schema({
       type: [[Number]],
       required: false
     }
-  }
+  },
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
 },{timestamps:true});
 
 

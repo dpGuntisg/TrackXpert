@@ -176,6 +176,48 @@ class TrackService {
     
     return tracks;
   }
+
+  static async likeTrack(trackId, userId) {
+    const track = await Track.findById(trackId);
+    if (!track) throw new Error("Track not found");
+
+    // Check if user already liked the track
+    if (track.likes.includes(userId)) {
+      throw new Error("Track already liked by user");
+    }
+
+    // Add user to likes array
+    track.likes.push(userId);
+    await track.save();
+
+    return track;
+  }
+
+  static async unlikeTrack(trackId, userId) {
+    const track = await Track.findById(trackId);
+    if (!track) throw new Error("Track not found");
+
+    // Check if user has liked the track
+    if (!track.likes.includes(userId)) {
+      throw new Error("Track not liked by user");
+    }
+
+    // Remove user from likes array
+    track.likes = track.likes.filter(id => id.toString() !== userId);
+    await track.save();
+
+    return track;
+  }
+
+  static async getLikedTracks(userId) {
+    if (!userId) throw new Error("User ID is required");
+    
+    const tracks = await Track.find({ likes: userId })
+      .populate("created_by", "username email phonenumber")
+      .populate("images", "data mimeType");
+    
+    return tracks;
+  }
 }
 
 export default TrackService;

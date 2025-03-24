@@ -31,6 +31,7 @@ export default function ProfilePage() {
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+    const [activeTab, setActiveTab] = useState('created');
     const navigate = useNavigate();
     
     useEffect(() => {
@@ -74,7 +75,11 @@ export default function ProfilePage() {
             const token = localStorage.getItem('token');
             if (profile?._id && token) {
                 try {
-                    const tracksResponse = await axios.get(`http://localhost:5000/api/tracks/profile/${profile._id}/tracks`, {
+                    const endpoint = activeTab === 'created'
+                        ? `http://localhost:5000/api/tracks/profile/${profile._id}/tracks`
+                        : `http://localhost:5000/api/tracks/profile/${profile._id}/liked`;
+
+                    const tracksResponse = await axios.get(endpoint, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
                     setTracks(tracksResponse.data.tracks || []);
@@ -85,7 +90,7 @@ export default function ProfilePage() {
         };
 
         fetchTracks();
-    }, [profile?._id, t]);
+    }, [profile?._id, activeTab, t]);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -398,9 +403,19 @@ export default function ProfilePage() {
             )}
 
             <div className='mt-10'>
-                <div className='flex flex-row'>
-                    <h2 className='text-2xl font-semibold '>{t('profile.createdTracks')}</h2>
-                    <h2 className='ml-2 text-2xl font-semibold '>{t('profile.likedTracks')}</h2>
+                <div className='flex flex-row space-x-4 mb-4'>
+                    <button 
+                        onClick={() => setActiveTab('created')}
+                        className={`text-2xl font-semibold ${activeTab === 'created' ? 'text-mainRed' : 'text-gray-400'}`}
+                    >
+                        {t('profile.createdTracks')}
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('liked')}
+                        className={`text-2xl font-semibold ${activeTab === 'liked' ? 'text-mainRed' : 'text-gray-400'}`}
+                    >
+                        {t('profile.likedTracks')}
+                    </button>
                 </div>
                 <div className='border-b-4 border-mainRed mb-4'></div>
                 <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20">
@@ -409,6 +424,27 @@ export default function ProfilePage() {
                             <TrackCard
                                 key={track._id}
                                 track={track}
+                                onLikeChange={(trackId, isLiked, updatedLikes) => {
+                                    if (activeTab === 'liked' && !isLiked) {
+                                        // Remove the track from the list if unliked in the liked tab
+                                        setTracks(prevTracks => 
+                                            prevTracks.filter(t => t._id !== trackId)
+                                        );
+                                    } else {
+                                        // Update the track's likes array
+                                        setTracks(prevTracks => 
+                                            prevTracks.map(t => {
+                                                if (t._id === trackId) {
+                                                    return {
+                                                        ...t,
+                                                        likes: updatedLikes || t.likes
+                                                    };
+                                                }
+                                                return t;
+                                            })
+                                        );
+                                    }
+                                }}
                             />
                         ))
                     ) : (

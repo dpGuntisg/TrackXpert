@@ -60,4 +60,31 @@ router.get("/profile/:userId/tracks", verifyToken, async (req, res) => {
   }
 });
 
+router.post("/:id/like", verifyToken, async (req, res) => {
+  try {
+    const track = await TrackService.likeTrack(req.params.id, req.userId);
+    res.status(200).json({ message: "Track liked successfully", track });
+  } catch (error) {
+    res.status(error.status || 500).json({ message: error.message });
+  }
+});
+
+router.post("/:id/unlike", verifyToken, async (req, res) => {
+  try {
+    const track = await TrackService.unlikeTrack(req.params.id, req.userId);
+    res.status(200).json({ message: "Track unliked successfully", track });
+  } catch (error) {
+    res.status(error.status || 500).json({ message: error.message });
+  }
+});
+
+router.get("/profile/:userId/liked", verifyToken, async (req, res) => {
+  try {
+    const tracks = await TrackService.getLikedTracks(req.params.userId);
+    res.status(200).json({ message: "Liked tracks fetched successfully", tracks });
+  } catch (error) {
+    res.status(error.status || 500).json({ message: error.message });
+  }
+});
+
 export default router;

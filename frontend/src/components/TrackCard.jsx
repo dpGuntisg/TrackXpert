@@ -1,16 +1,100 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faTag, faRoad, faCar, faFlagCheckered } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faTag, faRoad, faCar, faFlagCheckered, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from "jwt-decode";
 
-export default function TrackCard({ track }) {
+const API_BASE_URL = 'http://localhost:5000/api';
+
+export default function TrackCard({ track, onLikeChange }) {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const truncatedDescription = track.description.length > 150 
         ? track.description.substring(0, 150) + "..."
         : track.description;
     const FormatedDistance = `${parseFloat(track.distance).toFixed(2).replace('.', ',')} km`;
     const firstImage = track.images?.[0]?.data;
+    const token = localStorage.getItem('token');
+    const [isLiked, setIsLiked] = useState(false);
+    const [userId, setUserId] = useState(null);
+
+    // Get user ID from token
+    useEffect(() => {
+        if (token) {
+            try {
+                const decoded = jwtDecode(token);
+                setUserId(decoded.userId);
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
+        }
+    }, [token]);
+
+    // Initialize and update like state whenever track or userId changes
+    useEffect(() => {
+        if (track && Array.isArray(track.likes) && userId) {
+            setIsLiked(track.likes.some(likeId => 
+                typeof likeId === 'string' ? likeId === userId : likeId.toString() === userId
+            ));
+        }
+    }, [track, userId]);
+
+    const handleLikeClick = async (e) => {
+        e.preventDefault(); // Prevent navigation
+        if (!token || !userId) {
+            navigate('/signin');
+            return;
+        }
+
+        try {
+            const endpoint = isLiked 
+                ? `${API_BASE_URL}/tracks/${track._id}/unlike` 
+                : `${API_BASE_URL}/tracks/${track._id}/like`;
+            
+            const response = await axios.post(endpoint, {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            // Get the updated track data from the response
+            const updatedTrack = response.data.track;
+
+            // Update the track's likes array with the new data
+            track.likes = updatedTrack.likes;
+
+            // Update local state
+            setIsLiked(!isLiked);
+
+            // Notify parent component with the updated likes array
+            if (onLikeChange) {
+                onLikeChange(track._id, !isLiked, updatedTrack.likes);
+            }
+        } catch (error) {
+            console.error('Error updating like status:', error);
+            // If we get a 500 error about already liked/unliked, don't show it to the user
+            if (error.response?.status === 500) {
+                // Update the local state to match reality
+                const newIsLiked = !isLiked;
+                setIsLiked(newIsLiked);
+                
+                // Update the track's likes array
+                if (newIsLiked) {
+                    track.likes = [...track.likes, userId];
+                } else {
+                    track.likes = track.likes.filter(id => 
+                        typeof id === 'string' ? id !== userId : id.toString() !== userId
+                    );
+                }
+                
+                // Notify parent component
+                if (onLikeChange) {
+                    onLikeChange(track._id, newIsLiked, track.likes);
+                }
+            }
+        }
+    };
 
     // Function to format time in 12-hour format
     const formatTime = (timeStr) => {
@@ -63,7 +147,17 @@ export default function TrackCard({ track }) {
                         <p className='font-bold text-sm text-gray-300'>{track.location}</p>
                     </div>
                 </div>
+
             </div>
+
+            {token && (
+                    <button 
+                        onClick={handleLikeClick}
+                        className={`absolute bottom-4 left-4 text-2xl ${isLiked ? 'text-mainRed' : 'text-gray-400'} hover:text-mainRed transition-colors duration-200`}
+                    >
+                        <FontAwesomeIcon icon={faHeart} />
+                    </button>
+                )}
 
             {track.distance > 0 && (
                 <div className="absolute bottom-4 right-4 bg-mainYellow text-mainBlue text-xs font-semibold px-3 py-1 opacity-80 rounded">

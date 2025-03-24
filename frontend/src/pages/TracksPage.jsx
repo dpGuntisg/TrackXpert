@@ -360,6 +360,20 @@ export default function TracksPage() {
         setTracks(filteredTracks);
     };
 
+    const handleLikeChange = (trackId, isLiked, updatedLikes) => {
+        setTracks(prevTracks => 
+            prevTracks.map(track => {
+                if (track._id === trackId) {
+                    return {
+                        ...track,
+                        likes: updatedLikes || track.likes // Use provided likes array or keep existing
+                    };
+                }
+                return track;
+            })
+        );
+    };
+
     if (loading && !tracks.length) {
         return (
             <div className="flex h-screen w-screen items-center justify-center bg-mainBlue">
@@ -571,7 +585,11 @@ export default function TracksPage() {
             ) : (
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12 lg:gap-16 max-w-[1400px] mx-auto px-4'>
                     {tracks.map((track) => (
-                        <TrackCard key={track._id} track={track} />
+                        <TrackCard 
+                            key={track._id} 
+                            track={track} 
+                            onLikeChange={(isLiked) => handleLikeChange(track._id, isLiked, track.likes)}
+                        />
                     ))}
                 </div>
             )}
