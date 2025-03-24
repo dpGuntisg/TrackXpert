@@ -184,5 +184,51 @@
       "openTimeBefore": "Atvēršanas laikam jābūt pirms aizvēršanas laika",
       "overlap": "Laika periodi nedrīkst pārklāties"
     }
+  },
+  "tags": {
+    "track": {
+      "trackType": {
+        "rally_stage": "Rallija Posms",
+        "hill_climb": "Kalnu Kāpums",
+        "circuit": "Trase",
+        "off_road": "Ārpus Ceļa",
+        "circuit_race": "Trases Sacīkstes"
+      },
+      "roadType": {
+        "tarmac": "Asfalts",
+        "gravel": "Grants",
+        "dirt": "Zeme",
+        "snow": "Sniegs"
+      },
+      "carType": {
+        "road_car": "Ielas Auto",
+        "sports_car": "Sporta Auto",
+        "rally_car": "Rallija Auto",
+        "formula_car": "Formula Auto"
+      }
+    },
+    "event": {
+      "eventType": {
+        "track_day": "Trases Diena",
+        "race": "Sacīkstes",
+        "rally_event": "Rallija Pasākums",
+        "drift_event": "Drift Pasākums",
+        "championship": "Čempionāts"
+      },
+      "specialFeatures": {
+        "night_event": "Nakts Pasākums",
+        "international": "Starptautisks",
+        "beginner_friendly": "Piesakāms Iesācējiem",
+        "advanced": "Uzlabots"
+      },
+      "carRequirements": {
+        "all_cars": "Visi Auto",
+        "road_cars_only": "Tikai Ielas Auto",
+        "sports_cars_only": "Tikai Sporta Auto",
+        "rally_cars_only": "Tikai Rallija Auto",
+        "electric_cars_only": "Tikai Elektriskie Auto",
+        "formula_cars_only": "Tikai Formula Auto"
+      }
+    }
   }
 } 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
+import TagManager from './TagManager';
 
 export const TrackForm = ({ 
   values, 
@@ -84,6 +85,14 @@ export const TrackForm = ({
     });
   };
 
+  // Handle tag changes
+  const handleTagChange = (tags) => {
+    setValues({
+      ...values,
+      tags
+    });
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -138,6 +147,17 @@ export const TrackForm = ({
             {errors.location}
           </p>
         )}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-2">{t('tracks.form.trackTags')}</label>
+        <TagManager
+          value={values.tags || []}
+          onChange={handleTagChange}
+          type="track"
+          error={errors.tags && touched.tags}
+          helperText={errors.tags && touched.tags ? errors.tags : t('tracks.form.tagHelper')}
+        />
       </div>
 
       <div>

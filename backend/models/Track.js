@@ -1,40 +1,76 @@
 import mongoose from "mongoose";
+import { validateTrackTags } from '../services/helpers/tagHelper.js';
 
 const TrackSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  location: { type: String, required: true },
+  name: {
+    type: String,
+    required: [true, 'Track name is required'],
+    trim: true
+  },
+  description: {
+    type: String,
+    required: [true, 'Track description is required']
+  },
+  location: {
+    type: String,
+    required: [true, 'Track location is required']
+  },
   images: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Image' }],
-  availability: [
-    {
-      startDay: {
-        type: String,
-        enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        required: false
+  // Track tags with validation
+  tags: {
+    type: [String],
+    validate: {
+      validator: function(tags) {
+        if (!tags) return true; // Allow empty tags
+        return validateTrackTags(tags);
       },
-      endDay: {
-        type: String,
-        enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
-        required: false
-      },
-      open_time: { type: String, required: false },
-      close_time: { type: String, required: false }
+      message: props => `${props.value} contains invalid tags!`
     }
-  ],
+  },
+  availability: [{
+    startDay: {
+      type: String,
+      enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      required: false
+    },
+    endDay: {
+      type: String,
+      enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      required: false
+    },
+    open_time: { type: String, required: false },
+    close_time: { type: String, required: false }
+  }],
   created_by: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   
   coordinates: {
-    type: { type: String, enum: ["Point"], required: false },
-    coordinates: { type: [Number], required: false }
+    type: {
+      type: String,
+      enum: ["Point"],
+      required: false
+    },
+    coordinates: {
+      type: [Number],
+      required: false
+    }
   },
   
-  distance: { type: Number, default: 0 },
+  distance: {
+    type: Number,
+    default: 0
+  },
     
   polyline: {
-    type: { type: String, enum: ["LineString"], required: false },
-    coordinates: { type: [[Number]], required: false }
+    type: {
+      type: String,
+      enum: ["LineString"],
+      required: false
+    },
+    coordinates: {
+      type: [[Number]],
+      required: false
+    }
   }
-
 },{timestamps:true});
 
 

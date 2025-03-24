@@ -3,10 +3,16 @@ import Track from "../models/Track.js";
 import Image from "../models/Images.js";
 import User from "../models/User.js";
 import { createImage } from "./helpers/imageHelper.js";
+import { validateEventTags } from './helpers/tagHelper.js';
 
 class EventService {
     static async createEvent(userId, { name, description, date, tracks, capacity, status, registrationDeadline, images }) {
         try {
+            // Validate tags if provided
+            if (tracks && Array.isArray(tracks)) {
+                validateEventTags(tracks);
+            }
+
             const created_by = userId;
             const tracks = tracks.map(track => track._id);
             const eventData = {
@@ -43,6 +49,11 @@ class EventService {
 
     static async updateEvent(eventId, userId, updated) {
         try {
+            // Validate tags if provided
+            if (updated.tags !== undefined) {
+                validateEventTags(updated.tags || []);
+            }
+
             const event = await Event.findById(eventId);
             if (!event) throw new Error("Event not found");
             if (event.created_by.toString() !== userId) throw new Error("Unauthorized");
@@ -98,7 +109,7 @@ class EventService {
     static async getEventsById(eventId) {
         try {
             const event = await Event.findById(eventId)
-                .populate("created_by", "username _id") // Removed trailing comma
+                .populate("created_by", "username _id") 
                 .populate("images", "data mimeType");
 
             return event;
@@ -111,7 +122,7 @@ class EventService {
     static async getEventsByUserId(userId) {
         try {
             const events = await Event.find({ created_by: userId })
-                .populate("created_by", "username email") // Removed trailing comma
+                .populate("created_by", "username email") 
                 .populate("images", "data mimeType");
 
             if (!events.length) throw new Error("No events found for this user");
@@ -125,7 +136,7 @@ class EventService {
     static async deleteEvents(eventId, userId) {
         try {
             const event = await Event.findById(eventId);
-            if (!event) throw new Error("Event not found"); // Added null check
+            if (!event) throw new Error("Event not found");
             if (event.created_by.toString() !== userId) throw new Error("Unauthorized");
 
             await Event.findByIdAndDelete(eventId);

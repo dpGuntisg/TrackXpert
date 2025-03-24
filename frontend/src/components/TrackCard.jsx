@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faTag, faRoad, faCar, faFlagCheckered } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
 export default function TrackCard({ track }) {
@@ -20,12 +20,42 @@ export default function TrackCard({ track }) {
         return `${hourNum % 12 || 12}:${minute} ${ampm}`;
     };
 
+    // Function to get tag category and label from translations
+    const getTagInfo = (tag) => {
+        const categories = ['trackType', 'roadType', 'carType'];
+        
+        for (const category of categories) {
+            const categoryTags = t(`tags.track.${category}`, { returnObjects: true });
+            if (tag in categoryTags) {
+                return {
+                    category,
+                    label: categoryTags[tag]
+                };
+            }
+        }
+        return null;
+    };
+
+    // Function to get icon for tag category
+    const getTagIcon = (category) => {
+        switch (category) {
+            case 'trackType':
+                return faFlagCheckered;
+            case 'roadType':
+                return faRoad;
+            case 'carType':
+                return faCar;
+            default:
+                return faTag;
+        }
+    };
+
     return (
         <Link to={`/tracks/${track._id}`} 
         className='flex flex-col bg-accentBlue drop-shadow-lg outline outline-12 outline-mainRed overflow-hidden hover:scale-105 transition-all ease-in-out duration-300
-            h-[500px] xl:h-[550px] 2xl:h-[600px] w-full sm:w-auto sm:min-w-[340px] max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl rounded'>
+            h-[550px] xl:h-[600px] w-full sm:w-auto sm:min-w-[340px] max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl rounded'>
           
-            <div className='relative w-full h-3/5'>
+            <div className='relative w-full h-2/5'>
                 <img src={firstImage} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
                 <div className="absolute bottom-4 left-4 space-y-2 bg-gray-800 bg-opacity-50 p-2">
                     <div className='flex items-center space-x-2'>
@@ -41,29 +71,48 @@ export default function TrackCard({ track }) {
                 </div>
             )}
 
-            <div className="p-6 flex flex-col justify-center w-full">
-                <h3 className='font-bold text-xl text-white'>{track.name}</h3>
-                <p className='text-sm text-gray-300 line-clamp-3'>{truncatedDescription}</p>
-                <div className="mt-2 text-sm">
-                {track.availability && track.availability.length > 0 && (
-                    <div className="mt-2 text-sm text-gray-400">
-                        {track.availability.slice(0, 3).map((slot, index) => (
-                            <div key={index}>
-                                <span className="mr-2">
-                                    {slot.startDay === slot.endDay 
-                                        ? t(`availability.days.${slot.startDay}`)
-                                        : `${t(`availability.days.${slot.startDay}`)} - ${t(`availability.days.${slot.endDay}`)}`}
-                                </span>
-                                <span>
-                                    {formatTime(slot.open_time)} - {formatTime(slot.close_time)}
-                                </span>
-                            </div>
-                        ))}
-                        {track.availability.length > 3 && (
-                            <p className="text-xs text-gray-400">+{track.availability.length - 3} {t('tracks.more')}</p>
-                        )}
+            <div className="p-6 flex flex-col flex-grow">
+                <h3 className='font-bold text-xl text-white mb-2'>{track.name}</h3>
+                <p className='text-sm text-gray-300 line-clamp-4 mb-4'>{truncatedDescription}</p>
+                
+                {track.tags && track.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {track.tags.map((tag, index) => {
+                            const tagInfo = getTagInfo(tag);
+                            if (!tagInfo) return null;
+                            return (
+                                <div 
+                                    key={index}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-800 text-white text-sm font-medium border border-gray-700"
+                                >
+                                    <FontAwesomeIcon icon={getTagIcon(tagInfo.category)} className="text-mainYellow" />
+                                    <span>{tagInfo.label}</span>
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
+
+                <div className="mt-2">
+                    {track.availability && track.availability.length > 0 && (
+                        <div className="text-sm text-gray-400">
+                            {track.availability.slice(0, 3).map((slot, index) => (
+                                <div key={index}>
+                                    <span className="mr-2">
+                                        {slot.startDay === slot.endDay 
+                                            ? t(`availability.days.${slot.startDay}`)
+                                            : `${t(`availability.days.${slot.startDay}`)} - ${t(`availability.days.${slot.endDay}`)}`}
+                                    </span>
+                                    <span>
+                                        {formatTime(slot.open_time)} - {formatTime(slot.close_time)}
+                                    </span>
+                                </div>
+                            ))}
+                            {track.availability.length > 3 && (
+                                <p className="text-xs text-gray-400">+{track.availability.length - 3} {t('tracks.more')}</p>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
 

@@ -1,10 +1,10 @@
 import Track from "../models/Track.js";
 import Image from "../models/Images.js";
 import { createImage } from "./helpers/imageHelper.js";
+import { validateTrackTags, getValidTags } from './helpers/tagHelper.js';
 
 class TrackService {
-    static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline }) {
-
+    static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline, tags }) {
         const created_by = userId;
         const trackData = { 
           name, 
@@ -13,16 +13,22 @@ class TrackService {
           images:[],
           availability,
           created_by,
-          distance 
+          distance,
+          tags: tags || [] // Add tags to track data
         };
+
+        // Validate tags if provided
+        if (tags && Array.isArray(tags)) {
+          validateTrackTags(tags);
+        }
 
         if (images && Array.isArray(images)) {
           const imageIds = [];
           for (let image of images) {
             const imageData = await createImage(image.data, image.mimeType);
-            imageIds.push(imageData._id);  // Collect image IDs
+            imageIds.push(imageData._id);
           }
-          trackData.images = imageIds;  // Assign the array of image IDs to the track's images field
+          trackData.images = imageIds;
         }
 
         // Add point geometry if latitude and longitude are provided
@@ -57,8 +63,9 @@ class TrackService {
         }
       
         return await Track.create(trackData);
-      }
-      static async updateTrack(trackId, userId, updates) {
+    }
+
+    static async updateTrack(trackId, userId, updates) {
         const track = await Track.findById(trackId);
         if (!track) throw new Error("Track not found");
         if (track.created_by.toString() !== userId) throw new Error("Unauthorized");
@@ -66,27 +73,29 @@ class TrackService {
         // Track the IDs of images to be deleted
         const imagesToDelete = [];
       
+        // Handle tags update
+        if (updates.tags !== undefined) {
+          validateTrackTags(updates.tags || []);
+          track.tags = updates.tags;
+        }
+      
         if (updates.images && Array.isArray(updates.images)) {
           const imageIds = [];
           for (let image of updates.images) {
-            // If the image is new (doesn't have an _id), create it
             if (!image._id) {
               const imageData = await createImage(image.data, image.mimeType);
               imageIds.push(imageData._id);
             } else {
-              // If the image already exists, keep its ID
               imageIds.push(image._id);
             }
           }
       
-          // Find images that are no longer in the updated list
           const existingImageIds = track.images.map(img => img.toString());
           imagesToDelete.push(...existingImageIds.filter(id => !imageIds.includes(id)));
       
-          updates.images = imageIds; // Assign the new image IDs to the images field
+          updates.images = imageIds;
         }
       
-        // Delete images that are no longer associated with the track
         if (imagesToDelete.length > 0) {
           await Image.deleteMany({ _id: { $in: imagesToDelete } });
         }
@@ -118,7 +127,7 @@ class TrackService {
         }
       
         return await track.save();
-      }
+    }
 
   static async getAllTracks({ page = 1, limit = 6 }) {
     const skip = (page - 1) * limit;

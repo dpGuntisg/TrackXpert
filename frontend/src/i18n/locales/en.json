@@ -134,6 +134,8 @@
       "enterLocation": "Enter the track location *",
       "trackImages": "Track Images",
       "addImages": "Add Images",
+      "trackTags": "Track Tags",
+      "tagHelper": "Select up to 2 track type tags and up to 5 tags total",
       "mapInstructions": "Mark a location or draw a route on the map. At least one is required.",
       "validation": {
         "nameTooShort": "Track name must be at least 5 characters long.",
@@ -144,6 +146,9 @@
         "locationTooLong": "Track location is too long (maximum 50 characters).",
         "imageRequired": "At least one track image is required.",
         "geometryRequired": "At least one geometry (point or polyline) is required.",
+        "tagsRequired": "At least one tag is required.",
+        "tooManyTrackTypeTags": "You can only select up to 2 track type tags.",
+        "tooManyTags": "You can only select up to 5 tags total.",
         "fixErrors": "Please fix the errors before continuing.",
         "notAuthenticated": "You must be logged in to create a track."
       },
@@ -184,5 +189,51 @@
     "title": "Page Not Found",
     "description": "The page you are looking for does not exist.",
     "backHome": "Back to Home"
+  },
+  "tags": {
+    "track": {
+      "trackType": {
+        "rally_stage": "Rally Stage",
+        "hill_climb": "Hill Climb",
+        "circuit": "Circuit",
+        "off_road": "Off-road",
+        "circuit_race": "Circuit Race"
+      },
+      "roadType": {
+        "tarmac": "Tarmac",
+        "gravel": "Gravel",
+        "dirt": "Dirt",
+        "snow": "Snow"
+      },
+      "carType": {
+        "road_car": "Road Car",
+        "sports_car": "Sports Car",
+        "rally_car": "Rally Car",
+        "formula_car": "Formula Car"
+      }
+    },
+    "event": {
+      "eventType": {
+        "track_day": "Track Day",
+        "race": "Race",
+        "rally_event": "Rally Event",
+        "drift_event": "Drift Event",
+        "championship": "Championship"
+      },
+      "specialFeatures": {
+        "night_event": "Night Event",
+        "international": "International",
+        "beginner_friendly": "Beginner Friendly",
+        "advanced": "Advanced"
+      },
+      "carRequirements": {
+        "all_cars": "All Cars",
+        "road_cars_only": "Road Cars Only",
+        "sports_cars_only": "Sports Cars Only",
+        "rally_cars_only": "Rally Cars Only",
+        "electric_cars_only": "Electric Cars Only",
+        "formula_cars_only": "Formula Cars Only"
+      }
+    }
   }
 } 

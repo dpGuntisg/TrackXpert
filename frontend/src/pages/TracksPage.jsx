@@ -20,13 +20,15 @@ export default function TracksPage() {
         name: '',
         description: '',
         location: '',
-        images: []
+        images: [],
+        tags: []
     });
     const [formTouched, setFormTouched] = useState({
         name: false,
         description: false,
         location: false,
-        images: false
+        images: false,
+        tags: false
     });
     const [formErrors, setFormErrors] = useState({});
 
@@ -101,13 +103,15 @@ export default function TracksPage() {
             name: '',
             description: '',
             location: '',
-            images: []
+            images: [],
+            tags: []
         });
         setFormTouched({
             name: false,
             description: false,
             location: false,
-            images: false
+            images: false,
+            tags: false
         });
         setFormErrors({});
         setCoordinates(null);
@@ -153,6 +157,27 @@ export default function TracksPage() {
             isValid = false;
         }
 
+        // Validate tags
+        if (!formValues.tags || formValues.tags.length === 0) {
+            errors.tags = t('tracks.form.validation.tagsRequired');
+            isValid = false;
+        } else {
+            // Check track type tags limit
+            const trackTypeTags = formValues.tags.filter(tag => 
+                ['rally_stage', 'hill_climb', 'circuit', 'off_road', 'circuit_race'].includes(tag)
+            );
+            if (trackTypeTags.length > 2) {
+                errors.tags = t('tracks.form.validation.tooManyTrackTypeTags');
+                isValid = false;
+            }
+
+            // Check total tags limit
+            if (formValues.tags.length > 5) {
+                errors.tags = t('tracks.form.validation.tooManyTags');
+                isValid = false;
+            }
+        }
+
         setFormErrors(errors);
         
         // If there are errors, mark all fields as touched to show errors
@@ -161,7 +186,8 @@ export default function TracksPage() {
                 name: true,
                 description: true,
                 location: true,
-                images: true
+                images: true,
+                tags: true
             });
             setError(t('tracks.form.validation.fixErrors'));
         } else {
@@ -194,6 +220,7 @@ export default function TracksPage() {
             description: formValues.description, 
             location: formValues.location, 
             images: formValues.images,
+            tags: formValues.tags,
             availability: availability.length > 0 ? availability : undefined
         };
       
