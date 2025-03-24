@@ -109,13 +109,30 @@ class UserService {
             throw new Error("User not found");
         }
 
-        const allowedUpdates = ['username', 'name', 'surname'];
-
+        const allowedUpdates = ['username', 'name', 'surname', 'phonenumber'];
         for (const key in updates) {
             if (updates.hasOwnProperty(key) && allowedUpdates.includes(key)) {
-                user[key] = updates[key];
+                if (key === 'phonenumber') {
+                    if (updates.phonenumber === null) {
+                        user[key] = null;
+                    } else {
+                        if (!/^\+?[0-9]{7,15}$/.test(updates.phonenumber)) {
+                            throw new Error("Invalid phone number format");
+                        }
+        
+                        const existingUser = await User.findOne({ phonenumber: updates.phonenumber });
+                        if (existingUser && existingUser._id.toString() !== userIdToUpdate) {
+                            throw new Error("Phone number is already in use");
+                        }
+                        user[key] = updates[key];
+                    }
+                } else {
+                    user[key] = updates[key];
+                }
             }
         }
+
+
 
         if (updates.profile_image && updates.profile_image.data && updates.profile_image.mimeType) {
             // If a new profile image object is provided

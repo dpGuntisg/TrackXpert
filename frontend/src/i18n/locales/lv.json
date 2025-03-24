@@ -8,6 +8,9 @@
     "delete": "Dzēst",
     "edit": "Rediģēt"
   },
+  "contact": {
+    "title": "Izveidoja"
+  },
   "home": {
     "title": "Sāc savas trases piedzīvojumus!",
     "subtitle": "Meklē vietu, kur varētu izbraukt ar auto?",
@@ -61,11 +64,13 @@
     "cancelEdit": "Atcelt Rediģēšanu",
     "username": "Lietotājvārds",
     "email": "E-pasts",
+    "phonenumber": "Tālruņa numurs",
     "name": "Vārds",
     "surname": "Uzvārds",
     "namePlaceholder": "Ievadiet savu vārdu",
     "surnamePlaceholder": "Ievadiet savu uzvārdu",
     "usernamePlaceholder": "Ievadiet savu lietotājvārdu",
+    "phonenumberPlaceholder": "Ievadiet savu tālruņa numuru",
     "saveChanges": "Saglabāt Izmaiņas",
     "deleteProfile": "Dzēst Profilu",
     "confirmDelete": "Vai tiešām vēlaties neatgriezeniski izdzēst savu profilu? Šo darbību nevar atsaukt.",

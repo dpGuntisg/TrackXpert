@@ -24,6 +24,7 @@ export default function ProfilePage() {
     const [newUsername, setNewUsername] = useState('');
     const [newName, setNewName] = useState('');
     const [newSurname, setNewSurname] = useState('');
+    const [newPhonenumber, setNewPhonenumber] = useState('');
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
@@ -137,6 +138,7 @@ export default function ProfilePage() {
                 name: newName,
                 surname: newSurname,
                 username: newUsername,
+                phonenumber: newPhonenumber || null
             };
 
             // Add image if it exists
@@ -162,7 +164,8 @@ export default function ProfilePage() {
                 username: response.data.updatedUser.username,
                 name: response.data.updatedUser.name,
                 surname: response.data.updatedUser.surname,
-                profile_image: response.data.updatedUser.profile_image
+                profile_image: response.data.updatedUser.profile_image,
+                phonenumber: response.data.updatedUser.phonenumber
             }));
 
             // Exit edit mode and clear error
@@ -181,7 +184,8 @@ export default function ProfilePage() {
         setNewUsername(profile?.username || '');
         setNewName(profile?.name || '');
         setNewSurname(profile?.surname || '');
-        setImage(null);
+        setNewPhonenumber(profile?.phonenumber || '');
+        setImage(profile?.profile_image || null);
         setPreviewImage(null);
     };
 
@@ -268,6 +272,7 @@ export default function ProfilePage() {
                                 </div>
                                 <p className='text-xl font-semibold text-white mb-2'>{profile.username}</p>
                                 <p className='text-gray-400'>{profile.email}</p>
+                                <p className='text-gray-400'>{profile.phonenumber}</p>
                             </div>
 
                             {/* Edit form shown conditionally under the user info */}
@@ -324,6 +329,17 @@ export default function ProfilePage() {
                                                 value={newUsername}
                                                 placeholder={t('profile.usernamePlaceholder')}
                                                 onChange={(e) => setNewUsername(e.target.value)}
+                                            />
+                                            <label htmlFor="phonenumber" className="block text-sm font-medium text-gray-300 mb-1">
+                                                {t('profile.phonenumber')}
+                                            </label>
+                                            <input
+                                                type="text"
+                                                id="phonenumber"
+                                                className="w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed border-gray-700 focus:border-mainRed"
+                                                value={newPhonenumber}
+                                                placeholder={t('profile.phonenumberPlaceholder')}
+                                                onChange={(e) => setNewPhonenumber(e.target.value)}
                                             />
                                         </div>
                                     </div>

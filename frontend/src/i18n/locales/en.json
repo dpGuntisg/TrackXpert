@@ -8,6 +8,9 @@
     "delete": "Delete",
     "edit": "Edit"
   },
+  "contact": {
+    "title": "Created by"
+  },
   "home": {
     "title": "Start your track adventures!",
     "subtitle": "Are you searching for a place to take your car for a ride?",
@@ -62,9 +65,11 @@
     "email": "Email",
     "name": "Name",
     "surname": "Surname",
+    "phonenumber": "Phone Number",
     "namePlaceholder": "Enter your name",
     "surnamePlaceholder": "Enter your surname",
     "usernamePlaceholder": "Enter your username",
+    "phonenumberPlaceholder": "Enter your phone number",
     "saveChanges": "Save Changes",
     "deleteProfile": "Delete Profile",
     "confirmDelete": "Are you sure you want to permanently delete your profile? This action cannot be undone.",

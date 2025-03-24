@@ -137,7 +137,7 @@ class TrackService {
     const track = await Track.findById(trackId)
         .populate({
             path: 'created_by',
-            select: 'name surname username email profile_image',
+            select: 'name surname username email phonenumber profile_image',
             populate: {
                 path: 'profile_image',
                 select: 'data mimeType'
@@ -161,7 +161,7 @@ class TrackService {
     if (!userId) throw new Error("User ID is required");
     
     const tracks = await Track.find({ created_by: userId })
-    .populate("created_by", "username email",)
+    .populate("created_by", "username email phonenumber")
     .populate("images", "data mimeType");
     if (!tracks.length) throw new Error("No tracks found for this user");
     
