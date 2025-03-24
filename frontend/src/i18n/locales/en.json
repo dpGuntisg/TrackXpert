@@ -94,6 +94,7 @@
   },
   "tracks": {
     "title": "Explore Tracks",
+    "searchPlaceholder": "Search for a track",
     "addTrack": "Add Track",
     "exploreTracks": "Explore Tracks",
     "noTracks": "No tracks found",

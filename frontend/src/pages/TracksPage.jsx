@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faArrowLeft, faExclamationCircle, faCheckCircle} from '@fortawesome/free-solid-svg-icons';
 import { MapSelector } from '../components/MapSelector';
 import { useTranslation } from 'react-i18next';
+import SearchBar from '../components/SearchBar';
 
 // Base URL for API requests
 const API_BASE_URL = 'http://localhost:5000/api';
@@ -14,6 +15,7 @@ const API_BASE_URL = 'http://localhost:5000/api';
 export default function TracksPage() {
     const { t } = useTranslation();
     const [tracks, setTracks] = useState([]);
+    const [originalTracks, setOriginalTracks] = useState([]);
     const [formValues, setFormValues] = useState({
         name: '',
         description: '',
@@ -48,6 +50,8 @@ export default function TracksPage() {
         polyline: null
     });
 
+    const [searchQuery, setSearchQuery] = useState('');
+
     const handleDrawingsChange = (newDrawings) => {
         setDrawings(newDrawings);
         if (newDrawings.distance) {
@@ -60,6 +64,7 @@ export default function TracksPage() {
         try {
             const response = await axios.get(`${API_BASE_URL}/tracks?page=${page}&limit=6`);
             setTracks(response.data.tracks);
+            setOriginalTracks(response.data.tracks);
             setTotalPages(response.data.totalPages);
             setServerError('');
         } catch (error) {
@@ -67,6 +72,7 @@ export default function TracksPage() {
             console.error('Failed to fetch tracks:', errorMessage);
             setServerError(errorMessage);
             setTracks([]);
+            setOriginalTracks([]);
         } finally {
             setLoading(false);
         }
@@ -227,6 +233,34 @@ export default function TracksPage() {
         }
     };
 
+    const handleSearch = (query) => {
+        setSearchQuery(query);
+        if (!query.trim()) {
+            setTracks(originalTracks);
+            return;
+        }
+        // Filter tracks based on search query (name and location only)
+        const filteredTracks = originalTracks.filter(track => 
+            track.name.toLowerCase().includes(query.toLowerCase()) ||
+            track.location.toLowerCase().includes(query.toLowerCase())
+        );
+
+        // If no exact matches found, show similar tracks
+        if (filteredTracks.length === 0) {
+            const similarTracks = originalTracks.filter(track => {
+                const nameWords = track.name.toLowerCase().split(' ');
+                const queryWords = query.toLowerCase().split(' ');
+                // Check if any word from the query matches any word in the track name
+                return queryWords.some(queryWord => 
+                    nameWords.some(nameWord => nameWord.includes(queryWord))
+                );
+            });
+            setTracks(similarTracks.length > 0 ? similarTracks : originalTracks);
+        } else {
+            setTracks(filteredTracks);
+        }
+    };
+
     if (loading && !tracks.length) {
         return (
             <div className="flex h-screen w-screen items-center justify-center bg-mainBlue">
@@ -262,9 +296,25 @@ export default function TracksPage() {
     }
 
     return (
-        <div className=' p-5 sm:p-10 bg-mainBlue min-h-screen'>
-            <div className='flex justify-center mb-5'>
-                <h1 className='text-4xl font-bold'>{t('tracks.title')}</h1>
+        <div className='p-5 sm:p-10 bg-mainBlue min-h-screen'>
+            <div className="flex items-center justify-between mb-10">
+                <SearchBar 
+                    onSearch={handleSearch} 
+                    placeholder={t('tracks.searchPlaceholder')} 
+                />
+                <div className="absolute left-1/2 transform -translate-x-1/2">
+                    <h1 className="text-4xl font-bold">{t('tracks.title')}</h1>
+                </div>
+                {token && (
+                    <button
+                        onClick={toggleCreateForm}
+                        className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
+                        aria-label={t('tracks.addTrack')}
+                    >
+                        <span className="text-xl">+</span>
+                        <span className="hidden sm:inline">{t('tracks.addTrack')}</span>
+                    </button>
+                )}
             </div>
 
             {serverError && (
@@ -284,20 +334,6 @@ export default function TracksPage() {
                     </button>
                 </div>
             )}
-
-            <div className="relative">
-                {token && (
-                    <button
-                        className="sm:bottom-8 sm:right-6 z-50 fixed bottom-0 h-12 w-20 rounded bg-mainRed text-white flex items-center justify-center hover:scale-110 transition-all ease-in-out duration-300 shadow-lg hover:shadow-xl"
-                        onClick={toggleCreateForm}
-                        aria-label={t('tracks.addTrack')}
-                    >
-                        <span className="text-2xl font-bold flex flex-col items-center">
-                            <span className="text-xs">{t('tracks.addTrack')}</span>
-                        </span>
-                    </button>
-                )}
-            </div>
 
             {showCreateForm && (
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto">
@@ -430,7 +466,7 @@ export default function TracksPage() {
                     <p className="text-gray-400">{t('tracks.beFirst')}</p>
                 </div>
             ) : (
-                <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-20 justify-center'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12 lg:gap-16 max-w-[1400px] mx-auto px-4'>
                     {tracks.map((track) => (
                         <TrackCard key={track._id} track={track} />
                     ))}

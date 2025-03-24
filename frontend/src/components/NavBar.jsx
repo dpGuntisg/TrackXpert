@@ -52,7 +52,7 @@ const Navbar = () => {
      ${isActive ? "text-mainRed font-bold drop-shadow-[0px_0px_10px_rgba(254,1,1,0.9)]" : ""}`;
 
   return (
-    <nav className="p-6 sticky top-0 z-50 bg-mainBlue">
+    <nav className="p-6 sticky top-0 z-50 bg-accentBlue">
       <div className="flex sm:items-center font-semibold flex-col justify-center sm:flex-row">
         <div className="flex items-center justify-between">
           <NavLink to="/">

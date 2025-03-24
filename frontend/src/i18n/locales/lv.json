@@ -102,6 +102,7 @@
   },
   "tracks": {
     "title": "Izpēti Trases",
+    "searchPlaceholder": "Meklēt trasi",
     "noTracks": "Trases nav atrastas",
     "beFirst": "Esiet pirmais, kurš izveido trasi!",
     "addTrack": "Pievienot Trasi",

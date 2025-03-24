@@ -23,7 +23,7 @@ export default function TrackCard({ track }) {
     return (
         <Link to={`/tracks/${track._id}`} 
         className='flex flex-col bg-accentBlue drop-shadow-lg outline outline-12 outline-mainRed overflow-hidden hover:scale-105 transition-all ease-in-out duration-300
-            h-[500px] w-full sm:w-auto sm:min-w-[340px] max-w-sm md:max-w-md lg:max-w-lg rounded'>
+            h-[500px] xl:h-[550px] 2xl:h-[600px] w-full sm:w-auto sm:min-w-[340px] max-w-sm md:max-w-md lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl rounded'>
           
             <div className='relative w-full h-3/5'>
                 <img src={firstImage} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
