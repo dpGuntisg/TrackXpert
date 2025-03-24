@@ -173,7 +173,10 @@ export default function ProfilePage() {
                 username: updatedUser.username,
                 name: updatedUser.name,
                 surname: updatedUser.surname,
-                profile_image: updatedUser.profile_image,
+                profile_image: image ? {
+                    data: image.data,
+                    mimeType: image.mimeType
+                } : prev.profile_image,
                 phonenumber: updatedUser.phonenumber
             }));
 
