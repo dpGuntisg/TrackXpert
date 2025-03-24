@@ -23,8 +23,8 @@ const TagManager = ({
       : ['trackType', 'roadType', 'carType'];
     
     return categories.reduce((acc, category) => {
-      const categoryTags = Object.keys(t(`tags.${type}.${category}`, { returnObjects: true }));
-      return [...acc, ...categoryTags];
+      const categoryTags = t(`tags.${type}.${category}`, { returnObjects: true });
+      return [...acc, ...Object.keys(categoryTags).filter(tag => tag !== 'title')];
     }, []);
   };
 
@@ -37,10 +37,10 @@ const TagManager = ({
     
     for (const category of categories) {
       const categoryTags = t(`tags.${type}.${category}`, { returnObjects: true });
-      if (tag in categoryTags) {
+      if (tag in categoryTags && tag !== 'title') {
         return {
           category,
-          label: categoryTags[tag]
+          label: t(`tags.${type}.${category}.${tag}`)
         };
       }
     }

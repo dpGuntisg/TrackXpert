@@ -7,10 +7,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faArrowLeft, faExclamationCircle, faCheckCircle} from '@fortawesome/free-solid-svg-icons';
 import { MapSelector } from '../components/MapSelector';
 import { useTranslation } from 'react-i18next';
-import SearchBar from '../components/SearchBar';
+import SearchAndFilter from '../components/SearchAndFilter';
 
 // Base URL for API requests
 const API_BASE_URL = 'http://localhost:5000/api';
+
+// English day names for backend
+const ENGLISH_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+// Gets all days in a range, handling week wraparounds.    
+const getDaysInRange = (startDay, endDay) => {
+    const startIndex = ENGLISH_DAYS.indexOf(startDay);
+    const endIndex = ENGLISH_DAYS.indexOf(endDay);
+    return endIndex >= startIndex
+        ? ENGLISH_DAYS.slice(startIndex, endIndex + 1)
+        : [...ENGLISH_DAYS.slice(startIndex), ...ENGLISH_DAYS.slice(0, endIndex + 1)];
+};
 
 export default function TracksPage() {
     const { t } = useTranslation();
@@ -53,6 +65,14 @@ export default function TracksPage() {
     });
 
     const [searchQuery, setSearchQuery] = useState('');
+    const [filters, setFilters] = useState({
+        name: '',
+        location: '',
+        tags: [],
+        minLength: '',
+        maxLength: '',
+        availability: {days: [],}
+    });
 
     const handleDrawingsChange = (newDrawings) => {
         setDrawings(newDrawings);
@@ -262,30 +282,82 @@ export default function TracksPage() {
 
     const handleSearch = (query) => {
         setSearchQuery(query);
-        if (!query.trim()) {
-            setTracks(originalTracks);
-            return;
-        }
-        // Filter tracks based on search query (name and location only)
-        const filteredTracks = originalTracks.filter(track => 
-            track.name.toLowerCase().includes(query.toLowerCase()) ||
-            track.location.toLowerCase().includes(query.toLowerCase())
-        );
+        applyFilters(query, filters);
+    };
 
-        // If no exact matches found, show similar tracks
-        if (filteredTracks.length === 0) {
-            const similarTracks = originalTracks.filter(track => {
-                const nameWords = track.name.toLowerCase().split(' ');
-                const queryWords = query.toLowerCase().split(' ');
-                // Check if any word from the query matches any word in the track name
-                return queryWords.some(queryWord => 
-                    nameWords.some(nameWord => nameWord.includes(queryWord))
-                );
-            });
-            setTracks(similarTracks.length > 0 ? similarTracks : originalTracks);
-        } else {
-            setTracks(filteredTracks);
+    const handleFilterChange = (newFilters) => {
+        setFilters(newFilters);
+        applyFilters(searchQuery, newFilters);
+    };
+
+    const applyFilters = (query = searchQuery, currentFilters = filters) => {
+        let filteredTracks = [...originalTracks];
+
+        // Apply search filter
+        if (query && query.trim()) {
+            filteredTracks = filteredTracks.filter(track => 
+                track.name.toLowerCase().includes(query.toLowerCase()) ||
+                track.location.toLowerCase().includes(query.toLowerCase())
+            );
         }
+
+        // Apply additional filters if provided
+        if (currentFilters) {
+            // Apply tag filters
+            if (currentFilters.tags && currentFilters.tags.length > 0) {
+                filteredTracks = filteredTracks.filter(track => 
+                    currentFilters.tags.some(tag => track.tags.includes(tag))
+                );
+            }
+
+            // Apply length filters
+            if (currentFilters.minLength) {
+                filteredTracks = filteredTracks.filter(track => 
+                    track.distance >= parseFloat(currentFilters.minLength)
+                );
+            }
+            if (currentFilters.maxLength) {
+                filteredTracks = filteredTracks.filter(track => 
+                    track.distance <= parseFloat(currentFilters.maxLength)
+                );
+            }
+
+            // Apply availability filters
+            if (currentFilters.availability) {
+                if (currentFilters.availability.filterType === 'single' && currentFilters.availability.days.length > 0) {
+                    // Single day filtering
+                    filteredTracks = filteredTracks.filter(track => {
+                        if (!track.availability || track.availability.length === 0) return false;
+                        
+                        return currentFilters.availability.days.some(selectedDay => {
+                            return track.availability.some(slot => {
+                                const slotDays = getDaysInRange(slot.startDay, slot.endDay);
+                                return slotDays.includes(selectedDay);
+                            });
+                        });
+                    });
+                } else if (currentFilters.availability.filterType === 'range' && 
+                          currentFilters.availability.rangeDays.from && 
+                          currentFilters.availability.rangeDays.to) {
+                    // Range-based filtering
+                    filteredTracks = filteredTracks.filter(track => {
+                        if (!track.availability || track.availability.length === 0) return false;
+                        
+                        const fromDay = currentFilters.availability.rangeDays.from;
+                        const toDay = currentFilters.availability.rangeDays.to;
+                        
+                        return track.availability.some(slot => {
+                            const slotDays = getDaysInRange(slot.startDay, slot.endDay);
+                            const fromInRange = slotDays.includes(fromDay);
+                            const toInRange = slotDays.includes(toDay);
+                            return fromInRange && toInRange;
+                        });
+                    });
+                }
+            }
+        }
+
+        setTracks(filteredTracks);
     };
 
     if (loading && !tracks.length) {
@@ -325,10 +397,14 @@ export default function TracksPage() {
     return (
         <div className='p-5 sm:p-10 bg-mainBlue min-h-screen'>
             <div className="flex items-center justify-between mb-10">
-                <SearchBar 
-                    onSearch={handleSearch} 
-                    placeholder={t('tracks.searchPlaceholder')} 
-                />
+                <div className="w-full max-w-md">
+                    <SearchAndFilter 
+                        onSearch={handleSearch}
+                        onFilterChange={handleFilterChange}
+                        type="track"
+                        searchPlaceholder={t('tracks.searchPlaceholder')}
+                    />
+                </div>
                 <div className="absolute left-1/2 transform -translate-x-1/2">
                     <h1 className="text-4xl font-bold">{t('tracks.title')}</h1>
                 </div>

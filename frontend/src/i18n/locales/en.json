@@ -6,7 +6,14 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
-    "edit": "Edit"
+    "edit": "Edit",
+    "filter": "Filter",
+    "search": "Search",
+    "tags": "Tags",
+    "length": "Length",
+    "min": "Min",
+    "max": "Max",
+    "availability": "Availability"
   },
   "contact": {
     "title": "Created by"
@@ -164,6 +171,9 @@
     "endDay": "End Day",
     "openTime": "Opening Time",
     "closeTime": "Closing Time",
+    "singleDay": "Single Day",
+    "dayRange": "Day Range",
+    "selectDay": "Select Day",
     "days": {
       "Monday": "Monday",
       "Tuesday": "Tuesday",
@@ -193,6 +203,7 @@
   "tags": {
     "track": {
       "trackType": {
+        "title": "Track Type",
         "rally_stage": "Rally Stage",
         "hill_climb": "Hill Climb",
         "circuit": "Circuit",
@@ -200,12 +211,14 @@
         "circuit_race": "Circuit Race"
       },
       "roadType": {
+        "title": "Road Type",
         "tarmac": "Tarmac",
         "gravel": "Gravel",
         "dirt": "Dirt",
         "snow": "Snow"
       },
       "carType": {
+        "title": "Car Type",
         "road_car": "Road Car",
         "sports_car": "Sports Car",
         "rally_car": "Rally Car",
@@ -214,6 +227,7 @@
     },
     "event": {
       "eventType": {
+        "title": "Event Type",
         "track_day": "Track Day",
         "race": "Race",
         "rally_event": "Rally Event",
@@ -221,12 +235,14 @@
         "championship": "Championship"
       },
       "specialFeatures": {
+        "title": "Special Features",
         "night_event": "Night Event",
         "international": "International",
         "beginner_friendly": "Beginner Friendly",
         "advanced": "Advanced"
       },
       "carRequirements": {
+        "title": "Car Requirements",
         "all_cars": "All Cars",
         "road_cars_only": "Road Cars Only",
         "sports_cars_only": "Sports Cars Only",

@@ -6,7 +6,14 @@
     "save": "Saglabāt",
     "cancel": "Atcelt",
     "delete": "Dzēst",
-    "edit": "Rediģēt"
+    "edit": "Rediģēt",
+    "filter": "Filtrs",
+    "search": "Meklēt",
+    "tags": "Birkas",
+    "length": "Garums",
+    "min": "Min",
+    "max": "Max",
+    "availability": "Pieejamība"
   },
   "contact": {
     "title": "Izveidoja"
@@ -171,6 +178,9 @@
     "endDay": "Beigu Diena",
     "openTime": "Atvēršanas Laiks",
     "closeTime": "Aizvēršanas Laiks",
+    "singleDay": "Viena Diena",
+    "dayRange": "Dienu Intervāls",
+    "selectDay": "Izvēlieties Dienu",
     "days": {
       "Monday": "Pirmdiena",
       "Tuesday": "Otrdiena",
@@ -188,19 +198,22 @@
   "tags": {
     "track": {
       "trackType": {
+        "title": "Trases Tips",
         "rally_stage": "Rallija Posms",
         "hill_climb": "Kalnu Kāpums",
         "circuit": "Trase",
-        "off_road": "Ārpus Ceļa",
-        "circuit_race": "Trases Sacīkstes"
+        "off_road": "Off-road",
+        "circuit_race": "Trases Sprints"
       },
       "roadType": {
+        "title": "Ceļa Tips",
         "tarmac": "Asfalts",
         "gravel": "Grants",
         "dirt": "Zeme",
         "snow": "Sniegs"
       },
       "carType": {
+        "title": "Auto Tips",
         "road_car": "Ielas Auto",
         "sports_car": "Sporta Auto",
         "rally_car": "Rallija Auto",
@@ -209,24 +222,27 @@
     },
     "event": {
       "eventType": {
+        "title": "Pasākuma Tips",
         "track_day": "Trases Diena",
-        "race": "Sacīkstes",
+        "race": "Sacensības",
         "rally_event": "Rallija Pasākums",
         "drift_event": "Drift Pasākums",
         "championship": "Čempionāts"
       },
       "specialFeatures": {
+        "title": "Īpašas Iespējas",
         "night_event": "Nakts Pasākums",
         "international": "Starptautisks",
-        "beginner_friendly": "Piesakāms Iesācējiem",
-        "advanced": "Uzlabots"
+        "beginner_friendly": "Piesākējiem",
+        "advanced": "Pieredzējušiem"
       },
       "carRequirements": {
+        "title": "Auto Prasības",
         "all_cars": "Visi Auto",
         "road_cars_only": "Tikai Ielas Auto",
         "sports_cars_only": "Tikai Sporta Auto",
         "rally_cars_only": "Tikai Rallija Auto",
-        "electric_cars_only": "Tikai Elektriskie Auto",
+        "electric_cars_only": "Tikai Elektroauto",
         "formula_cars_only": "Tikai Formula Auto"
       }
     }
