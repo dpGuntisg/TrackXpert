@@ -10,35 +10,10 @@ import AvailabilityForm from '../components/ AvailabilityForm.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
 import UserContact from "../components/UserContact.jsx";
 import { useTranslation } from 'react-i18next';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 
 // Constants
 const API_BASE_URL = "http://localhost:5000/api";
-
-// Extract modals into separate components
-const DeleteConfirmationModal = ({ onCancel, onConfirm, t }) => (
-  <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
-    <div className="bg-mainBlue rounded-xl p-6 max-w-md w-full shadow-2xl border border-gray-700">
-      <h3 className="text-xl font-bold mb-4">{t('tracks.deleteTrack')}</h3>
-      <p className="text-gray-300 mb-6">
-        {t('tracks.confirmDelete')}
-      </p>
-      <div className="flex justify-end space-x-3">
-        <button
-          onClick={onCancel}
-          className="bg-mainYellow hover:bg-yellow-200 text-mainBlue rounded-lg font-medium px-4 py-2 transition-all"
-        >
-          {t('tracks.cancel')}
-        </button>
-        <button
-          onClick={onConfirm}
-          className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-all"
-        >
-          {t('tracks.confirmDelete')}
-        </button>
-      </div>
-    </div>
-  </div>
-);
 
 // Map component with React.memo to prevent unnecessary re-renders
 const TrackMap = React.memo(({ coordinates, polyline }) => {
@@ -691,7 +666,10 @@ export default function TrackDetailPage() {
                     <DeleteConfirmationModal 
                         onCancel={() => setDeleteConfirmation(false)}
                         onConfirm={handleDelete}
-                        t={t}
+                        title={t('tracks.deleteTrack')}
+                        message={t('tracks.confirmDelete')}
+                        confirmText={t('tracks.confirmDelete')}
+                        cancelText={t('tracks.cancel')}
                     />
                 )}
             </div>

@@ -68,6 +68,8 @@
     "usernamePlaceholder": "Ievadiet savu lietotājvārdu",
     "saveChanges": "Saglabāt Izmaiņas",
     "deleteProfile": "Dzēst Profilu",
+    "confirmDelete": "Vai tiešām vēlaties neatgriezeniski izdzēst savu profilu? Šo darbību nevar atsaukt.",
+    "cancel": "Atcelt",
     "uploadPhoto": "Augšupielādēt Foto",
     "profilePicture": "Profila Attēls",
     "createdTracks": "Izveidotās Trases",

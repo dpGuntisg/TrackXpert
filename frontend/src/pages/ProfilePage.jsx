@@ -4,6 +4,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImagePortrait, faPencil, faExclamationCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
 import TrackCard from '../components/TrackCard.jsx';
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { useTranslation } from 'react-i18next';
 
 export default function ProfilePage() {
@@ -25,6 +26,7 @@ export default function ProfilePage() {
     const [newSurname, setNewSurname] = useState('');
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
+    const [deleteConfirmation, setDeleteConfirmation] = useState(false);
     const navigate = useNavigate();
     
     useEffect(() => {
@@ -336,7 +338,7 @@ export default function ProfilePage() {
                                         
                                         <button 
                                             className="bg-red-500/20 text-red-400 border border-red-500/30 px-6 py-3 rounded-lg font-medium hover:bg-red-500/30 transition-colors duration-200"
-                                            onClick={handleProfileDelete}
+                                            onClick={() => setDeleteConfirmation(true)}
                                         > 
                                             {t('profile.deleteProfile')} 
                                         </button>
@@ -369,6 +371,18 @@ export default function ProfilePage() {
                     )}
                 </ul>
             </div>
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirmation && (
+                <DeleteConfirmationModal 
+                    onCancel={() => setDeleteConfirmation(false)}
+                    onConfirm={handleProfileDelete}
+                    title={t('profile.deleteProfile')}
+                    message={t('profile.confirmDelete')}
+                    confirmText={t('profile.confirmDelete')}
+                    cancelText={t('profile.cancel')}
+                />
+            )}
         </div>
     );
 }

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faAngleDown } from "@fortawesome/free-solid-svg-icons";
+import { faAngleDown, faCheck } from "@fortawesome/free-solid-svg-icons";
 
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
@@ -47,6 +47,7 @@ const LanguageSwitcher = () => {
             }`}
           >
             EN
+            {i18n.language === 'en' && <FontAwesomeIcon icon={faCheck} className="ml-2" />}
           </button>
           <button
             onClick={() => changeLanguage('lv')}
@@ -55,6 +56,7 @@ const LanguageSwitcher = () => {
             }`}
           >
             LV
+            {i18n.language === 'lv' && <FontAwesomeIcon icon={faCheck} className="ml-2" />}
           </button>
         </div>
       )}
