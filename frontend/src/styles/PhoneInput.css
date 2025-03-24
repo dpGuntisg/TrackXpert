@@ -1,0 +1,162 @@
+/* Apply to the entire phone input container */
+.phone-input-container {
+  width: 100%;
+}
+
+.flag-dropdown {
+  border-color: #374151 !important;
+  background-color: #1d2c2f !important;
+  border-top-left-radius: 0.5rem !important;
+  border-bottom-left-radius: 0.5rem !important;
+}
+
+.selected-flag {
+  background-color: #233438 !important;
+  border-top-left-radius: 0.5rem !important;
+  border-bottom-left-radius: 0.5rem !important;
+}
+
+/* Dropdown for country selection */
+.phone-input-dropdown {
+  background-color: #1e3a8a !important;
+  border: 1px solid #374151 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  margin-top: 0.5rem !important;
+}
+
+/* Search input inside the dropdown */
+.phone-input-search {
+  background-color: #1a365d !important;
+  border: 1px solid #374151 !important;
+  color: #fbbf24 !important;
+  width: 100% !important;
+}
+
+.phone-input-search-box {
+  background-color: #1a365d !important;
+  border-radius: 0.5rem !important;
+  border-color: #374151 !important;
+  color: #fbbf24 !important;
+  padding-left: 1rem !important;
+}
+
+li.country.highlight {
+  background-color: #374151 !important;
+}
+
+li.country:hover {
+  background-color: #374151 !important;
+}
+
+.phone-input-search::placeholder {
+  color: #9ca3af !important;
+}
+
+.phone-input-search:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+/* Country list in the dropdown */
+.react-phone-input-2 .country-list {
+  background-color: #1e3a8a !important;
+  border: 1px solid #374151 !important;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+}
+
+.react-phone-input-2 .country-list .country {
+  color: #fbbf24 !important;
+}
+
+.react-phone-input-2 .country-list .country:hover {
+  background-color: #374151 !important;
+}
+
+.react-phone-input-2 .country-list .country {
+  padding: 0.5rem 1rem !important;
+}
+
+.react-phone-input-2 .country-list .country.highlight {
+  background-color: #374151 !important;
+}
+
+/* Style for the selected flag element */
+.react-phone-input-2 .selected-flag {
+  background-color: #1a365d !important;
+  border-right: 1px solid #374151 !important;
+  width: 50px !important;
+}
+
+.react-phone-input-2 .selected-flag:hover {
+  background-color: #374151 !important;
+}
+
+.react-phone-input-2 .flag-dropdown {
+  border-color: #374151 !important;
+}
+
+/* Form input field for the phone number */
+.react-phone-input-2 .form-control {
+  background-color: #1a365d !important;
+  border: 1px solid #374151 !important;
+  color: #fbbf24 !important;
+  border-top-right-radius: 0.5rem !important;
+  border-bottom-right-radius: 0.5rem !important;
+  padding-left: 1rem !important;
+  width: 100% !important;
+}
+
+.react-phone-input-2 .form-control:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+/* Fix for the flag dropdown arrow */
+.react-phone-input-2 .arrow {
+  border-top-color: #fbbf24 !important;
+}
+
+/* Custom scroll bar for country list */
+.react-phone-input-2 .country-list::-webkit-scrollbar {
+  width: 0.5rem !important;
+}
+
+.react-phone-input-2 .country-list::-webkit-scrollbar-track {
+  background-color: #1e3a8a !important;
+}
+
+.react-phone-input-2 .country-list::-webkit-scrollbar-thumb {
+  background-color: #374151 !important;
+  border-radius: 9999px !important;
+}
+
+.react-phone-input-2 .country-list::-webkit-scrollbar-thumb:hover {
+  background-color: #4b5563 !important;
+}
+
+/* Ensure the search box is styled properly */
+.react-phone-input-2 .search {
+  background-color: #1a365d !important;
+  border: 1px solid #374151 !important;
+  color: #fbbf24 !important;
+}
+
+.react-phone-input-2 .search:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px #dc2626 !important;
+  border-color: #dc2626 !important;
+}
+
+/* Hover effect for country list items */
+.react-phone-input-2 .country-list .country:hover {
+  background-color: #374151 !important;
+}
+
+/* Add padding for the dropdown items when focused */
+.react-phone-input-2 .country-list .country:focus {
+  background-color: #374151 !important;
+} 

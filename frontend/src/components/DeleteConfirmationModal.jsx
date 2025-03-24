@@ -1,15 +1,16 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { useTranslation } from 'react-i18next';
 
 const DeleteConfirmationModal = ({ 
     onCancel, 
     onConfirm, 
     title, 
-    message, 
-    confirmText, 
-    cancelText 
+    message
 }) => {
+    const { t } = useTranslation();
+    
     return (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
             <div className="bg-mainBlue rounded-xl p-6 max-w-md w-full shadow-2xl border border-gray-700">
@@ -25,13 +26,13 @@ const DeleteConfirmationModal = ({
                         onClick={onCancel}
                         className="bg-mainYellow hover:bg-yellow-200 text-mainBlue rounded-lg font-medium px-4 py-2 transition-all"
                     >
-                        {cancelText}
+                        {t('common.cancel')}
                     </button>
                     <button
                         onClick={onConfirm}
                         className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-all"
                     >
-                        {confirmText}
+                        {t('common.delete')}
                     </button>
                 </div>
             </div>
