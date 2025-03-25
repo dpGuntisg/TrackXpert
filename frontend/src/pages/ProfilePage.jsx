@@ -22,7 +22,6 @@ export default function ProfilePage() {
     const [tracks, setTracks] = useState();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [serverError, setServerError] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [newUsername, setNewUsername] = useState('');
     const [newName, setNewName] = useState('');
@@ -40,15 +39,8 @@ export default function ProfilePage() {
                 const profileResponse = await axiosInstance.get("/users/profile");
                 const user = profileResponse.data.user;
                 setProfile(user);
-                console.log(user);
             } catch (error) {
-                if (error.response?.status === 401) {
-                    setServerError(t('auth.sessionExpired'));
-                    setTimeout(() => { window.location.href = "/signin"; }, 2000);
-                } else {
-                    setServerError(t('profile.fetchError'));
-                    setTimeout(() => { window.location.href = "/signin"; }, 2000);
-                }
+                setError(t('profile.fetchError'));
             } finally {
                 setLoading(false); 
             }
@@ -111,7 +103,6 @@ export default function ProfilePage() {
         }
 
         try {
-            // Create update data object
             const updateData = {
                 name: newName,
                 surname: newSurname,
@@ -119,7 +110,6 @@ export default function ProfilePage() {
                 phonenumber: newPhonenumber || null
             };
 
-            // Add image if it exists
             if (image) {
                 updateData.profile_image = {
                     data: image.data,
@@ -127,16 +117,13 @@ export default function ProfilePage() {
                 };
             }
 
-            // Send update request
             const response = await axiosInstance.patch(
                 "/users/update",
                 updateData
             );
 
-            // Update local state with response data
             const updatedUser = response.data.updatedUser;
             
-            // Update profile state with new data
             setProfile(prev => ({
                 ...prev,
                 username: updatedUser.username,
@@ -149,7 +136,6 @@ export default function ProfilePage() {
                 phonenumber: updatedUser.phonenumber
             }));
 
-            // Clear temporary states and exit edit mode
             setImage(null);
             setPreviewImage(null);
             setEditMode(false);
@@ -180,17 +166,6 @@ export default function ProfilePage() {
                 <div className="flex flex-col items-center">
                     <div className="loader ease-linear rounded-full border-4 border-t-4 border-mainRed h-12 w-12 mb-4"></div>
                     <p className="text-lg">{t('common.loading')}</p>
-                </div>
-            </div>
-        );
-    }
-
-    if (serverError) {
-        return (
-            <div className="flex h-screen w-screen items-center justify-center bg-mainBlue">
-                <div className="flex flex-col items-center">
-                    <p className="text-3xl">{serverError}</p>
-                    <p className="">{t('profile.loginPrompt')}</p>
                 </div>
             </div>
         );
@@ -389,12 +364,10 @@ export default function ProfilePage() {
                                 track={track}
                                 onLikeChange={(trackId, isLiked, updatedLikes) => {
                                     if (activeTab === 'liked' && !isLiked) {
-                                        // Remove the track from the list if unliked in the liked tab
                                         setTracks(prevTracks => 
                                             prevTracks.filter(t => t._id !== trackId)
                                         );
                                     } else {
-                                        // Update the track's likes array
                                         setTracks(prevTracks => 
                                             prevTracks.map(t => {
                                                 if (t._id === trackId) {

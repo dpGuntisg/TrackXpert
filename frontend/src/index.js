@@ -4,6 +4,7 @@ import './index.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './i18n/i18n';
 import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import NotFoundPage from './pages/NotFoundPage';
 import SignInPage from './pages/SignInPage';
@@ -39,7 +40,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/profile",
-        element: <ProfilePage />,
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
         errorElement: <NotFoundPage />,
       },
       {
@@ -49,7 +54,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/create-event",
-        element: <CreateEventPage />,
+        element: (
+          <ProtectedRoute>
+            <CreateEventPage />
+          </ProtectedRoute>
+        ),
         errorElement: <NotFoundPage />,
       },
     ],
