@@ -8,7 +8,6 @@ const JWT_SECRET = "process.env.JWT_SECRET";
 
 class UserService {
     static async createUser({ name, surname, email, password }) {
-
         if (!name || !surname || !email || !password) {
             throw new Error("All fields are required");
         }
@@ -41,11 +40,11 @@ class UserService {
             surname,
             email,
             password,
-            username: email.split('@')[0] + Math.floor(Math.random() * 1000) // Simple default username
+            username: email.split('@')[0] + Math.floor(Math.random() * 1000)
         });
         
         await user.save();
-        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
+        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "7d" });
         await Token.create({ userId: user._id, token });
         return { user, token };
     }
@@ -67,7 +66,7 @@ class UserService {
             throw new Error("Invalid credentials");
         }
         
-        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "1h" });
+        const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "7d" });
         await Token.create({ userId: user._id, token });
         return { user, token };
     }

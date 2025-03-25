@@ -7,7 +7,13 @@ const router = express.Router();
 router.post("/signup", async (req, res) => {
   try {
     const { user, token } = await UserService.createUser(req.body);
-    res.status(201).json({ message: "User created successfully", user, token });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    res.status(201).json({ message: "User created successfully", user });
   } catch (error) {
     res.status(error.status || 500).json({ message: error.message });
   }
@@ -16,7 +22,13 @@ router.post("/signup", async (req, res) => {
 router.post("/signin", async (req, res) => {
   try {
     const { user, token } = await UserService.signInUser(req.body);
-    res.status(200).json({ message: "User signed in successfully", user, token });
+    res.cookie('token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
+    res.status(200).json({ message: "User signed in successfully", user });
   } catch (error) {
     res.status(error.status || 500).json({ message: error.message });
   }
@@ -33,7 +45,11 @@ router.get("/profile", verifyToken, async (req, res) => {
 
 router.post("/signout", async (req, res) => {
   try {
-    await UserService.logUserOut(req.headers.authorization.split(" ")[1]);
+    const token = req.cookies.token;
+    if (token) {
+      await UserService.logUserOut(token);
+    }
+    res.clearCookie('token');
     res.status(200).json({ message: "User logged out successfully" });
   } catch (error) {
     res.status(error.status || 500).json({ message: error.message });

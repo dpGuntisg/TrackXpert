@@ -3,11 +3,13 @@ import Token from "../models/Token.js";
 
 const JWT_SECRET = "process.env.JWT_SECRET";
 
-export const verifyToken =  async (req, res, next) => {
-    const token = req.headers.authorization && req.headers.authorization.split(" ")[1];  // Extract the token from the header
+export const verifyToken = async (req, res, next) => {
+    const token = req.cookies.token;
+
     if (!token) {
         return res.status(401).json({ message: "No token provided" });
     }
+
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
         const tokenExists = await Token.findOne({ userId: decoded.userId, token });
