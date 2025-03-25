@@ -226,6 +226,7 @@
       }
     },
     "event": {
+      "title": "Events",
       "eventType": {
         "title": "Event Type",
         "track_day": "Track Day",
@@ -251,5 +252,9 @@
         "formula_cars_only": "Formula Cars Only"
       }
     }
+  },
+  "event": {
+    "title": "Events",
+    "createEvent": "Create Event"
   }
 } 

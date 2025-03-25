@@ -221,6 +221,7 @@
       }
     },
     "event": {
+      "title": "Pasākumi",
       "eventType": {
         "title": "Pasākuma Tips",
         "track_day": "Trases Diena",
@@ -246,5 +247,9 @@
         "formula_cars_only": "Tikai Formula Auto"
       }
     }
+  },
+  "event": {
+    "title": "Pasākumi",
+    "createEvent": "Izveidot Pasākumu"
   }
 } 

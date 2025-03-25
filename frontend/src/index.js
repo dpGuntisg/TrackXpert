@@ -9,6 +9,8 @@ import SignInPage from './pages/SignInPage';
 import SignUpPage from './pages/SignUpPage';
 import TracksPage from './pages/TracksPage';
 import TrackDetailPage from './pages/TrackDetailPage';
+import EventPage from './pages/EventPage';
+import CreateEventPage from './pages/CreateEventPage';
 import ProfilePage from './pages/ProfilePage';
 import Layout from './components/Layout';
 import App from './App';
@@ -37,6 +39,16 @@ const router = createBrowserRouter([
       {
         path: "/profile",
         element: <ProfilePage />,
+        errorElement: <NotFoundPage />,
+      },
+      {
+        path: "/events",
+        element: <EventPage />,
+        errorElement: <NotFoundPage />,
+      },
+      {
+        path: "/create-event",
+        element: <CreateEventPage />,
         errorElement: <NotFoundPage />,
       },
     ],
