@@ -31,7 +31,7 @@ const LanguageSwitcher = () => {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative overflow-hidden text-mainYellow hover:text-mainRed text-left rounded transition-all duration-500 px-4 py-2"
+        className="relative overflow-hidden text-mainYellow hover:text-mainRed text-left rounded transition-all duration-500 sm:px-4 sm:py-2"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >

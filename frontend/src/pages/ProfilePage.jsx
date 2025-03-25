@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImagePortrait, faPencil, faExclamationCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
+import { faImagePortrait, faPencil, faExclamationCircle, faUpload, faRoute, faHeart } from '@fortawesome/free-solid-svg-icons';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import '../styles/PhoneInput.css';
@@ -21,6 +21,7 @@ export default function ProfilePage() {
     });
     const [tracks, setTracks] = useState();
     const [loading, setLoading] = useState(true);
+    const [tracksLoading, setTracksLoading] = useState(false);
     const [error, setError] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [newUsername, setNewUsername] = useState('');
@@ -52,6 +53,8 @@ export default function ProfilePage() {
     useEffect(() => {
         const fetchTracks = async () => {
             if (profile?._id) {
+                setTracksLoading(true);
+                setTracks([]); // Clear tracks when switching tabs
                 try {
                     const endpoint = activeTab === 'created'
                         ? `/tracks/profile/${profile._id}/tracks`
@@ -61,6 +64,8 @@ export default function ProfilePage() {
                     setTracks(tracksResponse.data.tracks || []);
                 } catch (tracksError) {
                     console.error(t('profile.tracksError'), tracksError);
+                } finally {
+                    setTracksLoading(false);
                 }
             }
         };
@@ -172,7 +177,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className='p-10'>
+        <div className='sm:p-10'>
             {profile ? (
                 <div className='bg-accentBlue rounded-lg p-6 shadow-lg'>
                     <div className="flex justify-end">
@@ -230,7 +235,7 @@ export default function ProfilePage() {
                                 </div>
                                 <p className='text-xl font-semibold text-white mb-2'>{profile.username}</p>
                                 <p className='text-gray-400'>{profile.email}</p>
-                                <p className='text-gray-400'>+{profile.phonenumber}</p>
+                                {profile.phonenumber && <p className='text-gray-400'>+{profile.phonenumber}</p>}
                             </div>
 
                             {editMode && (
@@ -341,23 +346,28 @@ export default function ProfilePage() {
             )}
 
             <div className='mt-10'>
-                <div className='flex flex-row space-x-4 mb-4'>
-                    <button 
-                        onClick={() => setActiveTab('created')}
-                        className={`text-2xl font-semibold ${activeTab === 'created' ? 'text-mainRed' : 'text-gray-400'}`}
-                    >
-                        {t('profile.createdTracks')}
-                    </button>
+                <div className="flex border-gray-700">
                     <button 
                         onClick={() => setActiveTab('liked')}
-                        className={`text-2xl font-semibold ${activeTab === 'liked' ? 'text-mainRed' : 'text-gray-400'}`}
+                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'liked' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                     >
+                        <FontAwesomeIcon icon={faHeart} className="mr-2" />
                         {t('profile.likedTracks')}
                     </button>
+                    <button 
+                        onClick={() => setActiveTab('created')}
+                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'created' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
+                    >
+                        <FontAwesomeIcon icon={faRoute} className="mr-2" />
+                        {t('profile.createdTracks')}
+                    </button>
                 </div>
-                <div className='border-b-4 border-mainRed mb-4'></div>
-                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20">
-                    {tracks && tracks.length > 0 ? (
+                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20 bg-accentBlue rounded-lg p-6 shadow-lg">
+                    {tracksLoading ? (
+                        <div className="col-span-full flex justify-center items-center">
+                            <div className="loader ease-linear rounded-full border-4 border-t-4 border-mainRed h-12 w-12"></div>
+                        </div>
+                    ) : tracks && tracks.length > 0 ? (
                         tracks.map(track => (
                             <TrackCard
                                 key={track._id}

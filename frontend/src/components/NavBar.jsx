@@ -99,8 +99,8 @@ const Navbar = () => {
               </NavLink>
             </>
           ) : (
-            <button onClick={handleSignOut} className="relative w-24 sm:w-auto text-center overflow-hidden text-mainRed hover:bg-mainRed rounded transition-all duration-500
-                          sm:px-4 sm:py-2 sm:rounded hover:text-mainYellow whitespace-nowrap">
+            <button onClick={handleSignOut} className=" text-left relative w-auto sm:w-auto overflow-hidden text-mainRed hover:bg-mainRed rounded transition-all duration-500
+                          sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap">
               {t('navbar.signout')}
             </button>
           )}
