@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axios";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../context/AuthContext';
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
@@ -10,21 +11,25 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [touched, setTouched] = useState({ email: false, password: false });
+  const navigate = useNavigate();
+  const { setUserId } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
   
     try {
-      const response = await axios.post("http://localhost:5000/api/users/signin", {
+      const response = await axiosInstance.post("/users/signin", {
         email,
         password,
       });
       
-      if (response.status === 200) {
-        localStorage.setItem("token", response.data.token);
+      if (response.status === 200 && response.data.user) {
+        setUserId(response.data.user._id);
         setSuccess("Sign in successful");
-        window.location.href = "/";
+        navigate("/");
+      } else {
+        setError("Invalid response from server");
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {

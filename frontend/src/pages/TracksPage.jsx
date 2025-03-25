@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 import TrackCard from '../components/TrackCard.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
@@ -8,9 +8,7 @@ import { faTimes, faArrowLeft, faExclamationCircle, faCheckCircle} from '@fortaw
 import { MapSelector } from '../components/MapSelector';
 import { useTranslation } from 'react-i18next';
 import SearchAndFilter from '../components/SearchAndFilter';
-
-// Base URL for API requests
-const API_BASE_URL = 'http://localhost:5000/api';
+import { useAuth } from '../context/AuthContext';
 
 // English day names for backend
 const ENGLISH_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -26,6 +24,7 @@ const getDaysInRange = (startDay, endDay) => {
 
 export default function TracksPage() {
     const { t } = useTranslation();
+    const { userId } = useAuth();
     const [tracks, setTracks] = useState([]);
     const [originalTracks, setOriginalTracks] = useState([]);
     const [formValues, setFormValues] = useState({
@@ -53,7 +52,6 @@ export default function TracksPage() {
     const [serverError, setServerError] = useState('');
     const [loading, setLoading] = useState(true);
     const [success, setSuccess] = useState('');
-    const token = localStorage.getItem('token');
 
     const [coordinates, setCoordinates] = useState(null);
     const [distance, setDistance] = useState(0);
@@ -84,7 +82,7 @@ export default function TracksPage() {
     const getTracks = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await axios.get(`${API_BASE_URL}/tracks?page=${page}&limit=6`);
+            const response = await axiosInstance.get(`/tracks?page=${page}&limit=6`);
             setTracks(response.data.tracks);
             setOriginalTracks(response.data.tracks);
             setTotalPages(response.data.totalPages);
@@ -217,31 +215,17 @@ export default function TracksPage() {
         return isValid;
     };
 
-    const handleSubmit = async () => {
-        setLoading(true);
+    const handleSubmit = async (e) => {
+        e.preventDefault();
         setError('');
-        setSuccess('');
-        
-        // Final validation before submission
-        if (!validateStep1()) {
-            setLoading(false);
-            return;
-        }
-        
-        // Validate map data
-        if (!coordinates && (!drawings.polyline || drawings.polyline.length < 2)) {
-            setError(t('tracks.form.validation.geometryRequired'));
-            setLoading(false);
-            return;
-        }
+        setLoading(true);
 
+        // Create track data object
         const trackData = {
-            name: formValues.name, 
-            description: formValues.description, 
-            location: formValues.location, 
-            images: formValues.images,
-            tags: formValues.tags,
-            availability: availability.length > 0 ? availability : undefined
+            ...formValues,
+            availability,
+            coordinates: null,
+            polyline: null
         };
       
         // Send coordinates as [lng, lat] directly
@@ -254,19 +238,9 @@ export default function TracksPage() {
             trackData.polyline = drawings.polyline; 
             trackData.distance = drawings.distance;
         }
-    
-        if (!token) {
-            setServerError(t('tracks.form.validation.notAuthenticated'));
-            setLoading(false);
-            return;
-        }
         
         try {
-            await axios.post(
-                `${API_BASE_URL}/tracks/createtrack`,
-                trackData,
-                { headers: { Authorization: `Bearer ${token}` } }
-            );
+            await axiosInstance.post("/tracks/createtrack", trackData);
             setSuccess(t('tracks.form.success'));
             resetForm();
             setShowCreateForm(false);
@@ -422,7 +396,7 @@ export default function TracksPage() {
                 <div className="absolute left-1/2 transform -translate-x-1/2">
                     <h1 className="text-4xl font-bold">{t('tracks.title')}</h1>
                 </div>
-                {token && (
+                {userId && (
                     <button
                         onClick={toggleCreateForm}
                         className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"

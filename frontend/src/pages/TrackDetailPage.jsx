@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { jwtDecode } from 'jwt-decode';
+import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler, faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock } from '@fortawesome/free-solid-svg-icons';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
@@ -11,9 +10,8 @@ import { TrackForm } from '../components/TrackForm.jsx';
 import UserContact from "../components/UserContact.jsx";
 import { useTranslation } from 'react-i18next';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import { useAuth } from '../context/AuthContext';
 
-// Constants
-const API_BASE_URL = "http://localhost:5000/api";
 
 // Map component with React.memo to prevent unnecessary re-renders
 const TrackMap = React.memo(({ coordinates, polyline }) => {
@@ -69,6 +67,7 @@ export default function TrackDetailPage() {
     const { t } = useTranslation();
     const { id: trackId } = useParams();
     const navigate = useNavigate();
+    const { userId } = useAuth();
     const [loading, setLoading] = useState(true);
     const [track, setTrack] = useState({ 
         name: "", 
@@ -86,7 +85,6 @@ export default function TrackDetailPage() {
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [serverError, setServerError] = useState("");
-    const [userId, setUserId] = useState(null);
     const [step, setStep] = useState(1);
     const [availability, setAvailability] = useState([]);
     const [drawings, setDrawings] = useState({
@@ -102,27 +100,11 @@ export default function TrackDetailPage() {
         return `${parseFloat(track.distance).toFixed(2).replace('.', ',')} km`;
     }, [track.distance]);
 
-    // Get user ID from token
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                setUserId(decoded.userId);
-            } catch (error) {
-                console.error("Error decoding token:", error);
-            }
-        }
-    }, []);
-
     // Fetch track data
     const getTrack = useCallback(async () => {
         setLoading(true);
         try {
-            const token = localStorage.getItem('token');
-            const response = await axios.get(`${API_BASE_URL}/tracks/${trackId}`, {
-                headers: token ? { Authorization: `Bearer ${token}` } : {}
-            });
+            const response = await axiosInstance.get(`/tracks/${trackId}`);
             
             const trackData = response.data.track;
             setTrack(trackData);
@@ -275,11 +257,9 @@ export default function TrackDetailPage() {
                 return;
             }
     
-            const token = localStorage.getItem('token');
-            await axios.patch(
-                `${API_BASE_URL}/tracks/${trackId}`,
-                updateData,
-                { headers: { Authorization: `Bearer ${token}` } }
+            await axiosInstance.patch(
+                `/tracks/${trackId}`,
+                updateData
             );
     
             setEditMode(false);
@@ -293,10 +273,7 @@ export default function TrackDetailPage() {
     // Delete track
     const handleDelete = useCallback(async () => {
         try {
-            const token = localStorage.getItem('token');
-            await axios.delete(`${API_BASE_URL}/tracks/${trackId}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await axiosInstance.delete(`/tracks/${trackId}`);
             navigate("/tracks");
         } catch (error) {
             console.error("Error deleting track:", error);

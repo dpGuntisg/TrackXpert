@@ -1,49 +1,51 @@
 import React, { useState, useEffect } from "react";
-import { NavLink } from "react-router-dom";
-import axios from "axios";
+import { NavLink, useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from "./LanguageSwitcher";
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
   const { t } = useTranslation();
   const [profile, setProfile] = useState(null);
   const [alert, setAlert] = useState("");
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const { userId, setUserId, loading } = useAuth();
+  const navigate = useNavigate();
   
   useEffect(() => {
     const getProfile = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
+      if (!userId) return;
+      
       try {
-        const response = await axios.get("http://localhost:5000/api/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await axiosInstance.get("/users/profile");
         setProfile(response.data.user);
       } catch (error) {
         if (error.response?.status === 401) {
-          localStorage.removeItem("token");
           setAlert("Your session has ended. Please sign in again.");
-          setTimeout(() => (window.location.href = "/signin"), 3000);
+          setUserId(null);
+          setTimeout(() => navigate("/signin"), 3000);
         }
       }
     };
 
     getProfile();
-  }, []);
+  }, [userId, navigate, setUserId]);
 
   const toggleNavbar = () => setIsNavOpen(!isNavOpen);
-  const isUserLoggedIn = () => !!localStorage.getItem("token");
+  const isUserLoggedIn = () => !loading && !!userId;
 
   const handleSignOut = async () => {
-    const token = localStorage.getItem("token");
-    await axios.post("http://localhost:5000/api/users/signout", {}, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    localStorage.removeItem("token");
-    window.location.href = "/signin";
+    try {
+      await axiosInstance.post("/users/signout");
+      setUserId(null);
+      setProfile(null);
+      navigate("/signin");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   const navLinkClass = ({ isActive }) =>

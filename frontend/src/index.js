@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './i18n/i18n';
+import { AuthProvider } from './context/AuthContext';
 
 import NotFoundPage from './pages/NotFoundPage';
 import SignInPage from './pages/SignInPage';
@@ -73,7 +74,9 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <Suspense fallback={<div>Loading...</div>}>
-      <RouterProvider router={router} />
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
     </Suspense>
   </React.StrictMode>
 );

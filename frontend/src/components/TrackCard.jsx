@@ -1,37 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faLocationDot, faTag, faRoad, faCar, faFlagCheckered, faHeart } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from "jwt-decode";
-
-const API_BASE_URL = 'http://localhost:5000/api';
+import axiosInstance from '../utils/axios';
+import { useAuth } from '../context/AuthContext';
 
 export default function TrackCard({ track, onLikeChange }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
+    const { userId } = useAuth();
     const truncatedDescription = track.description.length > 150 
         ? track.description.substring(0, 150) + "..."
         : track.description;
     const FormatedDistance = `${parseFloat(track.distance).toFixed(2).replace('.', ',')} km`;
     const firstImage = track.images?.[0]?.data;
-    const token = localStorage.getItem('token');
     const [isLiked, setIsLiked] = useState(false);
-    const [userId, setUserId] = useState(null);
-
-    // Get user ID from token
-    useEffect(() => {
-        if (token) {
-            try {
-                const decoded = jwtDecode(token);
-                setUserId(decoded.userId);
-            } catch (error) {
-                console.error("Error decoding token:", error);
-            }
-        }
-    }, [token]);
+    const [likeCount, setLikeCount] = useState(track.likes?.length || 0);
 
     // Initialize and update like state whenever track or userId changes
     useEffect(() => {
@@ -44,19 +29,17 @@ export default function TrackCard({ track, onLikeChange }) {
 
     const handleLikeClick = async (e) => {
         e.preventDefault(); // Prevent navigation
-        if (!token || !userId) {
+        if (!userId) {
             navigate('/signin');
             return;
         }
 
         try {
             const endpoint = isLiked 
-                ? `${API_BASE_URL}/tracks/${track._id}/unlike` 
-                : `${API_BASE_URL}/tracks/${track._id}/like`;
+                ? `/tracks/${track._id}/unlike` 
+                : `/tracks/${track._id}/like`;
             
-            const response = await axios.post(endpoint, {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            const response = await axiosInstance.post(endpoint);
 
             // Get the updated track data from the response
             const updatedTrack = response.data.track;
@@ -66,6 +49,7 @@ export default function TrackCard({ track, onLikeChange }) {
 
             // Update local state
             setIsLiked(!isLiked);
+            setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
 
             // Notify parent component with the updated likes array
             if (onLikeChange) {
@@ -150,14 +134,14 @@ export default function TrackCard({ track, onLikeChange }) {
 
             </div>
 
-            {token && userId !== track.created_by?._id && (
-                    <button 
-                        onClick={handleLikeClick}
-                        className={`absolute bottom-4 left-4 text-2xl ${isLiked ? 'text-mainRed' : 'text-gray-400'} hover:text-mainRed transition-colors duration-200`}
-                    >
-                        <FontAwesomeIcon icon={faHeart} />
-                    </button>
-                )}
+            {userId && userId !== track.created_by?._id && (
+                <button 
+                    onClick={handleLikeClick}
+                    className={`absolute bottom-4 left-4 text-2xl ${isLiked ? 'text-mainRed' : 'text-gray-400'} hover:text-mainRed transition-colors duration-200`}
+                >
+                    <FontAwesomeIcon icon={faHeart} />
+                </button>
+            )}
 
             {track.distance > 0 && (
                 <div className="absolute bottom-4 right-4 bg-mainYellow text-mainBlue text-xs font-semibold px-3 py-1 opacity-80 rounded">

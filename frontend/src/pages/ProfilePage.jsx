@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImagePortrait, faPencil, faExclamationCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
 import PhoneInput from 'react-phone-input-2';
@@ -36,26 +36,13 @@ export default function ProfilePage() {
     
     useEffect(() => {
         const fetchProfile = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setServerError(t('profile.notAuthenticated'));
-                setLoading(false);
-                setTimeout(() => {
-                    window.location.href = "/signin";
-                }, 2000);
-                return;
-            }
-    
             try {
-                const profileResponse = await axios.get("http://localhost:5000/api/users/profile", {
-                    headers: { Authorization: `Bearer ${token}` },
-                });
+                const profileResponse = await axiosInstance.get("/users/profile");
                 const user = profileResponse.data.user;
                 setProfile(user);
                 console.log(user);
             } catch (error) {
                 if (error.response?.status === 401) {
-                    localStorage.removeItem('token');
                     setServerError(t('auth.sessionExpired'));
                     setTimeout(() => { window.location.href = "/signin"; }, 2000);
                 } else {
@@ -72,16 +59,13 @@ export default function ProfilePage() {
 
     useEffect(() => {
         const fetchTracks = async () => {
-            const token = localStorage.getItem('token');
-            if (profile?._id && token) {
+            if (profile?._id) {
                 try {
                     const endpoint = activeTab === 'created'
-                        ? `http://localhost:5000/api/tracks/profile/${profile._id}/tracks`
-                        : `http://localhost:5000/api/tracks/profile/${profile._id}/liked`;
+                        ? `/tracks/profile/${profile._id}/tracks`
+                        : `/tracks/profile/${profile._id}/liked`;
 
-                    const tracksResponse = await axios.get(endpoint, {
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
+                    const tracksResponse = await axiosInstance.get(endpoint);
                     setTracks(tracksResponse.data.tracks || []);
                 } catch (tracksError) {
                     console.error(t('profile.tracksError'), tracksError);
@@ -112,16 +96,7 @@ export default function ProfilePage() {
 
     const handleProfileDelete = async () => {
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                throw new Error(t('profile.notAuthenticated'));
-            }
-    
-            await axios.delete("http://localhost:5000/api/users/delete", {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-    
-            localStorage.removeItem('token');
+            await axiosInstance.delete("/users/delete");
             navigate("/signup");
         } catch (error) {
             console.error(t('profile.deleteError'), error);
@@ -132,12 +107,6 @@ export default function ProfilePage() {
     const handleProfileEdit = async () => {
         if (!newUsername.trim()) {
             setError(t('profile.validation.usernameRequired'));
-            return;
-        }
-
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setError(t('profile.notAuthenticated'));
             return;
         }
 
@@ -159,15 +128,9 @@ export default function ProfilePage() {
             }
 
             // Send update request
-            const response = await axios.patch(
-                "http://localhost:5000/api/users/update",
-                updateData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'application/json', 
-                    }
-                }
+            const response = await axiosInstance.patch(
+                "/users/update",
+                updateData
             );
 
             // Update local state with response data

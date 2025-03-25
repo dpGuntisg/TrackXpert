@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axios";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { useAuth } from '../context/AuthContext';
 
 export default function SignUpPage() {
   const [name, setName] = useState("");
@@ -19,12 +20,14 @@ export default function SignUpPage() {
     password: false,
     confirmPassword: false 
   });
+  const navigate = useNavigate();
+  const { setUserId } = useAuth();
 
   const handleBlur = (field) => {
     setTouched(prev => ({ ...prev, [field]: true }));
   };
 
-  const handleRegister = async (e) => {
+  const handleSignUp = async (e) => {
     e.preventDefault();
     setError("");
 
@@ -34,23 +37,27 @@ export default function SignUpPage() {
     }
     
     try {
-      const response = await axios.post("http://localhost:5000/api/users/signup", {
+      const response = await axiosInstance.post("/users/signup", {
         name,
         surname,
         email,
         password,
       });
       
-      if (response.status === 201) {
-        localStorage.setItem("token", response.data.token);
+      if (response.status === 201 && response.data.user) {
+        setUserId(response.data.user._id);
         setSuccess("Account created successfully");
-        window.location.href = "/";
+        navigate("/");
+      } else {
+        setError("Invalid response from server");
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
+      } else if (error.request) {
+        setError("No response from the server. Please check your internet connection.");
       } else {
-        setError("An error occurred. Please try again later.");
+        setError("An unexpected error occurred. Please try again.");
       }
     }
   };
@@ -113,7 +120,7 @@ export default function SignUpPage() {
             </div>
           )}
 
-          <form onSubmit={handleRegister} className="space-y-4 bg-accentBlue p-6 rounded-lg shadow-lg">
+          <form onSubmit={handleSignUp} className="space-y-4 bg-accentBlue p-6 rounded-lg shadow-lg">
           <div className="space-y-6">
             {/* Name and Surname Fields */}
             <div className="flex space-x-6">
