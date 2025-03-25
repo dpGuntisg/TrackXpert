@@ -74,7 +74,10 @@ const Navbar = () => {
           {isUserLoggedIn() && <NavLink to="/profile" className={navLinkClass}> {t('navbar.profile')} </NavLink>}
         </div>
 
-
+        {/* Language Switcher */}
+        <div className={`flex items-center sm:ml-auto ${isNavOpen? "flex" : "hidden sm:flex"}`}>
+           <LanguageSwitcher />
+        </div>
 
         {/* Authentication Buttons */}
         <div className={`flex flex-col sm:flex-row ${isNavOpen ? 'flex' : 'hidden sm:flex'}`}>
@@ -99,10 +102,6 @@ const Navbar = () => {
               {t('navbar.signout')}
             </button>
           )}
-        </div>
-        {/* Language Switcher */}
-        <div className={`flex items-center sm:ml-auto ${isNavOpen? "flex" : "hidden sm:flex"}`}>
-           <LanguageSwitcher />
         </div>
       </div>
 

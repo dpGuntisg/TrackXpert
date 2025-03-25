@@ -113,7 +113,7 @@ export default function SignUpPage() {
             </div>
           )}
 
-          <form onSubmit={handleRegister} className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-4 bg-accentBlue p-6 rounded-lg shadow-lg">
           <div className="space-y-6">
             {/* Name and Surname Fields */}
             <div className="flex space-x-6">

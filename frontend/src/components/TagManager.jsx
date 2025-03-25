@@ -130,6 +130,9 @@ const TagManager = ({
               case 'carRequirements':
                 colorClasses = "bg-indigo-100 text-indigo-700 hover:bg-indigo-200";
                 break;
+              default:
+                colorClasses = "bg-gray-100 text-gray-700 hover:bg-gray-200";
+                break;
             }
           }
 

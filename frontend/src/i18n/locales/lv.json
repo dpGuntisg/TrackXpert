@@ -9,7 +9,7 @@
     "edit": "Rediģēt",
     "filter": "Filtrs",
     "search": "Meklēt",
-    "tags": "Birkas",
+    "tags": "Tagi",
     "length": "Garums",
     "min": "Min",
     "max": "Max",
@@ -202,8 +202,8 @@
         "rally_stage": "Rallija Posms",
         "hill_climb": "Kalnu Kāpums",
         "circuit": "Trase",
-        "off_road": "Off-road",
-        "circuit_race": "Trases Sprints"
+        "off_road": "Apvidus",
+        "circuit_race": "Sprints"
       },
       "roadType": {
         "title": "Ceļa Tips",
@@ -217,7 +217,7 @@
         "road_car": "Ielas Auto",
         "sports_car": "Sporta Auto",
         "rally_car": "Rallija Auto",
-        "formula_car": "Formula Auto"
+        "formula_car": "Formula "
       }
     },
     "event": {

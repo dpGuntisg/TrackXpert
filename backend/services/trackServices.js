@@ -131,7 +131,11 @@ class TrackService {
 
   static async getAllTracks({ page = 1, limit = 6 }) {
     const skip = (page - 1) * limit;
-    const tracks = await Track.find().skip(skip).limit(limit).populate("images", "data mimeType");
+    const tracks = await Track.find()
+      .skip(skip)
+      .limit(limit)
+      .populate("images", "data mimeType")
+      .populate("created_by", "_id");
     const totalTracks = await Track.countDocuments();
     
     return {

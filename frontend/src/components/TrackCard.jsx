@@ -150,7 +150,7 @@ export default function TrackCard({ track, onLikeChange }) {
 
             </div>
 
-            {token && (
+            {token && userId !== track.created_by?._id && (
                     <button 
                         onClick={handleLikeClick}
                         className={`absolute bottom-4 left-4 text-2xl ${isLiked ? 'text-mainRed' : 'text-gray-400'} hover:text-mainRed transition-colors duration-200`}
@@ -177,7 +177,7 @@ export default function TrackCard({ track, onLikeChange }) {
                             return (
                                 <div 
                                     key={index}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-800 text-white text-sm font-medium border border-gray-700"
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 text-white text-sm font-medium border border-gray-700"
                                 >
                                     <FontAwesomeIcon icon={getTagIcon(tagInfo.category)} className="text-mainYellow" />
                                     <span>{tagInfo.label}</span>
