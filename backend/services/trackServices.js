@@ -2,6 +2,7 @@ import Track from "../models/Track.js";
 import Image from "../models/Images.js";
 import { createImage } from "./helpers/imageHelper.js";
 import { validateTrackTags, getValidTags } from './helpers/tagHelper.js';
+import { buildTrackQuery } from './helpers/filterHelper.js';
 
 class TrackService {
     static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline, tags, joining_enabled }) {
@@ -134,99 +135,103 @@ class TrackService {
         return await track.save();
     }
 
-  static async getAllTracks({ page = 1, limit = 6 }) {
-    const skip = (page - 1) * limit;
-    const tracks = await Track.find()
-      .skip(skip)
-      .limit(limit)
-      .populate("images", "data mimeType")
-      .populate("created_by", "_id");
-    const totalTracks = await Track.countDocuments();
-    
-    return {
-      tracks,
-      totalTracks,
-      totalPages: Math.ceil(totalTracks / limit),
-      currentPage: page,
-    };
-  }
+    static async getAllTracks({ page = 1, limit = 6, filters = {} }) {
+        const skip = (page - 1) * limit;
+        
+        // Build query using the filter helper
+        const query = buildTrackQuery(filters);
+        
+        const tracks = await Track.find(query)
+            .skip(skip)
+            .limit(limit)
+            .populate("images", "data mimeType")
+            .populate("created_by", "_id");
+        const totalTracks = await Track.countDocuments(query);
+        
+        return {
+            tracks,
+            totalTracks,
+            totalPages: Math.ceil(totalTracks / limit),
+            currentPage: page
+        };
+    }
 
-  static async getTrackById(trackId) {
-    const track = await Track.findById(trackId)
-        .populate({
-            path: 'created_by',
-            select: 'name surname username email phonenumber profile_image',
-            populate: {
-                path: 'profile_image',
-                select: 'data mimeType'
-            }
-        })
+    static async getTrackById(trackId) {
+        const track = await Track.findById(trackId)
+            .populate({
+                path: 'created_by',
+                select: 'name surname username email phonenumber profile_image',
+                populate: {
+                    path: 'profile_image',
+                    select: 'data mimeType'
+                }
+            })
+            .populate("images", "data mimeType");
+        if (!track) throw new Error("Track not found");
+        return track;
+    }
+
+    static async deleteTrack(trackId, userId) {
+        const track = await Track.findById(trackId);
+        if (!track) throw new Error("Track not found");
+        if (track.created_by.toString() !== userId) throw new Error("Unauthorized");
+        
+        await Track.findByIdAndDelete(trackId);
+        return { message: "Track deleted successfully" };
+    }
+
+    static async getTracksByUserId(userId) {
+        if (!userId) throw new Error("User ID is required");
+        
+        const tracks = await Track.find({ created_by: userId })
+        .populate("created_by", "username email phonenumber")
         .populate("images", "data mimeType");
-    if (!track) throw new Error("Track not found");
-    return track;
-  }
-
-  static async deleteTrack(trackId, userId) {
-    const track = await Track.findById(trackId);
-    if (!track) throw new Error("Track not found");
-    if (track.created_by.toString() !== userId) throw new Error("Unauthorized");
-    
-    await Track.findByIdAndDelete(trackId);
-    return { message: "Track deleted successfully" };
-  }
-
-  static async getTracksByUserId(userId) {
-    if (!userId) throw new Error("User ID is required");
-    
-    const tracks = await Track.find({ created_by: userId })
-    .populate("created_by", "username email phonenumber")
-    .populate("images", "data mimeType");
-    if (!tracks.length) throw new Error("No tracks found for this user");
-    
-    return tracks;
-  }
-
-  static async likeTrack(trackId, userId) {
-    const track = await Track.findById(trackId);
-    if (!track) throw new Error("Track not found");
-
-    // Check if user already liked the track
-    if (track.likes.includes(userId)) {
-      throw new Error("Track already liked by user");
+        if (!tracks.length) throw new Error("No tracks found for this user");
+        
+        return tracks;
     }
 
-    // Add user to likes array
-    track.likes.push(userId);
-    await track.save();
+    static async likeTrack(trackId, userId) {
+        const track = await Track.findById(trackId);
+        if (!track) throw new Error("Track not found");
 
-    return track;
-  }
+        // Check if user already liked the track
+        if (track.likes.includes(userId)) {
+          throw new Error("Track already liked by user");
+        }
 
-  static async unlikeTrack(trackId, userId) {
-    const track = await Track.findById(trackId);
-    if (!track) throw new Error("Track not found");
+        // Add user to likes array
+        track.likes.push(userId);
+        await track.save();
 
-    // Check if user has liked the track
-    if (!track.likes.includes(userId)) {
-      throw new Error("Track not liked by user");
+        return track;
     }
 
-    // Remove user from likes array
-    track.likes = track.likes.filter(id => id.toString() !== userId);
-    await track.save();
+    static async unlikeTrack(trackId, userId) {
+        const track = await Track.findById(trackId);
+        if (!track) throw new Error("Track not found");
 
-    return track;
-  }
+        // Check if user has liked the track
+        if (!track.likes.includes(userId)) {
+          throw new Error("Track not liked by user");
+        }
 
-  static async getLikedTracks(userId) {
-    if (!userId) throw new Error("User ID is required");
-    
-    const tracks = await Track.find({ likes: userId })
-      .populate("created_by", "username email phonenumber")
-      .populate("images", "data mimeType");
-    
-    return tracks;
-  }
+        // Remove user from likes array
+        track.likes = track.likes.filter(id => id.toString() !== userId);
+        await track.save();
+
+        return track;
+    }
+
+    static async getLikedTracks(userId) {
+        if (!userId) throw new Error("User ID is required");
+        
+        const tracks = await Track.find({ likes: userId })
+          .populate("created_by", "username email phonenumber")
+          .populate("images", "data mimeType");
+        
+        return tracks;
+    }
 }
 
 export default TrackService;

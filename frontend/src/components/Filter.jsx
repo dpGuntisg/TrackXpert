@@ -34,12 +34,12 @@ const Filter = ({
   const handleLengthChange = (min, max) => {
     const newFilters = {
       ...filters,
-      minLength: min === '' ? '' : parseFloat(min),
-      maxLength: max === '' ? '' : parseFloat(max)
+      minLength: min === '' ? undefined : parseFloat(min),
+      maxLength: max === '' ? undefined : parseFloat(max)
     };
     
     // Ensure maxLength is not less than minLength
-    if (newFilters.minLength !== '' && newFilters.maxLength !== '' && newFilters.maxLength < newFilters.minLength) {
+    if (newFilters.minLength !== undefined && newFilters.maxLength !== undefined && newFilters.maxLength < newFilters.minLength) {
       newFilters.maxLength = newFilters.minLength;
     }
     

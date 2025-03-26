@@ -17,7 +17,14 @@ router.get("/", async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 6;
-    const { tracks, totalPages } = await TrackService.getAllTracks({ page, limit });
+    const filters = {
+      search: req.query.search,
+      tags: req.query.tags ? JSON.parse(req.query.tags) : undefined,
+      minLength: req.query.minLength,
+      maxLength: req.query.maxLength,
+      availability: req.query.availability ? JSON.parse(req.query.availability) : undefined
+    };
+    const { tracks, totalPages } = await TrackService.getAllTracks({ page, limit, filters });
     res.status(200).json({ message: "Tracks fetched successfully", tracks, totalPages });
   } catch (error) {
     res.status(error.status || 500).json({ message: error.message });

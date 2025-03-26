@@ -86,7 +86,35 @@ export default function TracksPage() {
     const getTracks = async (page = 1) => {
         setLoading(true);
         try {
-            const response = await axiosInstance.get(`/tracks?page=${page}&limit=6`);
+            // Build query parameters
+            const params = new URLSearchParams({
+                page: page.toString(),
+                limit: '6'
+            });
+
+            // Add search query if exists
+            if (searchQuery) {
+                params.append('search', searchQuery);
+            }
+
+            // Add filters if they exist
+            if (filters.tags?.length > 0) {
+                params.append('tags', JSON.stringify(filters.tags));
+            }
+            if (filters.minLength) {
+                params.append('minLength', filters.minLength);
+            }
+            if (filters.maxLength) {
+                params.append('maxLength', filters.maxLength);
+            }
+            if (filters.availability?.days?.length > 0 || 
+                (filters.availability?.filterType === 'range' && 
+                 filters.availability?.rangeDays?.from && 
+                 filters.availability?.rangeDays?.to)) {
+                params.append('availability', JSON.stringify(filters.availability));
+            }
+
+            const response = await axiosInstance.get(`/tracks?${params.toString()}`);
             setTracks(response.data.tracks);
             setOriginalTracks(response.data.tracks);
             setTotalPages(response.data.totalPages);
@@ -104,7 +132,7 @@ export default function TracksPage() {
 
     useEffect(() => {
         getTracks(currentPage);
-    }, [currentPage]);
+    }, [currentPage, searchQuery, filters]);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -284,82 +312,12 @@ export default function TracksPage() {
 
     const handleSearch = (query) => {
         setSearchQuery(query);
-        applyFilters(query, filters);
+        setCurrentPage(1); // Reset to first page when searching
     };
 
     const handleFilterChange = (newFilters) => {
         setFilters(newFilters);
-        applyFilters(searchQuery, newFilters);
-    };
-
-    const applyFilters = (query = searchQuery, currentFilters = filters) => {
-        let filteredTracks = [...originalTracks];
-
-        // Apply search filter
-        if (query && query.trim()) {
-            filteredTracks = filteredTracks.filter(track => 
-                track.name.toLowerCase().includes(query.toLowerCase()) ||
-                track.location.toLowerCase().includes(query.toLowerCase())
-            );
-        }
-
-        // Apply additional filters if provided
-        if (currentFilters) {
-            // Apply tag filters
-            if (currentFilters.tags && currentFilters.tags.length > 0) {
-                filteredTracks = filteredTracks.filter(track => 
-                    currentFilters.tags.some(tag => track.tags.includes(tag))
-                );
-            }
-
-            // Apply length filters
-            if (currentFilters.minLength) {
-                filteredTracks = filteredTracks.filter(track => 
-                    track.distance >= parseFloat(currentFilters.minLength)
-                );
-            }
-            if (currentFilters.maxLength) {
-                filteredTracks = filteredTracks.filter(track => 
-                    track.distance <= parseFloat(currentFilters.maxLength)
-                );
-            }
-
-            // Apply availability filters
-            if (currentFilters.availability) {
-                if (currentFilters.availability.filterType === 'single' && currentFilters.availability.days.length > 0) {
-                    // Single day filtering
-                    filteredTracks = filteredTracks.filter(track => {
-                        if (!track.availability || track.availability.length === 0) return false;
-                        
-                        return currentFilters.availability.days.some(selectedDay => {
-                            return track.availability.some(slot => {
-                                const slotDays = getDaysInRange(slot.startDay, slot.endDay);
-                                return slotDays.includes(selectedDay);
-                            });
-                        });
-                    });
-                } else if (currentFilters.availability.filterType === 'range' && 
-                          currentFilters.availability.rangeDays.from && 
-                          currentFilters.availability.rangeDays.to) {
-                    // Range-based filtering
-                    filteredTracks = filteredTracks.filter(track => {
-                        if (!track.availability || track.availability.length === 0) return false;
-                        
-                        const fromDay = currentFilters.availability.rangeDays.from;
-                        const toDay = currentFilters.availability.rangeDays.to;
-                        
-                        return track.availability.some(slot => {
-                            const slotDays = getDaysInRange(slot.startDay, slot.endDay);
-                            const fromInRange = slotDays.includes(fromDay);
-                            const toInRange = slotDays.includes(toDay);
-                            return fromInRange && toInRange;
-                        });
-                    });
-                }
-            }
-        }
-
-        setTracks(filteredTracks);
+        setCurrentPage(1); // Reset to first page when filtering
     };
 
     const handleLikeChange = (trackId, isLiked, updatedLikes) => {
