@@ -162,11 +162,11 @@
         "locationTooShort": "Trases vietai jābūt vismaz 5 rakstzīmes garai.",
         "locationTooLong": "Trases vieta ir pārāk gara (maksimums 50 rakstzīmes).",
         "imageRequired": "Nepieciešams vismaz viens trases attēls.",
-        "geometryRequired": "Nepieciešama vismaz viena ģeometrija (punkts vai polilīnija).",
         "fixErrors": "Lūdzu, izlabojiet kļūdas pirms turpināt.",
         "notAuthenticated": "Jums jābūt ielogotam, lai izveidotu trasi.",
         "availabilityRequired": "Lūdzu, pievienojiet vismaz vienu pieejamības laiku",
-        "geometryRequired": "Lūdzu, novietojiet marķieri vai uzzīmējiet trasi uz kartes"
+        "geometryRequired": "Lūdzu, novietojiet marķieri vai uzzīmējiet trasi uz kartes",
+        "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus"
       },
       "success": "Trase veiksmīgi izveidota!",
       "error": "Neizdevās izveidot trasi. Lūdzu, mēģiniet vēlreiz."
