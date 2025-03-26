@@ -362,7 +362,7 @@ export default function ProfilePage() {
                         {t('profile.createdTracks')}
                     </button>
                 </div>
-                <ul className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-20 bg-accentBlue rounded-lg p-6 shadow-lg">
+                <ul className="justify-items-center grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 bg-accentBlue rounded-lg p-6 shadow-lg">
                     {tracksLoading ? (
                         <div className="col-span-full flex justify-center items-center">
                             <div className="loader ease-linear rounded-full border-4 border-t-4 border-mainRed h-12 w-12"></div>
