@@ -144,6 +144,11 @@
       "trackTags": "Track Tags",
       "tagHelper": "Select up to 2 track type tags and up to 5 tags total",
       "mapInstructions": "Mark a location or draw a route on the map. At least one is required.",
+      "joiningEnabled": "Enable Joining Requests",
+      "joiningDescription": "This option allows users to send a request to join your track. You can specify any details (such as the car you will be driving) or leave it open for further contact.",
+      "joiningDetails": "Joining Details",
+      "joiningDetailsPlaceholder": "Enter any specific requirements or details for joining (e.g., car type, experience level) or leave it blank for open contact.",
+      "joiningDetailsHelp": "All users will still be able to contact you via the provided contact information.",
       "validation": {
         "nameTooShort": "Track name must be at least 5 characters long.",
         "nameTooLong": "Track name is too long (maximum 100 characters).",
@@ -157,7 +162,9 @@
         "tooManyTrackTypeTags": "You can only select up to 2 track type tags.",
         "tooManyTags": "You can only select up to 5 tags total.",
         "fixErrors": "Please fix the errors before continuing.",
-        "notAuthenticated": "You must be logged in to create a track."
+        "notAuthenticated": "You must be logged in to create a track.",
+        "availabilityRequired": "Please add at least one availability slot",
+        "geometryRequired": "Please either place a marker or draw a track on the map"
       },
       "success": "Track created successfully!",
       "error": "Failed to create track. Please try again."

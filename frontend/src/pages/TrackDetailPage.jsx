@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler, faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler, faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import { MapSelector, startIcon, endIcon} from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
@@ -78,9 +78,18 @@ export default function TrackDetailPage() {
         distance: 0,
         availability: [],
         coordinates: null,
-        polyline: null
+        polyline: null,
+        joining_enabled: false,
+        joining_details: ''
     });
-    const [editValues, setEditValues] = useState({});
+    const [editValues, setEditValues] = useState({
+        name: "",
+        description: "",
+        location: "",
+        images: [],
+        joining_enabled: false,
+        joining_details: ''
+    });
     const [error, setError] = useState("");
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
     const [editMode, setEditMode] = useState(false);
@@ -114,7 +123,9 @@ export default function TrackDetailPage() {
                 name: trackData.name,
                 description: trackData.description,
                 location: trackData.location,
-                images: trackData.images
+                images: trackData.images,
+                joining_enabled: trackData.joining_enabled,
+                joining_details: trackData.joining_details
             });
             
             setAvailability(trackData.availability || []);
@@ -177,16 +188,23 @@ export default function TrackDetailPage() {
             case 2:
                 return true;
                 
+            case 3:
+                if (!drawings.point && (!drawings.polyline || drawings.polyline.length < 2)) {
+                    setError(t('tracks.form.validation.geometryRequired'));
+                    return false;
+                }
+                return true;
+
             default:
                 return true;
         }
-    }, [step, editValues, t]);
+    }, [step, editValues, drawings, t]);
 
     // Handle navigation between steps
     const handleStepNavigation = useCallback((direction) => {
         if (direction === 'next') {
             if (!validateStep()) return;
-            setStep(prev => Math.min(prev + 1, 3));
+            setStep(prev => Math.min(prev + 1, 4));
         } else {
             setStep(prev => Math.max(prev - 1, 1));
         }
@@ -234,7 +252,7 @@ export default function TrackDetailPage() {
                 ...editValues,
                 availability,
                 coordinates: null,
-                polyline: null
+                polyline: null,
             };
     
             if (drawings.point) {
@@ -337,10 +355,55 @@ export default function TrackDetailPage() {
                         />
                     </div>
                 );
+            case 4:
+                return (
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={() => setEditValues(prev => ({ ...prev, joining_enabled: !prev.joining_enabled }))}
+                                className={`relative flex h-5 w-5 items-center justify-center rounded border transition-colors ${
+                                    editValues.joining_enabled 
+                                        ? 'bg-mainRed border-mainRed' 
+                                        : 'border-gray-600 hover:border-gray-500'
+                                }`}
+                            >
+                                {editValues.joining_enabled && (
+                                    <FontAwesomeIcon 
+                                        icon={faCheck} 
+                                        className="h-3 w-3 text-white" 
+                                    />
+                                )}
+                            </button>
+                            <div>
+                                <h3 className="text-lg font-medium text-gray-300">{t('tracks.form.joiningEnabled')}</h3>
+                                <p className="text-sm text-gray-400">{t('tracks.form.joiningDescription')}</p>
+                            </div>
+                        </div>
+
+                        {editValues.joining_enabled && (
+                            <div className="mt-4">
+                                <label className="block text-sm font-medium text-gray-300 mb-1">
+                                    {t('tracks.form.joiningDetails')}
+                                </label>
+                                <textarea
+                                    value={editValues.joining_details}
+                                    onChange={(e) => setEditValues(prev => ({ ...prev, joining_details: e.target.value }))}
+                                    placeholder={t('tracks.form.joiningDetailsPlaceholder')}
+                                    className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-mainRed focus:ring-2 focus:ring-mainRed transition-all duration-200 outline-none"
+                                    rows="4"
+                                />
+                                <p className="mt-1 text-sm text-gray-400">
+                                    {t('tracks.form.joiningDetailsHelp')}
+                                </p>
+                            </div>
+                        )}
+                    </div>
+                );
             default:
                 return null;
         }
-    }, [step, editValues, drawings, availability, error, handleImageChange, handleDrawingsChange, currentImageIndex]);
+    }, [step, editValues, drawings, availability, error, handleImageChange, handleDrawingsChange, currentImageIndex, t]);
 
     // Function to format time in 12-hour format
     const formatTime = (timeStr) => {
@@ -572,7 +635,7 @@ export default function TrackDetailPage() {
                     <div className="fixed z-50 inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
                         <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 shadow-2xl border border-gray-700">
                             <div className="flex justify-between items-center">
-                                <h3 className="text-2xl font-bold">{t('tracks.editTrack')} <span className="text-mainYellow">({step}/3)</span></h3>
+                                <h3 className="text-2xl font-bold">{t('tracks.editTrack')} <span className="text-mainYellow">({step}/4)</span></h3>
                                 <button 
                                     type="button" 
                                     onClick={resetEditState} 
@@ -609,7 +672,7 @@ export default function TrackDetailPage() {
                                     {t('tracks.back')}
                                 </button>
                                 <div className="flex-grow"></div>
-                                {step < 3 ? (
+                                {step < 4 ? (
                                     <button
                                         type="button"
                                         onClick={() => handleStepNavigation('next')}

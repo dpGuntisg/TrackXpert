@@ -149,6 +149,11 @@
       "trackImages": "Trases Attēli",
       "addImages": "Pievienot Attēlus",
       "mapInstructions": "Atzīmējiet vietu vai uzzīmējiet maršrutu kartē. Nepieciešams vismaz viens no tiem.",
+      "joiningEnabled": "Ieslēgt Pievienošanās Pieprasījumus",
+      "joiningDescription": "Šī opcija ļauj lietotājiem sūtīt pieprasījumus pievienoties jūsu trasei. Jūs varat norādīt detaļas (piemēram, ar kādu auto braucat) vai atstāt to atvērtu tālākai saziņai.",
+      "joiningDetails": "Pievienošanās Detaļas",
+      "joiningDetailsPlaceholder": "Ievadiet specifiskas prasības vai detaļas pievienošanai (piem., auto tips, pieredzes līmenis) vai atstājiet tukšu atvērtai saziņai.",
+      "joiningDetailsHelp": "Visi lietotāji joprojām varēs sazināties ar jums, izmantojot norādīto kontaktinformāciju.",
       "validation": {
         "nameTooShort": "Trases nosaukumam jābūt vismaz 5 rakstzīmes garam.",
         "nameTooLong": "Trases nosaukums ir pārāk garš (maksimums 100 rakstzīmes).",
@@ -159,7 +164,9 @@
         "imageRequired": "Nepieciešams vismaz viens trases attēls.",
         "geometryRequired": "Nepieciešama vismaz viena ģeometrija (punkts vai polilīnija).",
         "fixErrors": "Lūdzu, izlabojiet kļūdas pirms turpināt.",
-        "notAuthenticated": "Jums jābūt ielogotam, lai izveidotu trasi."
+        "notAuthenticated": "Jums jābūt ielogotam, lai izveidotu trasi.",
+        "availabilityRequired": "Lūdzu, pievienojiet vismaz vienu pieejamības laiku",
+        "geometryRequired": "Lūdzu, novietojiet marķieri vai uzzīmējiet trasi uz kartes"
       },
       "success": "Trase veiksmīgi izveidota!",
       "error": "Neizdevās izveidot trasi. Lūdzu, mēģiniet vēlreiz."

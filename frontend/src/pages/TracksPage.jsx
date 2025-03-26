@@ -4,7 +4,7 @@ import TrackCard from '../components/TrackCard.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faArrowLeft, faExclamationCircle, faCheckCircle} from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faArrowLeft, faExclamationCircle, faCheckCircle, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { MapSelector } from '../components/MapSelector';
 import { useTranslation } from 'react-i18next';
 import SearchAndFilter from '../components/SearchAndFilter';
@@ -32,14 +32,17 @@ export default function TracksPage() {
         description: '',
         location: '',
         images: [],
-        tags: []
+        tags: [],
+        joining_enabled: false,
+        joining_details: ''
     });
     const [formTouched, setFormTouched] = useState({
         name: false,
         description: false,
         location: false,
         images: false,
-        tags: false
+        tags: false,
+        joining_details: false
     });
     const [formErrors, setFormErrors] = useState({});
 
@@ -122,14 +125,17 @@ export default function TracksPage() {
             description: '',
             location: '',
             images: [],
-            tags: []
+            tags: [],
+            joining_enabled: false,
+            joining_details: ''
         });
         setFormTouched({
             name: false,
             description: false,
             location: false,
             images: false,
-            tags: false
+            tags: false,
+            joining_details: false
         });
         setFormErrors({});
         setCoordinates(null);
@@ -198,14 +204,13 @@ export default function TracksPage() {
 
         setFormErrors(errors);
         
-        // If there are errors, mark all fields as touched to show errors
         if (!isValid) {
             setFormTouched({
                 name: true,
                 description: true,
                 location: true,
                 images: true,
-                tags: true
+                tags: true,
             });
             setError(t('tracks.form.validation.fixErrors'));
         } else {
@@ -213,6 +218,28 @@ export default function TracksPage() {
         }
         
         return isValid;
+    };
+
+    const validateStep3 = () => {
+        if (!coordinates && (!drawings.polyline || drawings.polyline.length < 2)) {
+            setError(t('tracks.form.validation.geometryRequired'));
+            return false;
+        }
+        setError("");
+        return true;
+    };
+
+    const validateCurrentStep = () => {
+        switch (step) {
+            case 1:
+                return validateStep1();
+            case 2:
+                return true;
+            case 3:
+                return validateStep3();
+            default:
+                return true;
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -428,7 +455,7 @@ export default function TracksPage() {
                 <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto">
                     <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 my-8">
                         <div className="flex justify-between items-center">
-                            <h3 className="text-2xl font-bold">{t('tracks.createTrack')} ({step}/3)</h3>
+                            <h3 className="text-2xl font-bold">{t('tracks.createTrack')} ({step}/4)</h3>
                             <button
                                 onClick={() => {
                                     setShowCreateForm(false);
@@ -476,9 +503,8 @@ export default function TracksPage() {
                                     error={error}
                                     setError={setError}
                                 />
-                            ) : (                           
+                            ) : step === 3 ? (
                                 <>
-                                    {/* Step 3: Map Selection */}
                                     <div className="h-96 w-full rounded-lg overflow-hidden">
                                         <MapSelector 
                                             position={coordinates}
@@ -489,6 +515,52 @@ export default function TracksPage() {
                                     <p className="text-sm text-gray-400">
                                         {t('tracks.form.mapInstructions')}
                                     </p>
+                                </>
+                            ) : (
+                                <>
+                                    {/* Joining enabled toggle */}
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-2">
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormValues(prev => ({ ...prev, joining_enabled: !prev.joining_enabled }))}
+                                                className={`relative flex h-5 w-5 items-center justify-center rounded border transition-colors ${
+                                                    formValues.joining_enabled 
+                                                        ? 'bg-mainRed border-mainRed' 
+                                                        : 'border-gray-600 hover:border-gray-500'
+                                                }`}
+                                            >
+                                                {formValues.joining_enabled && (
+                                                    <FontAwesomeIcon 
+                                                        icon={faCheck} 
+                                                        className="h-3 w-3 text-white" 
+                                                    />
+                                                )}
+                                            </button>
+                                            <div>
+                                                <h3 className="text-lg font-medium text-gray-300">{t('tracks.form.joiningEnabled')}</h3>
+                                                <p className="text-sm text-gray-400">{t('tracks.form.joiningDescription')}</p>
+                                            </div>
+                                        </div>
+
+                                        {formValues.joining_enabled && (
+                                            <div className="mt-4">
+                                                <label className="block text-sm font-medium text-gray-300 mb-1">
+                                                    {t('tracks.form.joiningDetails')}
+                                                </label>
+                                                <textarea
+                                                    value={formValues.joining_details}
+                                                    onChange={(e) => setFormValues(prev => ({ ...prev, joining_details: e.target.value }))}
+                                                    placeholder={t('tracks.form.joiningDetailsPlaceholder')}
+                                                    className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-mainRed focus:ring-2 focus:ring-mainRed transition-all duration-200 outline-none"
+                                                    rows="4"
+                                                />
+                                                <p className="mt-1 text-sm text-gray-400">
+                                                    {t('tracks.form.joiningDetailsHelp')}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
                                 </>
                             )}
 
@@ -505,11 +577,11 @@ export default function TracksPage() {
                                     </button>
                                 )}
                                 <div className="flex-grow"></div>
-                                {step < 3 ? (
+                                {step < 4 ? (
                                     <button
                                         type="button"
                                         onClick={() => {
-                                            if (step === 1 && !validateStep1()) return;
+                                            if (!validateCurrentStep()) return;
                                             setStep(step + 1);
                                         }}
                                         className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
