@@ -7,6 +7,7 @@ import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import { MapSelector, startIcon, endIcon} from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
+import JoiningRequestForm from '../components/JoiningRequestForm.jsx';
 import UserContact from "../components/UserContact.jsx";
 import { useTranslation } from 'react-i18next';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
@@ -356,50 +357,7 @@ export default function TrackDetailPage() {
                     </div>
                 );
             case 4:
-                return (
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-2">
-                            <button
-                                type="button"
-                                onClick={() => setEditValues(prev => ({ ...prev, joining_enabled: !prev.joining_enabled }))}
-                                className={`relative flex h-5 w-5 items-center justify-center rounded border transition-colors ${
-                                    editValues.joining_enabled 
-                                        ? 'bg-mainRed border-mainRed' 
-                                        : 'border-gray-600 hover:border-gray-500'
-                                }`}
-                            >
-                                {editValues.joining_enabled && (
-                                    <FontAwesomeIcon 
-                                        icon={faCheck} 
-                                        className="h-3 w-3 text-white" 
-                                    />
-                                )}
-                            </button>
-                            <div>
-                                <h3 className="text-lg font-medium text-gray-300">{t('tracks.form.joiningEnabled')}</h3>
-                                <p className="text-sm text-gray-400">{t('tracks.form.joiningDescription')}</p>
-                            </div>
-                        </div>
-
-                        {editValues.joining_enabled && (
-                            <div className="mt-4">
-                                <label className="block text-sm font-medium text-gray-300 mb-1">
-                                    {t('tracks.form.joiningDetails')}
-                                </label>
-                                <textarea
-                                    value={editValues.joining_details}
-                                    onChange={(e) => setEditValues(prev => ({ ...prev, joining_details: e.target.value }))}
-                                    placeholder={t('tracks.form.joiningDetailsPlaceholder')}
-                                    className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-mainRed focus:ring-2 focus:ring-mainRed transition-all duration-200 outline-none"
-                                    rows="4"
-                                />
-                                <p className="mt-1 text-sm text-gray-400">
-                                    {t('tracks.form.joiningDetailsHelp')}
-                                </p>
-                            </div>
-                        )}
-                    </div>
-                );
+                return <JoiningRequestForm values={editValues} setValues={setEditValues} />;
             default:
                 return null;
         }

@@ -147,7 +147,7 @@
       "joiningEnabled": "Enable Joining Requests",
       "joiningDescription": "This option allows users to send a request to join your track. You can specify any details (such as the car you will be driving) or leave it open for further contact.",
       "joiningDetails": "Joining Details",
-      "joiningDetailsPlaceholder": "Enter any specific requirements or details for joining (e.g., car type, experience level) or leave it blank for open contact.",
+      "joiningDetailsPlaceholder": "This option allows users to send you requests on the website to join your track. You can specify details (such as the car they will be driving) or leave it open for further communication. If you enable this option, users will be able to select their preferred time and send a request. All received requests will be available in the notifications section, where you can review, approve, or decline them. If a request is approved, the user will receive a ticket containing track or event information and a unique ID for verification.",
       "joiningDetailsHelp": "All users will still be able to contact you via the provided contact information.",
       "validation": {
         "nameTooShort": "Track name must be at least 5 characters long.",

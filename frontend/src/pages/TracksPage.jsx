@@ -3,6 +3,7 @@ import axiosInstance from '../utils/axios';
 import TrackCard from '../components/TrackCard.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
+import JoiningRequestForm from '../components/JoiningRequestForm.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes, faArrowLeft, faExclamationCircle, faCheckCircle, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { MapSelector } from '../components/MapSelector';
@@ -517,51 +518,7 @@ export default function TracksPage() {
                                     </p>
                                 </>
                             ) : (
-                                <>
-                                    {/* Joining enabled toggle */}
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormValues(prev => ({ ...prev, joining_enabled: !prev.joining_enabled }))}
-                                                className={`relative flex h-5 w-5 items-center justify-center rounded border transition-colors ${
-                                                    formValues.joining_enabled 
-                                                        ? 'bg-mainRed border-mainRed' 
-                                                        : 'border-gray-600 hover:border-gray-500'
-                                                }`}
-                                            >
-                                                {formValues.joining_enabled && (
-                                                    <FontAwesomeIcon 
-                                                        icon={faCheck} 
-                                                        className="h-3 w-3 text-white" 
-                                                    />
-                                                )}
-                                            </button>
-                                            <div>
-                                                <h3 className="text-lg font-medium text-gray-300">{t('tracks.form.joiningEnabled')}</h3>
-                                                <p className="text-sm text-gray-400">{t('tracks.form.joiningDescription')}</p>
-                                            </div>
-                                        </div>
-
-                                        {formValues.joining_enabled && (
-                                            <div className="mt-4">
-                                                <label className="block text-sm font-medium text-gray-300 mb-1">
-                                                    {t('tracks.form.joiningDetails')}
-                                                </label>
-                                                <textarea
-                                                    value={formValues.joining_details}
-                                                    onChange={(e) => setFormValues(prev => ({ ...prev, joining_details: e.target.value }))}
-                                                    placeholder={t('tracks.form.joiningDetailsPlaceholder')}
-                                                    className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-mainRed focus:ring-2 focus:ring-mainRed transition-all duration-200 outline-none"
-                                                    rows="4"
-                                                />
-                                                <p className="mt-1 text-sm text-gray-400">
-                                                    {t('tracks.form.joiningDetailsHelp')}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                </>
+                                <JoiningRequestForm values={formValues} setValues={setFormValues} />
                             )}
 
                             {/* Navigation Buttons */}
