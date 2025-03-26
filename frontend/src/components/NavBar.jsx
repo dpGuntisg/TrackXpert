@@ -68,7 +68,6 @@ const Navbar = () => {
         </div>
 
         {/* Navigation Links */}
-
         <div className={`flex flex-col sm:flex-row sm:space-x-5 sm:items-center sm:gap-4 sm:justify-center sm:flex-grow text-center ${isNavOpen ? 'flex' : 'hidden sm:flex'}`}>
           <NavLink to="/" className={navLinkClass}> {t('navbar.home') }</NavLink>
           <NavLink to="/tracks" className={navLinkClass}> {t('navbar.tracks')} </NavLink>
@@ -76,9 +75,8 @@ const Navbar = () => {
           {isUserLoggedIn() && <NavLink to="/profile" className={navLinkClass}> {t('navbar.profile')} </NavLink>}
         </div>
 
-        {/* Language Switcher */}
-        <div className={`flex items-center sm:ml-auto ${isNavOpen? "flex" : "hidden sm:flex"}`}>
-           <LanguageSwitcher />
+        <div className={`flex items-center sm:ml-auto ${isNavOpen ? "absolute top-8 right-20" : "absolute top-8 right-20 whitespace-nowrap sm:static"}`}>
+          <LanguageSwitcher />
         </div>
 
         {/* Authentication Buttons */}

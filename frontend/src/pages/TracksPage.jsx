@@ -385,14 +385,12 @@ export default function TracksPage() {
     return (
         <div className='p-5 sm:p-10 bg-mainBlue min-h-screen'>
             <div className="flex items-center justify-between mb-10">
-                <div className="w-full max-w-md">
-                    <SearchAndFilter 
-                        onSearch={handleSearch}
-                        onFilterChange={handleFilterChange}
-                        type="track"
-                        searchPlaceholder={t('tracks.searchPlaceholder')}
-                    />
-                </div>
+                <SearchAndFilter 
+                    onSearch={handleSearch}
+                    onFilterChange={handleFilterChange}
+                    type="track"
+                    searchPlaceholder={t('tracks.searchPlaceholder')}
+                />
                 <div className="absolute left-1/2 transform -translate-x-1/2">
                     <h1 className="text-4xl font-bold">{t('tracks.title')}</h1>
                 </div>
