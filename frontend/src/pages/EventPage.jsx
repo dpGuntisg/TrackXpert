@@ -12,7 +12,7 @@ function EventPage() {
         <div className='p-5 sm:p-10 bg-mainBlue'>
             <div className="flex items-center justify-between mb-10">
                 <SearchAndFilter/>
-                <div className="absolute left-1/2 transform -translate-x-1/2">
+                <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
                     <h1 className="text-4xl font-bold">{t('event.title')}</h1>
                 </div>
                 {userId && 

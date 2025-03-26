@@ -4,7 +4,7 @@ import { createImage } from "./helpers/imageHelper.js";
 import { validateTrackTags, getValidTags } from './helpers/tagHelper.js';
 
 class TrackService {
-    static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline, tags }) {
+    static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline, tags, joining_enabled }) {
         const created_by = userId;
         const trackData = { 
           name, 
@@ -14,7 +14,8 @@ class TrackService {
           availability,
           created_by,
           distance,
-          tags: tags || [] // Add tags to track data
+          tags: tags || [],
+          joining_enabled: joining_enabled ?? false,
         };
 
         // Validate tags if provided
@@ -74,6 +75,10 @@ class TrackService {
         const imagesToDelete = [];
       
         // Handle tags update
+        if (updates.joining_enabled !== undefined) {
+          track.joining_enabled = updates.joining_enabled;
+        }
+
         if (updates.tags !== undefined) {
           validateTrackTags(updates.tags || []);
           track.tags = updates.tags;
