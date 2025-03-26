@@ -88,8 +88,8 @@ export default function TrackDetailPage() {
         description: "",
         location: "",
         images: [],
-        joining_enabled: false,
-        joining_details: ''
+        joining_enabled: track.joining_enabled ?? false,
+        joining_details: track.joining_details ?? ''
     });
     const [error, setError] = useState("");
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);

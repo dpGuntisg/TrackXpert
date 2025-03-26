@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faQuestionCircle } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
 export default function JoiningRequestForm({ values, setValues }) {
     const { t } = useTranslation();
+    const [showDescription, setShowDescription] = useState(false);
+
+    const toggleDescription = () => {
+        setShowDescription(!showDescription);
+    };
 
     return (
         <div className="space-y-4 p-4 rounded-lg">
@@ -26,10 +31,18 @@ export default function JoiningRequestForm({ values, setValues }) {
                         />
                     )}
                 </button>
-                <h3 className="text-lg font-medium text-gray-300">{t('tracks.form.joiningEnabled')}</h3>
+                <h3 className="text-xl font-bold">{t('tracks.form.joiningEnabled')}</h3>
+                <button onClick={toggleDescription}>
+                    <FontAwesomeIcon 
+                        icon={faQuestionCircle} 
+                        className="h-4 w-4 text-gray-400 hover:text-gray-300" 
+                    />
+                </button>
             </div>
             
-            <p className="text-sm text-gray-400 pl-9">{t('tracks.form.joiningDescription')}</p>
+            {showDescription && (
+                <p className="text-lg text-gray-300 ">{t('tracks.form.joiningDescription')}</p>
+            )}
             
             {/* Details Section */}
             {values.joining_enabled && (
@@ -44,7 +57,7 @@ export default function JoiningRequestForm({ values, setValues }) {
                         className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-mainRed focus:ring-2 focus:ring-mainRed transition-all duration-200 outline-none"
                         rows="4"
                     />
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-gray-300">
                         {t('tracks.form.joiningDetailsHelp')}
                     </p>
                 </div>
