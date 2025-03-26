@@ -104,6 +104,7 @@ export default function TrackDetailPage() {
     });
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [activeTab, setActiveTab] = useState('details'); // 'details', 'map', or 'availability'
+    const [registerForm, setRegisterForm] = useState(false);
 
     // Format distance with memoization
     const formattedDistance = useMemo(() => {
@@ -371,6 +372,10 @@ export default function TrackDetailPage() {
         return `${hourNum % 12 || 12}:${minute} ${ampm}`;
     };
 
+    const openRegisterForm = () => {
+        setRegisterForm(!registerForm);
+    };
+
     // Render loading state
     if (loading) {
         return (
@@ -540,9 +545,11 @@ export default function TrackDetailPage() {
                 {/* User Contact Card */}
                 <UserContact created_by={track.created_by} />
 
+
                 {/* Action buttons for track owner */}
-                {userId === track.created_by?._id && (
-                    <div className="flex space-x-4 justify-end mt-8">
+                <div className="flex space-x-4 justify-end mt-8">
+                    {userId === track.created_by?._id && (
+                        <>
                         <button
                             onClick={() => setEditMode(true)}
                             className="font-semibold px-6 py-2 rounded-lg hover:text-mainRed transition-colors flex items-center"
@@ -557,8 +564,29 @@ export default function TrackDetailPage() {
                             <FontAwesomeIcon icon={faTrash} className="mr-2"/>
                             {t('tracks.deleteTrack')}
                         </button>
-                    </div>
-                )}
+                        </>
+                    )}
+                    {track.joining_enabled === true && userId && userId !== track.created_by?._id && (
+                        <>
+                        <button className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl" 
+                            onClick={openRegisterForm}>
+                            {t('tracks.openRequestForm')}
+                        </button>
+                        {registerForm && (
+                            <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto" onClick={openRegisterForm}>
+                                <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 my-8" onClick={(e) => e.stopPropagation()}>
+                                    <div className="flex justify-between items-center">
+                                        <h3>Request form or something</h3>
+                                        <p className="cursor-pointer font-bold text-gray-300 hover:text-white" onClick={openRegisterForm}>X</p>
+                                    </div>
+                                    <input className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-mainRed focus:ring-2 focus:ring-mainRed transition-all duration-200 outline-none" type="text" />
+                                </div>
+                            </div>
+                        )}
+                        </>
+                    )}
+                </div>
+                
 
                 {/* Tabs Navigation */}
                 <div className="flex border-gray-700 mt-8">

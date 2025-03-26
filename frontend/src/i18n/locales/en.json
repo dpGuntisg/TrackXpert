@@ -110,6 +110,7 @@
     "editTrack": "Edit Track",
     "deleteTrack": "Delete Track",
     "viewDetails": "View Details",
+    "openRequestForm": "Book a track session",
     "loading": "Loading tracks...",
     "error": "Something went wrong",
     "tryAgain": "Try Again",
