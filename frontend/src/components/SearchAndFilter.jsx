@@ -3,17 +3,32 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import Filter from './Filter';
+import SearchBar from './SearchBar';
 
 const SearchAndFilter = ({ 
   onSearch, 
   onFilterChange,
   type = 'track',
   searchPlaceholder = "Search...",
-  className = ""
+  className = "",
+  initialFilters = {
+    tags: [],
+    minLength: '',
+    maxLength: '',
+    availability: {
+      days: [],
+      filterType: 'single',
+      rangeDays: {
+        from: '',
+        to: ''
+      }
+    }
+  }
 }) => {
   const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState(initialFilters);
   const searchButtonRef = useRef(null);
   const searchPanelRef = useRef(null);
 
@@ -21,10 +36,14 @@ const SearchAndFilter = ({
     setIsOpen(!isOpen);
   };
 
-  const handleSearch = (e) => {
-    const query = e.target.value;
+  const handleSearch = (query) => {
     setSearchQuery(query);
     onSearch(query);
+  };
+
+  const handleFilterChange = (newFilters) => {
+    setFilters(newFilters);
+    onFilterChange(newFilters);
   };
 
   useEffect(() => {
@@ -79,22 +98,20 @@ const SearchAndFilter = ({
               <FontAwesomeIcon icon={faTimes} className="text-xl text-mainYellow hover:text-mainRed transition-colors duration-200" />
             </button>
           </div>
-          <div className="relative mb-6">
-            <input
-              type="text"
+          <div className="mb-6">
+            <SearchBar
               value={searchQuery}
-              onChange={handleSearch}
+              onSearch={handleSearch}
               placeholder={searchPlaceholder}
-              className="w-full bg-inputBlue text-mainYellow border border-accentGray rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-mainRed focus:ring-2 focus:ring-mainRed"
+              autoFocus={isOpen}
             />
-            <FontAwesomeIcon icon={faSearch} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-mainYellow" />
           </div>
           
           {/* Filter Component */}
           <div className="mt-6">
             <h3 className="text-lg font-semibold text-mainYellow mb-4">{t('common.filter')}</h3>
             <Filter 
-              onFilterChange={onFilterChange}
+              onFilterChange={handleFilterChange}
               type={type}
             />
           </div>

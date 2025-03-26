@@ -68,12 +68,17 @@ export default function TracksPage() {
 
     const [searchQuery, setSearchQuery] = useState('');
     const [filters, setFilters] = useState({
-        name: '',
-        location: '',
         tags: [],
         minLength: '',
         maxLength: '',
-        availability: {days: [],}
+        availability: {
+            days: [],
+            filterType: 'single',
+            rangeDays: {
+                from: '',
+                to: ''
+            }
+        }
     });
 
     const handleDrawingsChange = (newDrawings) => {

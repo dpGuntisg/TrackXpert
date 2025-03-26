@@ -4,22 +4,23 @@ import { useTranslation } from 'react-i18next';
 const Filter = ({ 
   onFilterChange,
   type = 'track', // 'track' or 'event'
-  className = ""
-}) => {
-  const { t } = useTranslation();
-  const [filters, setFilters] = useState({
+  className = "",
+  initialFilters = {
     tags: [],
     minLength: '',
     maxLength: '',
     availability: {
       days: [],
-      filterType: 'single', // 'single' or 'range'
+      filterType: 'single',
       rangeDays: {
         from: '',
         to: ''
       }
     }
-  });
+  }
+}) => {
+  const { t } = useTranslation();
+  const [filters, setFilters] = useState(initialFilters);
 
   const handleTagChange = (tag) => {
     const newTags = filters.tags.includes(tag)
