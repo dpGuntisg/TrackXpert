@@ -50,6 +50,22 @@ class TrackRequestService {
 
         return request;
     }
+
+    static async getTrackRequests(userId) {
+        const request = await TrackRequest.find({
+            receiver: userId
+        })
+        .populate('sender', 'username profile_image')
+        .populate('track', 'name') 
+        .sort({ createdAt: -1 }); 
+
+        return request;
+    }
+
+    static async updateRequestStatus(requestId, status) {
+        const request = await TrackRequest.findByIdAndUpdate(requestId, { status }, { new: true });
+        return request;
+    }
 }
 
 export default TrackRequestService;
