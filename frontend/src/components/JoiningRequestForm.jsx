@@ -48,17 +48,17 @@ export default function JoiningRequestForm({ values, setValues }) {
             {values.joining_enabled && (
                 <div className="space-y-2">
                     <label className="block text-sm font-medium text-gray-300">
-                        {t('tracks.form.joiningDetails')}
+                        {t('tracks.form.joiningRequirements')}
                     </label>
                     <textarea
-                        value={values.joining_details}
-                        onChange={(e) => setValues(prev => ({ ...prev, joining_details: e.target.value }))}
-                        placeholder={t('tracks.form.joiningDetailsPlaceholder')}
+                        value={values.joining_requirements}
+                        onChange={(e) => setValues(prev => ({ ...prev, joining_requirements: e.target.value }))}
+                        placeholder={t('tracks.form.joiningRequirementsPlaceholder')}
                         className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-mainRed focus:ring-2 focus:ring-mainRed transition-all duration-200 outline-none"
                         rows="4"
                     />
                     <p className="text-sm text-gray-300">
-                        {t('tracks.form.joiningDetailsHelp')}
+                        {t('tracks.form.joiningRequirementsHelp')}
                     </p>
                 </div>
             )}

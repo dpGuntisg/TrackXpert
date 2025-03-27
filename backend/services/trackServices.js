@@ -5,7 +5,7 @@ import { validateTrackTags, getValidTags } from './helpers/tagHelper.js';
 import { buildTrackQuery } from './helpers/filterHelper.js';
 
 class TrackService {
-    static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline, tags, joining_enabled }) {
+    static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline, tags, joining_enabled, joining_requirements }) {
         const created_by = userId;
         const trackData = { 
           name, 
@@ -17,7 +17,12 @@ class TrackService {
           distance,
           tags: tags || [],
           joining_enabled: joining_enabled ?? false,
+          joining_requirements: joining_requirements ?? ""
         };
+
+        if (joining_requirements && joining_requirements.length > 300) {
+          throw new Error("Joining requirements must be less than 300 characters");
+        }
 
         // Validate tags if provided
         if (tags && Array.isArray(tags)) {
@@ -78,6 +83,13 @@ class TrackService {
         // Handle tags update
         if (updates.joining_enabled !== undefined) {
           track.joining_enabled = updates.joining_enabled;
+        }
+
+        if (updates.joining_requirements !== undefined) {
+          if (updates.joining_requirements.length > 300) {
+            throw new Error("Joining requirements must be less than 300 characters");
+          }
+          track.joining_requirements = updates.joining_requirements;
         }
 
         if (updates.tags !== undefined) {

@@ -75,6 +75,10 @@ const TrackSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  joining_requirements: {
+    type: String,
+    required: false
+  },
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
 },{timestamps:true});
 

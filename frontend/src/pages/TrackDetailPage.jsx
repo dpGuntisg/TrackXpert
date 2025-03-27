@@ -81,7 +81,7 @@ export default function TrackDetailPage() {
         coordinates: null,
         polyline: null,
         joining_enabled: false,
-        joining_details: ''
+        joining_requirements: ''
     });
     const [editValues, setEditValues] = useState({
         name: "",
@@ -89,7 +89,7 @@ export default function TrackDetailPage() {
         location: "",
         images: [],
         joining_enabled: track.joining_enabled ?? false,
-        joining_details: track.joining_details ?? ''
+        joining_requirements: track.joining_requirements ?? ''
     });
     const [error, setError] = useState("");
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
@@ -105,7 +105,8 @@ export default function TrackDetailPage() {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [activeTab, setActiveTab] = useState('details'); // 'details', 'map', or 'availability'
     const [registerForm, setRegisterForm] = useState(false);
-
+    const [content, setContent] = useState('');
+    const [requests, setRequests] = useState([]);
     // Format distance with memoization
     const formattedDistance = useMemo(() => {
         return `${parseFloat(track.distance).toFixed(2).replace('.', ',')} km`;
@@ -116,7 +117,6 @@ export default function TrackDetailPage() {
         setLoading(true);
         try {
             const response = await axiosInstance.get(`/tracks/${trackId}`);
-            
             const trackData = response.data.track;
             setTrack(trackData);
             
@@ -127,7 +127,7 @@ export default function TrackDetailPage() {
                 location: trackData.location,
                 images: trackData.images,
                 joining_enabled: trackData.joining_enabled,
-                joining_details: trackData.joining_details
+                joining_requirements: trackData.joining_requirements
             });
             
             setAvailability(trackData.availability || []);
@@ -376,6 +376,24 @@ export default function TrackDetailPage() {
         setRegisterForm(!registerForm);
     };
 
+    const sendRequest = async (requestContent) => {
+        if (!userId) {
+            setError(t('tracks.error.notLoggedIn'));
+            return;
+        }
+        try {
+            const response = await axiosInstance.post("/track-requests/create-request", { 
+                trackId: track._id,
+                content: requestContent
+            });
+            setRequests(response.data);
+            setContent(''); 
+            setRegisterForm(false);
+        } catch (error) {
+            console.error('Error details:', error.response?.data);
+            setError(error.response?.data?.message || t('common.error'));
+        }
+    }
     // Render loading state
     if (loading) {
         return (
@@ -566,7 +584,7 @@ export default function TrackDetailPage() {
                         </button>
                         </>
                     )}
-                    {track.joining_enabled === true && userId && userId !== track.created_by?._id && (
+                    {track.joining_enabled === true && userId && userId !== track.created_by && (
                         <>
                         <button className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl" 
                             onClick={openRegisterForm}>
@@ -575,11 +593,17 @@ export default function TrackDetailPage() {
                         {registerForm && (
                             <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto" onClick={openRegisterForm}>
                                 <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 my-8" onClick={(e) => e.stopPropagation()}>
+                                    <error>{error}</error>
                                     <div className="flex justify-between items-center">
                                         <h3>Request form or something</h3>
                                         <p className="cursor-pointer font-bold text-gray-300 hover:text-white" onClick={openRegisterForm}>X</p>
                                     </div>
-                                    <input className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-mainRed focus:ring-2 focus:ring-mainRed transition-all duration-200 outline-none" type="text" />
+                                    <p className="text-gray-300">{track.joining_requirements}</p>
+                                    <input className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-mainRed focus:ring-2 focus:ring-mainRed transition-all duration-200 outline-none" type="text" value={content} onChange={(e) => setContent(e.target.value)} />
+                                    <div className="flex justify-between">
+                                        <button className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors" onClick={() => sendRequest(content)}>Send</button>
+                                        <button className="bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors" onClick={openRegisterForm}>Cancel</button>
+                                    </div>
                                 </div>
                             </div>
                         )}
