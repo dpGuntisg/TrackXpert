@@ -117,7 +117,7 @@ const Navbar = () => {
                 aria-haspopup="true"
               >
                 <FontAwesomeIcon icon={faBell} className="text-xl" />
-                {notifications.length > 0 && (
+                {notifications.filter(request => request.status === 'pending').length > 0 && (
                   <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 bg-mainRed text-white text-xs font-bold rounded-full">
                     <FontAwesomeIcon icon={faExclamation} />
                   </span>
@@ -127,15 +127,17 @@ const Navbar = () => {
                 <div className="absolute right-0 top-full mt-1 w-[500px] rounded bg-accentBlue shadow-lg z-10 border border-accentGray">
                   <div className="p-4">
                     <h3 className="text-lg font-semibold text-mainYellow mb-4">{t('notifications.title')}</h3>
-                    {notifications.length === 0 ? (
+                    {notifications.filter(request => request.status === 'pending').length === 0 ? (
                       <div className="text-gray-400 text-center py-4 border-b border-accentGray">
                         {t('notifications.noNotifications')}
                       </div>
                     ) : (
                       <div className="max-h-96 overflow-y-auto">
-                        {notifications.map((request) => (
-                          <TrackRequest key={request._id} request={request} />
-                        ))}
+                        {notifications
+                          .filter(request => request.status === 'pending')
+                          .map((request) => (
+                            <TrackRequest key={request._id} request={request} />
+                          ))}
                       </div>
                     )}
                     <div className="flex justify-center items-center mt-2 text-sm">

@@ -38,13 +38,13 @@ const TrackRequest = ({ request, className = "", onStatusUpdate, showActions = f
 
       {/* Request Details */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm text-gray-300">
+        <div className="flex flex-wrap gap-1 text-sm text-gray-300">
           <span className="font-medium text-mainYellow">{request.sender?.username}</span>
-          {' '}wants to join your track{' '}
+          <span>wants to join your track</span>
           <span className="font-medium text-mainYellow">{request.track?.name}</span>
-        </p>
+        </div>
         {request.content && (
-          <p className="text-xs text-gray-400 mt-1">{request.content}</p>
+          <p className="text-xs text-gray-400 mt-1 break-words whitespace-pre-wrap">{request.content}</p>
         )}
         <span className={`text-xs ${getStatusColor(request.status)} mt-1 block`}>
           {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
