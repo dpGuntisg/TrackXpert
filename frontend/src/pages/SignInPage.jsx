@@ -4,8 +4,10 @@ import axiosInstance from "../utils/axios";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function SignInPage() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -26,18 +28,18 @@ export default function SignInPage() {
       
       if (response.status === 200 && response.data.user) {
         setUserId(response.data.user._id);
-        setSuccess("Sign in successful");
+        setSuccess(t('auth.signInSuccess'));
         navigate("/");
       } else {
-        setError("Invalid response from server");
+        setError(t('auth.signInError'));
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
       } else if (error.request) {
-        setError("No response from the server. Please check your internet connection.");
+        setError(t('common.noServerResponse'));
       } else {
-        setError("An unexpected error occurred. Please try again.");
+        setError(t('common.unexpectedError'));
       }
     }
   };
@@ -84,7 +86,7 @@ export default function SignInPage() {
 
       <div className="flex flex-col items-center justify-center w-1/2 h-screen">
         <div className="w-96 max-w-[90%]">
-          <h1 className="text-3xl font-bold mb-8 text-center">Sign In To Your Account</h1>
+          <h1 className="text-3xl font-bold mb-8 text-center">{t('auth.welcomeBack')}</h1>
           
           {/* Global error message */}
           {error && (
@@ -109,7 +111,7 @@ export default function SignInPage() {
           <form onSubmit={handleLogin} className="space-y-4 bg-accentBlue p-6 rounded-lg shadow-lg">
             <div className="space-y-1">
               <label htmlFor="email" className="text-sm font-medium text-gray-300">
-                Email
+                {t('auth.email')}
               </label>
               <input
                 className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none
@@ -118,19 +120,19 @@ export default function SignInPage() {
                     : 'border-gray-700 focus:border-mainRed'}`}
                 type="email"
                 id="email"
-                placeholder="Enter your email"
+                placeholder={t('auth.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onBlur={() => handleBlur('email')}
               />
               {touched.email && !email && (
-                <p className="text-red-500 text-sm mt-1">Email is required</p>
+                <p className="text-red-500 text-sm mt-1">{t('auth.requiredField')}</p>
               )}
             </div>
 
             <div className="space-y-1">
               <label htmlFor="password" className="text-sm font-medium text-gray-300">
-                Password
+                {t('auth.password')}
               </label>
               <input
                 className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none
@@ -139,13 +141,13 @@ export default function SignInPage() {
                     : 'border-gray-700 focus:border-mainRed'}`}
                 type="password"
                 id="password"
-                placeholder="Enter your password"
+                placeholder={t('auth.passwordPlaceholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onBlur={() => handleBlur('password')}
               />
               {touched.password && !password && (
-                <p className="text-red-500 text-sm mt-1">Password is required</p>
+                <p className="text-red-500 text-sm mt-1">{t('auth.requiredField')}</p>
               )}
             </div>
 
@@ -155,16 +157,16 @@ export default function SignInPage() {
                 hover:bg-red-700 transition-colors duration-200
                 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800"
             >
-              Sign In
+              {t('auth.signIn')}
             </button>
 
             <div className="flex justify-center items-center gap-2 pt-4">
-              <p className="text-gray-400">Don't have an account?</p>
+              <p className="text-gray-400">{t('auth.noAccount')}</p>
               <Link 
                 to="/signup" 
                 className="text-mainRed hover:text-red-400 font-medium transition-colors"
               >
-                Sign up
+                {t('auth.signUpHere')}
               </Link>
             </div>
           </form>

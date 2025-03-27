@@ -4,8 +4,10 @@ import axiosInstance from "../utils/axios";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 export default function SignUpPage() {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
   const [email, setEmail] = useState("");
@@ -32,7 +34,7 @@ export default function SignUpPage() {
     setError("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError(t('auth.passwordMismatch'));
       return;
     }
     
@@ -46,18 +48,18 @@ export default function SignUpPage() {
       
       if (response.status === 201 && response.data.user) {
         setUserId(response.data.user._id);
-        setSuccess("Account created successfully");
+        setSuccess(t('auth.signUpSuccess'));
         navigate("/");
       } else {
-        setError("Invalid response from server");
+        setError(t('auth.signUpError'));
       }
     } catch (error) {
       if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
       } else if (error.request) {
-        setError("No response from the server. Please check your internet connection.");
+        setError(t('common.noServerResponse'));
       } else {
-        setError("An unexpected error occurred. Please try again.");
+        setError(t('common.unexpectedError'));
       }
     }
   };
@@ -100,7 +102,7 @@ export default function SignUpPage() {
 
       <div className="flex flex-col items-center justify-center w-1/2 h-screen">
         <div className="w-96 max-w-[90%]">
-          <h1 className="text-3xl font-bold mb-8 text-center">Create Your Account</h1>
+          <h1 className="text-3xl font-bold mb-8 text-center">{t('auth.createAccount')}</h1>
           
           {error && (
             <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
@@ -127,7 +129,7 @@ export default function SignUpPage() {
               {/* Name Field */}
               <div className="w-1/2">
                 <label htmlFor="name" className="block text-sm font-medium text-gray-300">
-                  Name
+                  {t('auth.name')}
                 </label>
                 <input
                   className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed 
@@ -136,20 +138,20 @@ export default function SignUpPage() {
                     : 'border-gray-700 focus:border-mainRed'}`}
                   type="text"
                   id="name"
-                  placeholder="Enter your name"
+                  placeholder={t('auth.namePlaceholder')}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   onBlur={() => handleBlur('name')}
                 />
                 {touched.name && !name && (
-                  <p className="text-red-500 text-sm mt-1">Name is required</p>
+                  <p className="text-red-500 text-sm mt-1">{t('auth.requiredField')}</p>
                 )}
               </div>
 
               {/* Surname Field */}
               <div className="w-1/2">
                 <label htmlFor="surname" className="block text-sm font-medium text-gray-300">
-                  Surname
+                  {t('auth.surname')}
                 </label>
                 <input
                   className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none focus:ring-2 focus:ring-mainRed 
@@ -158,23 +160,21 @@ export default function SignUpPage() {
                     : 'border-gray-700 focus:border-mainRed'}`}
                   type="text"
                   id="surname"
-                  placeholder="Enter your surname"
+                  placeholder={t('auth.surnamePlaceholder')}
                   value={surname}
                   onChange={(e) => setSurname(e.target.value)}
                   onBlur={() => handleBlur('surname')}
                 />
                 {touched.surname && !surname && (
-                  <p className="text-red-500 text-sm mt-1">Surname is required</p>
+                  <p className="text-red-500 text-sm mt-1">{t('auth.requiredField')}</p>
                 )}
               </div>
             </div>
           </div>
 
-
-
             <div className="space-y-1">
               <label htmlFor="email" className="text-sm font-medium text-gray-300">
-                Email
+                {t('auth.email')}
               </label>
               <input
                 className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none
@@ -183,19 +183,19 @@ export default function SignUpPage() {
                     : 'border-gray-700 focus:border-mainRed'}`}
                 type="email"
                 id="email"
-                placeholder="Enter your email"
+                placeholder={t('auth.emailPlaceholder')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onBlur={() => handleBlur('email')}
               />
               {touched.email && !email && (
-                <p className="text-red-500 text-sm mt-1">Email is required</p>
+                <p className="text-red-500 text-sm mt-1">{t('auth.requiredField')}</p>
               )}
             </div>
 
             <div className="space-y-1">
               <label htmlFor="password" className="text-sm font-medium text-gray-300">
-                Password
+                {t('auth.password')}
               </label>
               <input
                 className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none
@@ -204,19 +204,19 @@ export default function SignUpPage() {
                     : 'border-gray-700 focus:border-mainRed'}`}
                 type="password"
                 id="password"
-                placeholder="Enter your password"
+                placeholder={t('auth.passwordPlaceholder')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 onBlur={() => handleBlur('password')}
               />
               {touched.password && !password && (
-                <p className="text-red-500 text-sm mt-1">Password is required</p>
+                <p className="text-red-500 text-sm mt-1">{t('auth.requiredField')}</p>
               )}
             </div>
 
             <div className="space-y-1">
               <label htmlFor="confirm-password" className="text-sm font-medium text-gray-300">
-                Confirm Password
+                {t('auth.confirmPassword')}
               </label>
               <input
                 className={`w-full px-4 py-3 rounded-lg bg-inputBlue border transition-all duration-200 outline-none
@@ -225,13 +225,13 @@ export default function SignUpPage() {
                     : 'border-gray-700 focus:border-mainRed'}`}
                 type="password"
                 id="confirm-password"
-                placeholder="Confirm your password"
+                placeholder={t('auth.confirmPasswordPlaceholder')}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 onBlur={() => handleBlur('confirmPassword')}
               />
               {touched.confirmPassword && !confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">Please confirm your password</p>
+                <p className="text-red-500 text-sm mt-1">{t('auth.requiredField')}</p>
               )}
             </div>
 
@@ -241,16 +241,16 @@ export default function SignUpPage() {
                 hover:bg-red-700 transition-colors duration-200
                 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-800"
             >
-              Sign Up
+              {t('auth.signUp')}
             </button>
 
             <div className="flex justify-center items-center gap-2 pt-4">
-              <p className="text-gray-400">Already have an account?</p>
+              <p className="text-gray-400">{t('auth.alreadyHaveAccount')}</p>
               <Link 
                 to="/signin" 
                 className="text-mainRed hover:text-red-400 font-medium transition-colors"
               >
-                Sign In
+                {t('auth.signInHere')}
               </Link>
             </div>
           </form>

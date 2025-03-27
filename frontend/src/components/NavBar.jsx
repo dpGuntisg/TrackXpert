@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faBell, faCheck } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuth } from '../context/AuthContext';
@@ -12,8 +12,10 @@ const Navbar = () => {
   const [profile, setProfile] = useState(null);
   const [alert, setAlert] = useState("");
   const [isNavOpen, setIsNavOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const { userId, setUserId, loading } = useAuth();
   const navigate = useNavigate();
+  const notificationsRef = useRef(null);
   
   useEffect(() => {
     const getProfile = async () => {
@@ -33,6 +35,20 @@ const Navbar = () => {
 
     getProfile();
   }, [userId, navigate, setUserId]);
+
+  // Close notifications dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+        setIsNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const toggleNavbar = () => setIsNavOpen(!isNavOpen);
   const isUserLoggedIn = () => !loading && !!userId;
@@ -76,6 +92,34 @@ const Navbar = () => {
         </div>
 
         <div className={`flex items-center sm:ml-auto ${isNavOpen ? "absolute top-8 right-20" : "absolute top-8 right-20 whitespace-nowrap sm:static"}`}>
+          {isUserLoggedIn() && (
+            <div className="relative mr-4" ref={notificationsRef}>
+              <button
+                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                className="relative overflow-hidden text-mainYellow hover:text-mainRed text-left rounded transition-all duration-500 sm:px-4 sm:py-2"
+                aria-expanded={isNotificationsOpen}
+                aria-haspopup="true"
+              >
+                <FontAwesomeIcon icon={faBell} className="text-xl" />
+              </button>
+              {isNotificationsOpen && (
+                <div className="absolute right-0 top-full mt-1 w-80 rounded bg-accentBlue shadow-lg z-10 border border-accentGray">
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-mainYellow mb-4">{t('notifications.title')}</h3>
+                    {/* Add your notifications list here */}
+                    <div className="text-gray-400 text-center py-4 border-b border-accentGray">
+                      {t('notifications.noNotifications')}
+                    </div>
+                    <div className="flex justify-center items-center mt-2 text-sm">
+                      <NavLink to="/notifications" className={navLinkClass}>
+                        {t('notifications.viewAll')}
+                      </NavLink>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           <LanguageSwitcher />
         </div>
 
