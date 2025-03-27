@@ -55,7 +55,14 @@ class TrackRequestService {
         const request = await TrackRequest.find({
             receiver: userId
         })
-        .populate('sender', 'username profile_image')
+        .populate({
+            path: 'sender',
+            select: 'username profile_image',
+            populate: {
+                path: 'profile_image',
+                select: 'data mimeType'
+            }
+        })
         .populate('track', 'name') 
         .sort({ createdAt: -1 }); 
 

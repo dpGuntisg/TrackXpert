@@ -14,6 +14,7 @@ import TrackDetailPage from './pages/TrackDetailPage';
 import EventPage from './pages/EventPage';
 import CreateEventPage from './pages/CreateEventPage';
 import ProfilePage from './pages/ProfilePage';
+import NotificationPage from './pages/NotificationPage';
 import Layout from './components/Layout';
 import App from './App';
 
@@ -57,6 +58,15 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <CreateEventPage />
+          </ProtectedRoute>
+        ),
+        errorElement: <NotFoundPage />,
+      },
+      {
+        path: "/notifications",
+        element: (
+          <ProtectedRoute>
+            <NotificationPage />
           </ProtectedRoute>
         ),
         errorElement: <NotFoundPage />,
