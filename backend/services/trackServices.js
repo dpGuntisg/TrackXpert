@@ -20,8 +20,8 @@ class TrackService {
           joining_requirements: joining_requirements ?? ""
         };
 
-        if (joining_requirements && joining_requirements.length > 300) {
-          throw new Error("Joining requirements must be less than 300 characters");
+        if (joining_requirements && joining_requirements.length > 500) {
+          throw new Error("Joining requirements must be less than 500 characters");
         }
 
         // Validate tags if provided
@@ -86,8 +86,8 @@ class TrackService {
         }
 
         if (updates.joining_requirements !== undefined) {
-          if (updates.joining_requirements.length > 300) {
-            throw new Error("Joining requirements must be less than 300 characters");
+          if (updates.joining_requirements.length > 500) {
+            throw new Error("Joining requirements must be less than 500 characters");
           }
           track.joining_requirements = updates.joining_requirements;
         }

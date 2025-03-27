@@ -2,10 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faBell, faCheck } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faBell, faExclamation } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuth } from '../context/AuthContext';
+import TrackRequest from './TrackRequest';
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -14,6 +15,7 @@ const Navbar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const { userId, setUserId, loading } = useAuth();
+  const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
   const notificationsRef = useRef(null);
   
@@ -64,6 +66,20 @@ const Navbar = () => {
     }
   };
 
+  useEffect(() => {
+    getNotifications();
+  }, []);
+
+    const getNotifications = async () => {
+      try {
+        const response = await axiosInstance.get("/track-requests/requests");
+        console.log(response.data);
+        setNotifications(response.data);
+      } catch (error) {
+        console.error("Error fetching notifications:", error);
+      }
+    };
+
   const navLinkClass = ({ isActive }) =>
     `relative hover:bg-mainRed text-left rounded transition-all duration-50
      sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent sm:justify-center 
@@ -92,7 +108,7 @@ const Navbar = () => {
         </div>
 
         <div className={`flex items-center sm:ml-auto ${isNavOpen ? "absolute top-8 right-20" : "absolute top-8 right-20 whitespace-nowrap sm:static"}`}>
-          {isUserLoggedIn() && (
+          {isUserLoggedIn() &&(
             <div className="relative mr-4" ref={notificationsRef}>
               <button
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -101,15 +117,27 @@ const Navbar = () => {
                 aria-haspopup="true"
               >
                 <FontAwesomeIcon icon={faBell} className="text-xl" />
+                {notifications.length > 0 && (
+                  <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 bg-mainRed text-white text-xs font-bold rounded-full">
+                    <FontAwesomeIcon icon={faExclamation} />
+                  </span>
+                )}
               </button>
               {isNotificationsOpen && (
-                <div className="absolute right-0 top-full mt-1 w-80 rounded bg-accentBlue shadow-lg z-10 border border-accentGray">
+                <div className="absolute right-0 top-full mt-1 w-[500px] rounded bg-accentBlue shadow-lg z-10 border border-accentGray">
                   <div className="p-4">
                     <h3 className="text-lg font-semibold text-mainYellow mb-4">{t('notifications.title')}</h3>
-                    {/* Add your notifications list here */}
-                    <div className="text-gray-400 text-center py-4 border-b border-accentGray">
-                      {t('notifications.noNotifications')}
-                    </div>
+                    {notifications.length === 0 ? (
+                      <div className="text-gray-400 text-center py-4 border-b border-accentGray">
+                        {t('notifications.noNotifications')}
+                      </div>
+                    ) : (
+                      <div className="max-h-96 overflow-y-auto">
+                        {notifications.map((request) => (
+                          <TrackRequest key={request._id} request={request} />
+                        ))}
+                      </div>
+                    )}
                     <div className="flex justify-center items-center mt-2 text-sm">
                       <NavLink to="/notifications" className={navLinkClass}>
                         {t('notifications.viewAll')}

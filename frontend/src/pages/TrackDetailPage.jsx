@@ -160,7 +160,7 @@ export default function TrackDetailPage() {
         }
     }, [trackId, t]);
 
-    // Load track data on component mount
+    // Load track data on component
     useEffect(() => {
         getTrack();
     }, [getTrack]);
@@ -584,7 +584,7 @@ export default function TrackDetailPage() {
                         </button>
                         </>
                     )}
-                    {track.joining_enabled === true && userId && userId !== track.created_by && (
+                    {track.joining_enabled === true && userId && userId !== track.created_by._id && (
                         <>
                         <button className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl" 
                             onClick={openRegisterForm}>

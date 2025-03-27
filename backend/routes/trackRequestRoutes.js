@@ -14,4 +14,13 @@ router.post("/create-request", verifyToken, async (req, res) => {
     }
 });
 
+router.get("/requests", verifyToken, async (req, res) => {
+    try {
+        const requests = await TrackRequestService.getTrackRequests(req.userId);
+        res.status(200).json(requests);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 export default router;
