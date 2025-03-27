@@ -20,12 +20,28 @@ export default function NotificationPage() {
         fetchNotifications();
     }, []);
 
+    const updateRequestStatus = async (requestId, status) => {
+        try {
+            const response = await axiosInstance.put(`/track-requests/update-request/${requestId}`, { status });
+            setNotifications(response.data);
+        } catch (error) {
+            console.error("Error updating request status:", error);
+        }
+    };
+
     return (
-        <div className="p-6">
-            <h1 className="text-mainYellow text-2xl font-bold mb-4">Notifications</h1>
-            {notifications.map((notification) => (
-                <TrackRequest className="mb-2 bg-accentBlue" key={notification._id} request={notification} />
-            ))}
+        <div className="container mx-auto px-4 py-8">
+            <h1 className="text-2xl font-bold text-mainYellow mb-6">{t('notifications.title')}</h1>
+            <div className="space-y-4">
+                {notifications.map((request) => (
+                    <TrackRequest className="bg-accentBlue"
+                        key={request._id} 
+                        request={request} 
+                        onStatusUpdate={updateRequestStatus}
+                        showActions={true}
+                    />
+                ))}
+            </div>
         </div>
-    )
+    );
 }

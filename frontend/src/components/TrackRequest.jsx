@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImagePortrait } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
-const TrackRequest = ({ request, className = "" }) => {
+const TrackRequest = ({ request, className = "", onStatusUpdate, showActions = false }) => {
   const { t } = useTranslation();
 
   const getStatusColor = (status) => {
@@ -50,6 +50,22 @@ const TrackRequest = ({ request, className = "" }) => {
           {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
         </span>
       </div>
+      {showActions && request.status === 'pending' && (
+        <div className="flex gap-2">
+          <button 
+            className="text-sm text-mainYellow hover:text-yellow-400" 
+            onClick={() => onStatusUpdate(request._id, 'accepted')}
+          >
+            Accept
+          </button>
+          <button 
+            className="text-sm text-mainRed hover:text-red-400" 
+            onClick={() => onStatusUpdate(request._id, 'rejected')}
+          >
+            Decline
+          </button>
+        </div>
+      )}
     </div>
   );
 };

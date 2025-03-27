@@ -23,4 +23,14 @@ router.get("/requests", verifyToken, async (req, res) => {
     }
 });
 
+router.put("/update-request/:requestId", verifyToken, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const request = await TrackRequestService.updateRequestStatus(req.params.requestId, status);
+        res.status(200).json(request);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 export default router;
