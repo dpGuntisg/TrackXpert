@@ -16,7 +16,7 @@ export default function NotificationPage() {
             console.error("Error fetching notifications:", error);
             setError(t('notifications.fetchError'));
         }
-    }, [t]);
+    }, []);
 
     useEffect(() => {
         fetchNotifications();

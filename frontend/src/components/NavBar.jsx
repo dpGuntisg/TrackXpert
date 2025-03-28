@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faBell, faExclamation } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faBell, faExclamation, faUser, faSignOutAlt, faHome, faRoute, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuth } from '../context/AuthContext';
@@ -38,7 +38,6 @@ const Navbar = () => {
     getProfile();
   }, [userId, navigate, setUserId]);
 
-  // Close notifications dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
@@ -51,6 +50,19 @@ const Navbar = () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    getNotifications();
+  }, []);
+
+  const getNotifications = async () => {
+    try {
+      const response = await axiosInstance.get("/track-requests/requests");
+      setNotifications(response.data);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+    }
+  };
 
   const toggleNavbar = () => setIsNavOpen(!isNavOpen);
   const isUserLoggedIn = () => !loading && !!userId;
@@ -66,123 +78,150 @@ const Navbar = () => {
     }
   };
 
-  useEffect(() => {
-    getNotifications();
-  }, []);
-
-    const getNotifications = async () => {
-      try {
-        const response = await axiosInstance.get("/track-requests/requests");
-        console.log(response.data);
-        setNotifications(response.data);
-      } catch (error) {
-        console.error("Error fetching notifications:", error);
-      }
-    };
-
   const navLinkClass = ({ isActive }) =>
     `relative hover:bg-mainRed text-left rounded transition-all duration-50
-     sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent sm:justify-center 
-     ${isActive ? "text-mainRed font-bold drop-shadow-[0px_0px_10px_rgba(254,1,1,0.9)]" : ""}`;
+     sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent sm:justify-center flex items-center gap-2
+     ${isActive ? "text-mainRed font-bold " : ""}`;
 
   return (
-    <nav className="p-6 sticky top-0 z-50 bg-accentBlue">
-      <div className="flex sm:items-center font-semibold flex-col justify-center sm:flex-row">
-        <div className="flex items-center justify-between">
-          <NavLink to="/">
-            <h1 className="text-mainRed text-3xl font-black italic hover:text-red-800 cursor-pointer">
+    <nav className="sticky top-0 z-50 bg-accentBlue border-b border-accentGray">
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <NavLink to="/" className="flex items-center">
+            <h1 className="text-2xl font-black text-mainRed italic">
               TrackXpert
             </h1>
           </NavLink>
-          <button onClick={toggleNavbar} className="sm:hidden text-mainRed focus:outline-none">
-            <FontAwesomeIcon icon={faBars} size="2xl" />
-          </button>
-        </div>
 
-        {/* Navigation Links */}
-        <div className={`flex flex-col sm:flex-row sm:space-x-5 sm:items-center sm:gap-4 sm:justify-center sm:flex-grow text-center ${isNavOpen ? 'flex' : 'hidden sm:flex'}`}>
-          <NavLink to="/" className={navLinkClass}> {t('navbar.home') }</NavLink>
-          <NavLink to="/tracks" className={navLinkClass}> {t('navbar.tracks')} </NavLink>
-          <NavLink to="/events" className={navLinkClass}> {t('navbar.events')} </NavLink>
-          {isUserLoggedIn() && <NavLink to="/profile" className={navLinkClass}> {t('navbar.profile')} </NavLink>}
-        </div>
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center space-x-5">
+            <NavLink to="/" className={navLinkClass}>
+              <FontAwesomeIcon icon={faHome} />
+              <span>{t('navbar.home')}</span>
+            </NavLink>
+            <NavLink to="/tracks" className={navLinkClass}>
+              <FontAwesomeIcon icon={faRoute} />
+              <span>{t('navbar.tracks')}</span>
+            </NavLink>
+            <NavLink to="/events" className={navLinkClass}>
+              <FontAwesomeIcon icon={faCalendarAlt} />
+              <span>{t('navbar.events')}</span>
+            </NavLink>
+            {isUserLoggedIn() && (
+              <NavLink to="/profile" className={navLinkClass}>
+                <FontAwesomeIcon icon={faUser} />
+                <span>{t('navbar.profile')}</span>
+              </NavLink>
+            )}
+          </div>
 
-        <div className={`flex items-center sm:ml-auto ${isNavOpen ? "absolute top-8 right-20" : "absolute top-8 right-20 whitespace-nowrap sm:static"}`}>
-          {isUserLoggedIn() &&(
-            <div className="relative mr-4" ref={notificationsRef}>
-              <button
-                onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className="relative overflow-hidden text-mainYellow hover:text-mainRed text-left rounded transition-all duration-500 sm:px-4 sm:py-2"
-                aria-expanded={isNotificationsOpen}
-                aria-haspopup="true"
-              >
-                <FontAwesomeIcon icon={faBell} className="text-xl" />
-                {notifications.filter(request => request.status === 'pending').length > 0 && (
-                  <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 bg-mainRed text-white text-xs font-bold rounded-full">
-                    <FontAwesomeIcon icon={faExclamation} />
-                  </span>
-                )}
-              </button>
-              {isNotificationsOpen && (
-                <div className="absolute right-0 top-full mt-1 w-[500px] rounded bg-accentBlue shadow-lg z-10 border border-accentGray">
-                  <div className="p-4">
-                    <h3 className="text-lg font-semibold text-mainYellow mb-4">{t('notifications.title')}</h3>
-                    {notifications.filter(request => request.status === 'pending').length === 0 ? (
-                      <div className="text-gray-400 text-center py-4 border-b border-accentGray">
-                        {t('notifications.noNotifications')}
-                      </div>
-                    ) : (
-                      <div className="max-h-96 overflow-y-auto">
-                        {notifications
-                          .filter(request => request.status === 'pending')
-                          .map((request) => (
-                            <TrackRequest key={request._id} request={request} />
-                          ))}
-                      </div>
+          {/* Right side items */}
+          <div className="flex items-center space-x-4">
+            {isUserLoggedIn() ? (
+              <>
+                {/* Notifications */}
+                <div className="relative" ref={notificationsRef}>
+                  <button
+                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                    className="relative p-2 text-mainYellow hover:text-mainRed transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faBell} className="text-xl" />
+                    {notifications.filter(request => request.status === 'pending').length > 0 && (
+                      <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 bg-mainRed text-white text-xs font-bold rounded-full">
+                        <FontAwesomeIcon icon={faExclamation} />
+                      </span>
                     )}
-                    <div className="flex justify-center items-center mt-2 text-sm">
-                      <NavLink to="/notifications" className={navLinkClass}>
-                        {t('notifications.viewAll')}
-                      </NavLink>
+                  </button>
+                  {isNotificationsOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-80 rounded-lg bg-accentBlue shadow-lg z-10 border border-accentGray">
+                      <div className="p-4">
+                        <h3 className="text-lg font-semibold text-mainYellow mb-4">{t('notifications.title')}</h3>
+                        {notifications.filter(request => request.status === 'pending').length === 0 ? (
+                          <div className="text-gray-400 text-center py-4">
+                            {t('notifications.noNotifications')}
+                          </div>
+                        ) : (
+                          <div className="max-h-96 overflow-y-auto space-y-2">
+                            {notifications
+                              .filter(request => request.status === 'pending')
+                              .map((request) => (
+                                <TrackRequest key={request._id} request={request} />
+                              ))}
+                          </div>
+                        )}
+                        <NavLink to="/notifications" className="block text-center mt-4 text-sm text-mainYellow hover:text-mainRed transition-colors">
+                          {t('notifications.viewAll')}
+                        </NavLink>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
-              )}
-            </div>
-          )}
-          <LanguageSwitcher />
+                
+
+                {/* Sign Out */}
+                <button 
+                  onClick={handleSignOut} 
+                  className="relative w-auto text-center overflow-hidden text-mainRed hover:bg-mainRed rounded transition-all duration-500
+                            sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap flex items-center gap-2"
+                >
+                  <FontAwesomeIcon icon={faSignOutAlt} />
+                  <span className="hidden md:inline">{t('navbar.signout')}</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <NavLink to="/signin" className="relative w-auto text-center overflow-hidden text-mainRed hover:bg-mainRed rounded transition-all duration-500
+                                               sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap">
+                  {t('navbar.signin')}
+                </NavLink>
+                <NavLink to="/signup" className="relative w-auto text-center overflow-hidden hover:bg-mainRed rounded transition-all duration-500
+                                               sm:px-6 sm:py-2 sm:rounded sm:hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap">
+                  {t('navbar.signup')}
+                </NavLink>
+              </>
+            )}
+
+
+            {/* Mobile menu button */}
+            <button 
+              onClick={toggleNavbar} 
+              className="md:hidden p-2 text-mainRed hover:text-mainYellow transition-colors"
+            >
+              <FontAwesomeIcon icon={faBars} className="text-xl" />
+            </button>
+          </div>
         </div>
 
-        {/* Authentication Buttons */}
-        <div className={`flex flex-col sm:flex-row ${isNavOpen ? 'flex' : 'hidden sm:flex'}`}>
-          {!isUserLoggedIn() ? (
-            <>
-              <NavLink to="/signup">
-                <button className="relative w-auto text-center overflow-hidden hover:bg-mainRed rounded transition-all duration-500
-                                  sm:px-6 sm:py-2 sm:rounded sm:hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap">
-                  {t('navbar.signup')}
-                </button>
+        {/* Mobile Navigation */}
+        {isNavOpen && (
+          <div className="md:hidden py-2">
+            <NavLink to="/" className={navLinkClass}>
+              <FontAwesomeIcon icon={faHome} />
+              <span>{t('navbar.home')}</span>
+            </NavLink>
+            <NavLink to="/tracks" className={navLinkClass}>
+              <FontAwesomeIcon icon={faRoute} />
+              <span>{t('navbar.tracks')}</span>
+            </NavLink>
+            <NavLink to="/events" className={navLinkClass}>
+              <FontAwesomeIcon icon={faCalendarAlt} />
+              <span>{t('navbar.events')}</span>
+            </NavLink>
+            {isUserLoggedIn() && (
+              <NavLink to="/profile" className={navLinkClass}>
+                <FontAwesomeIcon icon={faUser} />
+                <span>{t('navbar.profile')}</span>
               </NavLink>
-              <NavLink to="/signin">
-                <button className="relative w-auto text-center overflow-hidden text-mainRed hover:bg-mainRed rounded transition-all duration-500
-                                  sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap">
-                  {t('navbar.signin')}
-                </button>
-              </NavLink>
-            </>
-          ) : (
-            <button onClick={handleSignOut} className=" text-left relative w-auto sm:w-auto overflow-hidden text-mainRed hover:bg-mainRed rounded transition-all duration-500
-                          sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap">
-              {t('navbar.signout')}
-            </button>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Alert Message */}
       {alert && (
-        <div className="flex justify-center mt-4">
-          <div className="alert alert-error w-1/2 bg-red-500 text-white p-4 rounded">{alert}</div>
+        <div className="bg-red-500 text-white p-4 text-center">
+          {alert}
         </div>
       )}
     </nav>
