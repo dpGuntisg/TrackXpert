@@ -120,7 +120,7 @@ export default function TrackCard({ track, onLikeChange }) {
 
     return (
         <Link to={`/tracks/${track._id}`} 
-        className='flex flex-col bg-accentBlue drop-shadow-lg outline outline-12 outline-mainRed overflow-hidden hover:scale-105 transition-all ease-in-out duration-300
+        className='flex flex-col bg-accentBlue drop-shadow-lg outline outline-12 outline-mainRed hover:outline-mainYellow overflow-hidden hover:scale-105 transition-all ease-in-out duration-300
             h-[550px] w-[340px] rounded'>
           
             <div className='relative w-full h-[220px]'>

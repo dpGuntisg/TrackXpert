@@ -62,7 +62,7 @@ function App() {
   return (
     <div className="min-h-screen bg-mainBlue">
       {/* Hero Section */}
-      <div className="container mx-auto px-4 pt-20 pb-32">
+      <div className="container mx-auto px-4 pt-40 pb-40">
         <div className="text-center max-w-4xl mx-auto">
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 bg-gradient-to-r from-mainYellow to-mainRed bg-clip-text text-transparent">
             Where Tracks Come to Life

@@ -23,6 +23,32 @@
     "subtitle": "Meklē vietu, kur varētu izbraukt ar auto?",
     "description": "Izpēti mūsu plašo trašu klāstu – izvēlies tās, kas atbilst tavam stilam un piedzīvojumu garam. Sāc savu ceļojumu, izpētot citiem lietotājiem pievienotās trases, vai pievieno jaunas vietas mūsu kopienai!",
     "exploreButton": "IZPĒTIT TRĀSES",
+    "features": {
+      "createTracks": {
+        "title": "Izveido Savas Trases",
+        "description": "Dalies ar savām iecienītākajām braukšanas vietām. Atzīmē atrašanās vietas vai zīmē detalizētus maršrutus kartē."
+      },
+      "joinTracks": {
+        "title": "Pievienojies Trašu Sesijām",
+        "description": "Sazinies ar trašu īpašniekiem un piedalies aizraujošās braukšanas sesijās. Izmēģini jaunas trases kopā ar citiem entuziastiem."
+      },
+      "createEvents": {
+        "title": "Organizē Pasākumus",
+        "description": "Izveido un vadi savas trašu dienas, sacensības vai neformālas tikšanās. Vieno kopienu."
+      },
+      "joinEvents": {
+        "title": "Piedalies Pasākumos",
+        "description": "Atrodi un piedalies aizraujošos auto pasākumos. No trašu dienām līdz čempionātiem, katram kaut kas atradīsies."
+      },
+      "discover": {
+        "title": "Atklāj Jaunus Maršrutus",
+        "description": "Izpēti augošo trašu un maršrutu kolekciju. Atrodi slēptās pērles un populārās vietas savā apkārtnē."
+      },
+      "progress": {
+        "title": "Seko Savam Progresam",
+        "description": "Seko līdzi savām apmeklētajām vietām un pasākumiem. Veido savu braukšanas portfolio."
+      }
+    },
     "tutorialPlaceholder": "Iespējams, pamācība vai kaut kas tāds."
   },
   "navbar": {
