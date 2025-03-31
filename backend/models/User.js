@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 const UserSchema = new Schema({
   name: { type: String},
   surname: { type: String},
-  phonenumber: { type: String, sparse: true, unique: true, default: null },
+  phonenumber: { type: String, sparse: true, unique: true,},
   profile_image: { type: mongoose.Schema.Types.ObjectId, ref: 'Image'},
   username: { type: String, unique: true },
   email: { type: String, required: true, unique: true, match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ },

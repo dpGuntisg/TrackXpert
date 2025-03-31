@@ -5,6 +5,7 @@ import { faLocationDot, faTag, faRoad, faCar, faFlagCheckered, faHeart } from '@
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 export default function TrackCard({ track, onLikeChange }) {
     const { t } = useTranslation();
@@ -50,6 +51,12 @@ export default function TrackCard({ track, onLikeChange }) {
             // Update local state
             setIsLiked(!isLiked);
             setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+
+            if (isLiked) {
+                toast.warning('You unliked this track!'); // Success message for unlike
+            } else {
+                toast.success('You liked this track!'); // Success message for like
+            }
 
             // Notify parent component with the updated likes array
             if (onLikeChange) {
@@ -120,7 +127,7 @@ export default function TrackCard({ track, onLikeChange }) {
 
     return (
         <Link to={`/tracks/${track._id}`} 
-        className='flex flex-col bg-accentBlue drop-shadow-lg outline outline-12 outline-mainRed overflow-hidden hover:scale-105 transition-all ease-in-out duration-300
+        className='flex flex-col bg-accentBlue drop-shadow-lg outline outline-12 outline-mainRed hover:outline-mainYellow overflow-hidden hover:scale-105 transition-all ease-in-out duration-300
             h-[550px] w-[340px] rounded'>
           
             <div className='relative w-full h-[220px]'>

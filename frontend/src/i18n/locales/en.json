@@ -15,14 +15,45 @@
     "max": "Max",
     "availability": "Availability"
   },
+  "footer": {
+    "copyright": "© 2025 TrackXpert. All rights reserved.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
+  },
   "contact": {
     "title": "Created by"
   },
   "home": {
-    "title": "Start your track adventures!",
-    "subtitle": "Are you searching for a place to take your car for a ride?",
+    "title": "Where Tracks Come to Life",
+    "subtitle": "Discover, Create, and Compete Like Never Before",
     "description": "Explore our wide variety of tracks – choose the ones that match your style and adventurous spirit. Start your journey by exploring the tracks added by other users or contribute by adding new locations to our community!",
     "exploreButton": "EXPLORE TRACKS",
+    "features": {
+      "createTracks": {
+        "title": "Create Your Tracks",
+        "description": "Share your favorite driving spots with the community. Mark locations or draw detailed routes on the map."
+      },
+      "joinTracks": {
+        "title": "Join Track Sessions",
+        "description": "Connect with track owners and join exciting driving sessions. Experience new tracks with fellow enthusiasts."
+      },
+      "createEvents": {
+        "title": "Organize Events",
+        "description": "Create and host your own track days, competitions, or casual meetups. Bring the community together."
+      },
+      "joinEvents": {
+        "title": "Participate in Events",
+        "description": "Find and join exciting automotive events. From track days to championships, there's something for everyone."
+      },
+      "discover": {
+        "title": "Discover New Routes",
+        "description": "Explore a growing collection of tracks and routes. Find hidden gems and popular spots in your area."
+      },
+      "progress": {
+        "title": "Track Your Progress",
+        "description": "Keep track of your visited locations and participated events. Build your driving portfolio."
+      }
+    },
     "tutorialPlaceholder": "Probably a tutorial or something."
   },
   "navbar": {
@@ -96,6 +127,8 @@
     "tracksError": "Failed to fetch tracks",
     "searchCountry": "Search for a country",
     "countryNotFound": "No countries found",
+    "deleteSuccess": "Profile deleted successfully!",
+    "successEdit": "Profile updated successfully!",
     "validation": {
       "usernameRequired": "Username cannot be empty"
     }
@@ -166,9 +199,12 @@
         "fixErrors": "Please fix the errors before continuing.",
         "notAuthenticated": "You must be logged in to create a track.",
         "availabilityRequired": "Please add at least one availability slot",
+        "saveDrawing": "To save the drawing, please click the 'Save' icon on the map.",
         "geometryRequired": "Please either place a marker or draw a track on the map"
       },
       "success": "Track created successfully!",
+      "successEdit": "Track updated successfully!",
+      "successDelete": "Track deleted successfully!",
       "error": "Failed to create track. Please try again."
     }
   },

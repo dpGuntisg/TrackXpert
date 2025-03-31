@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { faTag } from '@fortawesome/free-solid-svg-icons';
+import { faTag, faFlagCheckered, faRoad, faCar } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const TagManager = ({ 
@@ -45,6 +45,20 @@ const TagManager = ({
       }
     }
     return null;
+  };
+
+  // Get icon for tag category
+  const getTagIcon = (category) => {
+    switch (category) {
+      case 'trackType':
+        return faFlagCheckered;
+      case 'roadType':
+        return faRoad;
+      case 'carType':
+        return faCar;
+      default:
+        return faTag;
+    }
   };
 
   const handleTagClick = (tag) => {
@@ -106,43 +120,20 @@ const TagManager = ({
           if (!tagInfo) return null;
 
           const isSelected = selectedTags.includes(tag);
-          const category = tagInfo.category;
           
-          // Determine color based on category
-          let colorClasses = "bg-gray-100 text-gray-700 hover:bg-gray-200";
-          if (isSelected) {
-            switch (category) {
-              case 'trackType':
-                colorClasses = "bg-blue-100 text-blue-700 hover:bg-blue-200";
-                break;
-              case 'roadType':
-                colorClasses = "bg-green-100 text-green-700 hover:bg-green-200";
-                break;
-              case 'carType':
-                colorClasses = "bg-purple-100 text-purple-700 hover:bg-purple-200";
-                break;
-              case 'eventType':
-                colorClasses = "bg-red-100 text-red-700 hover:bg-red-200";
-                break;
-              case 'specialFeatures':
-                colorClasses = "bg-yellow-100 text-yellow-700 hover:bg-yellow-200";
-                break;
-              case 'carRequirements':
-                colorClasses = "bg-indigo-100 text-indigo-700 hover:bg-indigo-200";
-                break;
-              default:
-                colorClasses = "bg-gray-100 text-gray-700 hover:bg-gray-200";
-                break;
-            }
-          }
-
           return (
             <button
               key={tag}
               onClick={() => handleTagClick(tag)}
-              className={`px-3 py-1 rounded-full text-sm font-medium transition-colors ${colorClasses}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 text-white text-sm font-medium 
+                        border ${isSelected ? 'border-mainRed' : 'border-gray-700'} 
+                        hover:border-mainRed transition-colors duration-200`}
             >
-              {tagInfo.label}
+              <FontAwesomeIcon 
+                icon={getTagIcon(tagInfo.category)} 
+                className={isSelected ? 'text-mainRed' : 'text-mainYellow'} 
+              />
+              <span>{tagInfo.label}</span>
             </button>
           );
         })}
