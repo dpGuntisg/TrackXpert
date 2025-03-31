@@ -97,6 +97,8 @@
     "tracksError": "Neizdevās iegūt trases",
     "searchCountry": "Meklēt valsti",
     "countryNotFound": "Valsts nav atrasta",
+    "deleteSuccess": "Profils veiksmīgi dzēsts!",
+    "successEdit": "Profils veiksmīgi rediģēts!",
     "validation": {
       "usernameRequired": "Lietotājvārds nevar būt tukšs"
     }
@@ -168,6 +170,7 @@
         "notAuthenticated": "Jums jābūt ielogotam, lai izveidotu trasi.",
         "availabilityRequired": "Lūdzu, pievienojiet vismaz vienu pieejamības laiku",
         "geometryRequired": "Lūdzu, novietojiet marķieri vai uzzīmējiet trasi uz kartes",
+        "saveDrawing": "Lai saglabātu zīmējumu, lūdzu, noklikšķiniet uz 'Saglabāt' ikonas kartē.",
         "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus"
       },
       "success": "Trase veiksmīgi izveidota!",

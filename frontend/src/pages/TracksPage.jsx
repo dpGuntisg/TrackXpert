@@ -247,6 +247,7 @@ export default function TracksPage() {
 
     const validateStep3 = () => {
         if (!coordinates && (!drawings.polyline || drawings.polyline.length < 2)) {
+            toast.info(t('tracks.form.validation.saveDrawing'));
             setError(t('tracks.form.validation.geometryRequired'));
             return false;
         }

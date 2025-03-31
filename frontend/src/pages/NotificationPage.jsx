@@ -37,20 +37,25 @@ export default function NotificationPage() {
     };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <h1 className="text-2xl font-bold text-mainYellow mb-6">{t('notifications.title')}</h1>
-            {error && (
-                <div className="text-red-500 mb-4">{error}</div>
-            )}
-            <div className="space-y-4">
-                {Array.isArray(notifications) && notifications.map((request) => (
-                    <TrackRequest 
-                        key={request._id} 
-                        request={request} 
-                        onStatusUpdate={updateRequestStatus}
-                        showActions={true}
-                    />
-                ))}
+        <div className="min-h-screen bg-mainBlue p-4 sm:p-8">
+            <div className="max-w-4xl mx-auto">
+                <h1 className="text-3xl font-bold text-mainYellow mb-8">{t('notifications.title')}</h1>
+                {error && (
+                    <div className="text-red-500 mb-6 p-4 bg-red-500/10 rounded-lg border border-red-500/20">
+                        {error}
+                    </div>
+                )}
+                <div className="space-y-4">
+                    {Array.isArray(notifications) && notifications.map((request) => (
+                        <TrackRequest 
+                            key={request._id} 
+                            request={request} 
+                            onStatusUpdate={updateRequestStatus}
+                            showActions={true}
+                            className="bg-accentBlue"
+                        />
+                    ))}
+                </div>
             </div>
         </div>
     );

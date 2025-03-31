@@ -7,7 +7,6 @@ import { faMapMarkerAlt, faPencilAlt, faRotateLeft, faTrash, faSave, faExpand, f
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
 import 'leaflet-geosearch/dist/geosearch.css';
 import './MapSelector.css';
-
 // Override default icon settings for leaflet markers
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({

@@ -1,7 +1,7 @@
 import React from "react";
 import Navbar from "./NavBar";
 import { Outlet } from "react-router-dom";
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, Slide } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function Layout() {
@@ -10,7 +10,7 @@ function Layout() {
             <Navbar />
             <Outlet />
             <ToastContainer
-                position="top-right"
+                position="top-center"
                 autoClose={3000}
                 hideProgressBar={false}
                 newestOnTop={false}
@@ -20,6 +20,7 @@ function Layout() {
                 draggable
                 pauseOnHover
                 theme="dark"
+                transition={Slide}
             />
         </div>
     );
