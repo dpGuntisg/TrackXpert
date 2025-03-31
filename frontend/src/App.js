@@ -13,7 +13,7 @@ import {
 
 function FeatureCard({ icon, title, description }) {
   return (
-    <div className="bg-gray-800/50 p-6 rounded-xl border border-gray-700 hover:border-mainYellow transition-all duration-300 hover:scale-105">
+    <div className="bg-accentBlue p-6 rounded-xl border border-accentGray hover:border-mainYellow transition-all duration-300 hover:scale-105">
       <div className="text-mainYellow text-3xl mb-4">
         <FontAwesomeIcon icon={icon} />
       </div>
@@ -60,15 +60,15 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-mainBlue">
+    <div className="min-h-screen bg-mainBlue p-10">
       {/* Hero Section */}
-      <div className="container mx-auto px-4 pt-40 pb-40">
+      <div className="container mx-auto px-4 pt-32 pb-36">
         <div className="text-center max-w-4xl mx-auto">
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 bg-gradient-to-r from-mainYellow to-mainRed bg-clip-text text-transparent">
-            Where Tracks Come to Life
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 bg-gradient-to-r from-mainYellow to-mainRed bg-clip-text text-transparent pb-4">
+            {t('home.title')}
           </h1>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-8 text-white">
-            Discover, Create, and Compete Like Never Before
+            {t('home.subtitle')}
           </h2>
           <p className="text-lg text-gray-300 mb-12 max-w-2xl mx-auto">
             {t('home.description')}
@@ -82,6 +82,8 @@ function App() {
           </Link>
         </div>
       </div>
+
+      <div className="border-t border-accentGray mb-20 w-8/12 mx-auto"> </div>
 
       {/* Features Grid */}
       <div className="container mx-auto px-4 pb-20">
