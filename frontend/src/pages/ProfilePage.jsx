@@ -9,6 +9,7 @@ import '../styles/PhoneInput.css';
 import TrackCard from '../components/TrackCard.jsx';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 
 export default function ProfilePage() {
     const { t } = useTranslation();
@@ -94,6 +95,7 @@ export default function ProfilePage() {
     const handleProfileDelete = async () => {
         try {
             await axiosInstance.delete("/users/delete");
+            toast.success(t('profile.deleteSuccess'));
             navigate("/signup");
         } catch (error) {
             console.error(t('profile.deleteError'), error);
@@ -141,6 +143,7 @@ export default function ProfilePage() {
                 phonenumber: updatedUser.phonenumber
             }));
 
+            toast.success(t('profile.successEdit'));
             setImage(null);
             setPreviewImage(null);
             setEditMode(false);

@@ -96,6 +96,7 @@
     "tracksError": "Failed to fetch tracks",
     "searchCountry": "Search for a country",
     "countryNotFound": "No countries found",
+    "deleteSuccess": "Profile deleted successfully!",
     "validation": {
       "usernameRequired": "Username cannot be empty"
     }
@@ -169,6 +170,8 @@
         "geometryRequired": "Please either place a marker or draw a track on the map"
       },
       "success": "Track created successfully!",
+      "successEdit": "Track updated successfully!",
+      "successDelete": "Track deleted successfully!",
       "error": "Failed to create track. Please try again."
     }
   },

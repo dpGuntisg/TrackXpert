@@ -171,6 +171,9 @@
         "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus"
       },
       "success": "Trase veiksmīgi izveidota!",
+      "successEdit": "Trase veiksmīgi rediģēta!",
+      "successDelete": "Trase veiksmīgi dzēsta!",
+      "deleteSuccess": "Profils veiksmīgi dzēsts!",
       "error": "Neizdevās izveidot trasi. Lūdzu, mēģiniet vēlreiz."
     }
   },

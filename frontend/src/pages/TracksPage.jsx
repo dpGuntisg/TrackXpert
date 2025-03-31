@@ -10,6 +10,7 @@ import { MapSelector } from '../components/MapSelector';
 import { useTranslation } from 'react-i18next';
 import SearchAndFilter from '../components/SearchAndFilter';
 import { useAuth } from '../context/AuthContext';
+import { toast } from 'react-toastify';
 
 // English day names for backend
 const ENGLISH_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -55,8 +56,6 @@ export default function TracksPage() {
     const [error, setError] = useState('');
     const [serverError, setServerError] = useState('');
     const [loading, setLoading] = useState(true);
-    const [success, setSuccess] = useState('');
-
     const [coordinates, setCoordinates] = useState(null);
     const [distance, setDistance] = useState(0);
     const [availability, setAvailability] = useState([]);
@@ -146,7 +145,6 @@ export default function TracksPage() {
     const toggleCreateForm = () => { 
         setShowCreateForm(!showCreateForm);
         setError(''); 
-        setSuccess('');
         // Reset form when opening
         if (!showCreateForm) {
             resetForm();
@@ -215,12 +213,6 @@ export default function TracksPage() {
             isValid = false;
         }
 
-        // Validate tags
-        if (!formValues.tags || formValues.tags.length === 0) {
-            errors.tags = t('tracks.form.validation.tagsRequired');
-            isValid = false;
-        } else {
-            // Check track type tags limit
             const trackTypeTags = formValues.tags.filter(tag => 
                 ['rally_stage', 'hill_climb', 'circuit', 'off_road', 'circuit_race'].includes(tag)
             );
@@ -234,7 +226,6 @@ export default function TracksPage() {
                 errors.tags = t('tracks.form.validation.tooManyTags');
                 isValid = false;
             }
-        }
 
         setFormErrors(errors);
         
@@ -302,7 +293,7 @@ export default function TracksPage() {
         
         try {
             await axiosInstance.post("/tracks/createtrack", trackData);
-            setSuccess(t('tracks.form.success'));
+            toast.success(t('tracks.form.success'));
             resetForm();
             setShowCreateForm(false);
             getTracks(currentPage);
@@ -310,6 +301,7 @@ export default function TracksPage() {
             const errorMessage = error.response?.data?.message || t('tracks.form.error');
             console.error('Track creation error:', errorMessage);
             setError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setLoading(false);
         }
@@ -438,16 +430,6 @@ export default function TracksPage() {
                                 <div className="flex items-center gap-2 text-red-500">
                                     <FontAwesomeIcon icon={faExclamationCircle} />
                                     <p className="text-sm font-medium">{error}</p>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Success message */}
-                        {success && (
-                            <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                                <div className="flex items-center gap-2 text-green-500">
-                                    <FontAwesomeIcon icon={faCheckCircle} />
-                                    <p className="text-sm font-medium">{success}</p>
                                 </div>
                             </div>
                         )}

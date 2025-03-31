@@ -12,7 +12,7 @@ import UserContact from "../components/UserContact.jsx";
 import { useTranslation } from 'react-i18next';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { useAuth } from '../context/AuthContext';
-
+import { toast } from 'react-toastify';
 
 // Map component with React.memo to prevent unnecessary re-renders
 const TrackMap = React.memo(({ coordinates, polyline }) => {
@@ -283,6 +283,7 @@ export default function TrackDetailPage() {
             );
     
             setEditMode(false);
+            toast.success(t('tracks.form.successEdit'));
             setStep(1);
             getTrack();
         } catch (error) {
@@ -294,6 +295,7 @@ export default function TrackDetailPage() {
     const handleDelete = useCallback(async () => {
         try {
             await axiosInstance.delete(`/tracks/${trackId}`);
+            toast.success(t('tracks.form.successDelete'));
             navigate("/tracks");
         } catch (error) {
             console.error("Error deleting track:", error);
