@@ -15,6 +15,11 @@
     "max": "Max",
     "availability": "Availability"
   },
+  "footer": {
+    "copyright": "© 2025 TrackXpert. All rights reserved.",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy"
+  },
   "contact": {
     "title": "Created by"
   },
