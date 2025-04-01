@@ -645,70 +645,77 @@ export default function TrackDetailPage() {
 
                 {/* Edit Modal */}
                 {editMode && (
-                    <div className="fixed z-50 inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4">
-                        <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 shadow-2xl border border-gray-700">
-                            <div className="flex justify-between items-center">
-                                <h3 className="text-2xl font-bold">{t('tracks.editTrack')} <span className="text-mainYellow">({step}/4)</span></h3>
-                                <button 
-                                    type="button" 
-                                    onClick={resetEditState} 
-                                    className="text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors"
-                                >
-                                    <FontAwesomeIcon icon={faTimes} />
-                                </button>
-                            </div>
-
-                            {error && (
-                                <div className="bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
-                                    <p>{error}</p>
+                    <div className="fixed z-50 inset-0 bg-black bg-opacity-70 flex items-center justify-center overflow-y-auto p-4">
+                        <div className="relative bg-mainBlue rounded-xl w-full max-w-xl my-8">
+                            {/* Header - Fixed at top */}
+                            <div className="sticky top-0 bg-mainBlue p-6 rounded-t-xl border-b border-gray-700 z-10">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="text-2xl font-bold">{t('tracks.editTrack')} <span className="text-mainYellow">({step}/4)</span></h3>
+                                    <button 
+                                        type="button" 
+                                        onClick={resetEditState} 
+                                        className="text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors"
+                                    >
+                                        <FontAwesomeIcon icon={faTimes} />
+                                    </button>
                                 </div>
-                            )}
+
+                                {error && (
+                                    <div className="mt-4 bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
+                                        <p>{error}</p>
+                                    </div>
+                                )}
+                            </div>
 
                             {/* Step Content */}
-                            <div className=" p-4 rounded-lg">
-                                {renderEditStep()}
+                            <div className="p-6 max-h-[calc(100vh-16rem)] overflow-y-auto">
+                                <div className="space-y-6">
+                                    {renderEditStep()}
+                                </div>
                             </div>
 
-                            {/* Navigation Controls */}
-                            <div className="flex justify-between space-x-3 pt-4">
-                                <button
-                                    type="button"
-                                    onClick={() => handleStepNavigation('prev')}
-                                    disabled={step === 1}
-                                    className={`px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
-                                        step === 1 
-                                            ? 'bg-gray-700 cursor-not-allowed' 
-                                            : 'bg-gray-600 hover:bg-gray-700'
-                                    }`}
-                                >
-                                    <FontAwesomeIcon icon={faArrowLeft} />
-                                    {t('tracks.back')}
-                                </button>
-                                <div className="flex-grow"></div>
-                                {step < 4 ? (
+                            {/* Footer - Fixed at bottom */}
+                            <div className="sticky bottom-0 bg-mainBlue p-6 rounded-b-xl border-t border-gray-700">
+                                <div className="flex justify-between space-x-3">
                                     <button
                                         type="button"
-                                        onClick={() => handleStepNavigation('next')}
-                                        className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
+                                        onClick={() => handleStepNavigation('prev')}
+                                        disabled={step === 1}
+                                        className={`px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
+                                            step === 1 
+                                                ? 'bg-gray-700 cursor-not-allowed' 
+                                                : 'bg-gray-600 hover:bg-gray-700'
+                                        }`}
                                     >
-                                        {t('tracks.next')}
+                                        <FontAwesomeIcon icon={faArrowLeft} />
+                                        {t('tracks.back')}
                                     </button>
-                                ) : (
+                                    <div className="flex-grow"></div>
+                                    {step < 4 ? (
+                                        <button
+                                            type="button"
+                                            onClick={() => handleStepNavigation('next')}
+                                            className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
+                                        >
+                                            {t('tracks.next')}
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={handleEdit}
+                                            className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
+                                        >
+                                            {t('tracks.saveChanges')}
+                                        </button>
+                                    )}
                                     <button
                                         type="button"
-                                        onClick={handleEdit}
-                                        className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors"
+                                        onClick={resetEditState}
+                                        className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
                                     >
-                                        {t('tracks.saveChanges')}
+                                        {t('tracks.cancel')}
                                     </button>
-                                )}
-                                <button
-                                    type="button"
-                                    onClick={resetEditState}
-                                    className="bg-mainRed hover:bg-red-700 px-6 py-2 rounded-lg font-medium transition-colors"
-                                >
-                                    {t('tracks.cancel')}
-                                </button>
+                                </div>
                             </div>
                         </div>
                     </div>

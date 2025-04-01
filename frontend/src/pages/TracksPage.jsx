@@ -409,66 +409,74 @@ export default function TracksPage() {
             )}
 
             {showCreateForm && (
-                <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto">
-                    <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 my-8">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-2xl font-bold">{t('tracks.createTrack')} ({step}/4)</h3>
-                            <button
-                                onClick={() => {
-                                    setShowCreateForm(false);
-                                    resetForm();
-                                }}
-                                className="text-gray-300 hover:text-white"
-                                aria-label={t('tracks.cancel')}
-                            >
-                                <FontAwesomeIcon icon={faTimes} className="text-xl" />
-                            </button>
+                <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center overflow-y-auto p-4">
+                    <div className="relative bg-mainBlue rounded-xl w-full max-w-xl my-8">
+                        {/* Header - Fixed at top */}
+                        <div className="sticky top-0 bg-mainBlue p-6 rounded-t-xl border-b border-gray-700 z-10">
+                            <div className="flex justify-between items-center">
+                                <h3 className="text-2xl font-bold">{t('tracks.createTrack')} <span className="text-mainYellow">({step}/4)</span></h3>
+                                <button
+                                    onClick={() => {
+                                        setShowCreateForm(false);
+                                        resetForm();
+                                    }}
+                                    className="text-gray-300 hover:text-white bg-gray-700 hover:bg-gray-600 p-2 rounded-full transition-colors"
+                                    aria-label={t('tracks.cancel')}
+                                >
+                                    <FontAwesomeIcon icon={faTimes} className="text-xl" />
+                                </button>
+                            </div>
+
+                            {/* Global error message */}
+                            {error && (
+                                <div className="mt-4 bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
+                                    <div className="flex items-center gap-2 text-red-500">
+                                        <FontAwesomeIcon icon={faExclamationCircle} />
+                                        <p className="text-sm font-medium">{error}</p>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
-                        {/* Global error message */}
-                        {error && (
-                            <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-                                <div className="flex items-center gap-2 text-red-500">
-                                    <FontAwesomeIcon icon={faExclamationCircle} />
-                                    <p className="text-sm font-medium">{error}</p>
-                                </div>
+                        {/* Step Content */}
+                        <div className="p-6 max-h-[calc(100vh-16rem)] overflow-y-auto">
+                            <div className="space-y-6">
+                                {step === 1 ? (
+                                    <TrackForm 
+                                        values={formValues}
+                                        setValues={setFormValues}
+                                        errors={formErrors}
+                                        touched={formTouched}
+                                    />
+                                ) : step === 2 ? (
+                                    <AvailabilityForm 
+                                        availability={availability}
+                                        setAvailability={setAvailability}
+                                        error={error}
+                                        setError={setError}
+                                    />
+                                ) : step === 3 ? (
+                                    <>
+                                        <div className="h-96 w-full rounded-lg overflow-hidden">
+                                            <MapSelector 
+                                                position={coordinates}
+                                                onPositionChange={setCoordinates}
+                                                onDrawingsChange={handleDrawingsChange}
+                                            />
+                                        </div>
+                                        <p className="text-sm text-gray-400">
+                                            {t('tracks.form.mapInstructions')}
+                                        </p>
+                                    </>
+                                ) : (
+                                    <JoiningRequestForm values={formValues} setValues={setFormValues} />
+                                )}
                             </div>
-                        )}
+                        </div>
 
-                        <div className="space-y-4">
-                            {step === 1 ? (
-                                <TrackForm 
-                                    values={formValues}
-                                    setValues={setFormValues}
-                                    errors={formErrors}
-                                    touched={formTouched}
-                                />
-                            ) : step === 2 ? (
-                                <AvailabilityForm 
-                                    availability={availability}
-                                    setAvailability={setAvailability}
-                                    error={error}
-                                    setError={setError}
-                                />
-                            ) : step === 3 ? (
-                                <>
-                                    <div className="h-96 w-full rounded-lg overflow-hidden">
-                                        <MapSelector 
-                                            position={coordinates}
-                                            onPositionChange={setCoordinates}
-                                            onDrawingsChange={handleDrawingsChange}
-                                        />
-                                    </div>
-                                    <p className="text-sm text-gray-400">
-                                        {t('tracks.form.mapInstructions')}
-                                    </p>
-                                </>
-                            ) : (
-                                <JoiningRequestForm values={formValues} setValues={setFormValues} />
-                            )}
-
-                            {/* Navigation Buttons */}
-                            <div className="flex justify-between space-x-3 pt-4">
+                        {/* Footer - Fixed at bottom */}
+                        <div className="sticky bottom-0 bg-mainBlue p-6 rounded-b-xl border-t border-gray-700">
+                            <div className="flex justify-between space-x-3">
                                 {step > 1 && (
                                     <button
                                         type="button"
