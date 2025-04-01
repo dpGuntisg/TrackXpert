@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faTimes, faPlus } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import TagManager from './TagManager';
+import LocationSelector from './LocationSelector';
 
 export const TrackForm = ({ 
   values, 
@@ -138,20 +139,12 @@ export const TrackForm = ({
 
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-1">{t('tracks.form.location')}</label>
-        <input
-          type="text"
-          placeholder={t('tracks.form.enterLocation')}
-          value={values.location || ''}
-          onChange={(e) => handleInputChange('location', e.target.value)}
-          className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
-            ${errors.location && touched.location ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}
+        <LocationSelector
+          value={values.location}
+          onChange={(value) => handleInputChange('location', value)}
+          error={errors.location}
+          touched={touched.location}
         />
-        {errors.location && touched.location && (
-          <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
-            <FontAwesomeIcon icon={faExclamationCircle} className="text-sm" />
-            {errors.location}
-          </p>
-        )}
       </div>
 
       <div>

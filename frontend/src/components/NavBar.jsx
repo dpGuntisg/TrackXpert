@@ -156,7 +156,8 @@ const Navbar = () => {
                     </div>
                   )}
                 </div>
-                
+
+                <LanguageSwitcher />
 
                 {/* Sign Out */}
                 <button 
