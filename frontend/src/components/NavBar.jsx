@@ -79,9 +79,9 @@ const Navbar = () => {
   };
 
   const navLinkClass = ({ isActive }) =>
-    `relative hover:bg-mainRed text-left rounded transition-all duration-50
+    `relative hover:bg-mainRed text-left rounded transition-all duration-50 font-bold
      sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent sm:justify-center flex items-center gap-2
-     ${isActive ? "text-mainRed font-bold " : ""}`;
+     ${isActive ? "text-mainRed" : ""}`;
 
   return (
     <nav className="sticky top-0 z-50 bg-accentBlue border-b border-accentGray">
@@ -124,8 +124,7 @@ const Navbar = () => {
                 <div className="relative" ref={notificationsRef}>
                   <button
                     onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                    className="relative p-2 text-mainYellow hover:text-mainRed transition-colors"
-                  >
+                    className="relative p-2 text-mainYellow hover:text-mainRed transition-colors">
                     <FontAwesomeIcon icon={faBell} className="text-xl" />
                     {notifications.filter(request => request.status === 'pending').length > 0 && (
                       <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 bg-mainRed text-white text-xs font-bold rounded-full">
@@ -163,8 +162,7 @@ const Navbar = () => {
                 <button 
                   onClick={handleSignOut} 
                   className="relative w-auto text-center overflow-hidden text-mainRed hover:bg-mainRed rounded transition-all duration-500
-                            sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap flex items-center gap-2"
-                >
+                            sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap flex items-center gap-2 font-bold">
                   <FontAwesomeIcon icon={faSignOutAlt} />
                   <span className="hidden md:inline">{t('navbar.signout')}</span>
                 </button>
@@ -172,11 +170,11 @@ const Navbar = () => {
             ) : (
               <>
                 <NavLink to="/signin" className="relative w-auto text-center overflow-hidden text-mainRed hover:bg-mainRed rounded transition-all duration-500
-                                               sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap">
+                                               sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap font-bold">
                   {t('navbar.signin')}
                 </NavLink>
                 <NavLink to="/signup" className="relative w-auto text-center overflow-hidden hover:bg-mainRed rounded transition-all duration-500
-                                               sm:px-6 sm:py-2 sm:rounded sm:hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap">
+                                               sm:px-6 sm:py-2 sm:rounded sm:hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap font-bold">
                   {t('navbar.signup')}
                 </NavLink>
               </>
@@ -186,8 +184,7 @@ const Navbar = () => {
             {/* Mobile menu button */}
             <button 
               onClick={toggleNavbar} 
-              className="md:hidden p-2 text-mainRed hover:text-mainYellow transition-colors"
-            >
+              className="md:hidden p-2 text-mainRed hover:text-mainYellow transition-colors">
               <FontAwesomeIcon icon={faBars} className="text-xl" />
             </button>
           </div>

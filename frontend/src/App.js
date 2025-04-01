@@ -60,7 +60,7 @@ function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-mainBlue p-10">
+    <div className="min-h-screen bg-mainBlue sm:p-10">
       {/* Hero Section */}
       <div className="container mx-auto px-4 pt-32 pb-36">
         <div className="text-center max-w-4xl mx-auto">

@@ -65,11 +65,11 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="flex flex-row h-screen overflow-hidden">
+    <div className="flex flex-col h-screen overflow-hidden md:flex-row">
       {/* Left side with logo and animation */}
-      <div className="flex flex-col w-1/2 justify-center">
+      <div className="flex flex-col w-full md:w-1/2 justify-center">
         <h1 className="text-7xl font-black italic text-mainRed">TrackXpert</h1>
-        <div className="relative w-3/4 h-full">
+        <div className="hidden md:block md:relative w-3/4 h-full">
           <svg
             viewBox="0 0 400 100"
             className="w-full h-full"
@@ -100,7 +100,7 @@ export default function SignUpPage() {
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center w-1/2 h-screen">
+      <div className="flex flex-col items-center justify-center w-full md:w-1/2 h-screen">
         <div className="w-96 max-w-[90%]">
           <h1 className="text-3xl font-bold mb-8 text-center">{t('auth.createAccount')}</h1>
           
