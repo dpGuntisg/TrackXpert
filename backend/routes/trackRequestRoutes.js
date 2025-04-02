@@ -4,6 +4,7 @@ import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
+// Create a join request
 router.post("/create-request", verifyToken, async (req, res) => {
     try {
         const { trackId, content } = req.body;
@@ -14,6 +15,17 @@ router.post("/create-request", verifyToken, async (req, res) => {
     }
 });
 
+// Get notifications (pending requests where user is receiver)
+router.get("/notifications", verifyToken, async (req, res) => {
+    try {
+        const notifications = await TrackRequestService.getNotifications(req.userId);
+        res.status(200).json(notifications);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Get all requests (both sent and received)
 router.get("/requests", verifyToken, async (req, res) => {
     try {
         const requests = await TrackRequestService.getTrackRequests(req.userId);
@@ -23,6 +35,27 @@ router.get("/requests", verifyToken, async (req, res) => {
     }
 });
 
+// Get only sent requests
+router.get("/sent-requests", verifyToken, async (req, res) => {
+    try {
+        const requests = await TrackRequestService.getSentRequests(req.userId);
+        res.status(200).json(requests);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Get only received requests
+router.get("/received-requests", verifyToken, async (req, res) => {
+    try {
+        const requests = await TrackRequestService.getReceivedRequests(req.userId);
+        res.status(200).json(requests);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Update request status
 router.put("/update-request/:requestId", verifyToken, async (req, res) => {
     try {
         const { status } = req.body;

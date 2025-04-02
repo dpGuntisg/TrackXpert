@@ -9,7 +9,7 @@ function EventPage() {
     const { t } = useTranslation();
     const { userId } = useAuth();
     return (
-        <div className='p-5 sm:p-10 bg-mainBlue'>
+        <div className='p-5 sm:p-10 bg-mainBlue min-h-screen'>
             <div className="flex items-center justify-between mb-10">
                 <SearchAndFilter/>
                 <div className="absolute left-1/2 transform -translate-x-1/2 text-center">

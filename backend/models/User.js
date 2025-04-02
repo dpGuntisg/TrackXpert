@@ -9,9 +9,7 @@ const UserSchema = new Schema({
   username: { type: String, unique: true },
   email: { type: String, required: true, unique: true, match: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/ },
   password: { type: String, required: true, match: /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/ },
-  date: { type: Date, default: Date.now },
-  sentRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TrackRequest' }],
-  receivedRequests: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TrackRequest' }]
+  date: { type: Date, default: Date.now }
 });
 
 UserSchema.pre("save", async function (next) {

@@ -180,7 +180,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className='sm:p-10'>
+        <div className='sm:p-10 min-h-screen'>
             {profile ? (
                 <div className='bg-accentBlue rounded-lg p-6 shadow-lg'>
                     <div className="flex justify-end">

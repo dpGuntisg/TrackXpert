@@ -57,7 +57,7 @@ const Navbar = () => {
 
   const getNotifications = async () => {
     try {
-      const response = await axiosInstance.get("/track-requests/requests");
+      const response = await axiosInstance.get("/track-requests/notifications");
       setNotifications(response.data);
     } catch (error) {
       console.error("Error fetching notifications:", error);

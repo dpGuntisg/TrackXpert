@@ -187,7 +187,7 @@ class TrackService {
         const track = await Track.findById(trackId);
         if (!track) throw new Error("Track not found");
         if (track.created_by.toString() !== userId) throw new Error("Unauthorized");
-        
+        await Image.deleteMany({ _id: { $in: track.images } });
         await Track.findByIdAndDelete(trackId);
         return { message: "Track deleted successfully" };
     }
@@ -198,9 +198,8 @@ class TrackService {
         const tracks = await Track.find({ created_by: userId })
         .populate("created_by", "username email phonenumber")
         .populate("images", "data mimeType");
-        if (!tracks.length) throw new Error("No tracks found for this user");
         
-        return tracks;
+        return tracks || [];
     }
 
     static async likeTrack(trackId, userId) {

@@ -113,7 +113,7 @@ class UserService {
             if (updates.hasOwnProperty(key) && allowedUpdates.includes(key)) {
                 if (key === 'phonenumber') {
                     if (updates.phonenumber === null) {
-                        user[key] = null;
+                        user[key] = undefined;
                     } else {
                         if (!/^\+?[0-9]{7,15}$/.test(updates.phonenumber)) {
                             throw new Error("Invalid phone number format");
