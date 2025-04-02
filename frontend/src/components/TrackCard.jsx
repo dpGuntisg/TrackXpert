@@ -133,7 +133,7 @@ export default function TrackCard({ track, onLikeChange }) {
             <div className='relative w-full h-[220px]'>
                 <img src={firstImage} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
                 <div className="absolute bottom-4 left-4 space-y-2 bg-gray-800 bg-opacity-50 p-2">
-                    <div className='flex items-center space-x-2'>
+                    <div className='flex items-center space-x-2 max-w-72'>
                         <FontAwesomeIcon icon={faLocationDot} color='white' />
                         <p className='font-bold text-sm text-gray-300'>{track.location}</p>
                     </div>

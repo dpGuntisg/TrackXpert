@@ -208,7 +208,7 @@
         "descriptionTooShort": "Trases aprakstam jābūt vismaz 10 rakstzīmes garam.",
         "descriptionTooLong": "Trases apraksts ir pārāk garš (maksimums 15000 rakstzīmes).",
         "locationTooShort": "Trases vietai jābūt vismaz 5 rakstzīmes garai.",
-        "locationTooLong": "Trases vieta ir pārāk gara (maksimums 50 rakstzīmes).",
+        "locationTooLong": "Trases vieta ir pārāk gara (maksimums 100 rakstzīmes).",
         "imageRequired": "Nepieciešams vismaz viens trases attēls.",
         "fixErrors": "Lūdzu, izlabojiet kļūdas pirms turpināt.",
         "notAuthenticated": "Jums jābūt ielogotam, lai izveidotu trasi.",

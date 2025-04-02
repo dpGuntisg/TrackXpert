@@ -203,7 +203,7 @@ export default function TracksPage() {
         if (!formValues.location || formValues.location.length < 5) {
             errors.location = t('tracks.form.validation.locationTooShort');
             isValid = false;
-        } else if (formValues.location.length > 50) {
+        } else if (formValues.location.length > 100) {
             errors.location = t('tracks.form.validation.locationTooLong');
             isValid = false;
         }

@@ -203,7 +203,7 @@
         "descriptionTooShort": "Track description must be at least 10 characters long.",
         "descriptionTooLong": "Track description is too long (maximum 15000 characters).",
         "locationTooShort": "Track location must be at least 5 characters long.",
-        "locationTooLong": "Track location is too long (maximum 50 characters).",
+        "locationTooLong": "Track location is too long (maximum 100 characters).",
         "imageRequired": "At least one track image is required.",
         "tagsRequired": "At least one tag is required.",
         "tooManyTrackTypeTags": "You can only select up to 2 track type tags.",
