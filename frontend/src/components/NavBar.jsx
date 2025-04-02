@@ -133,7 +133,7 @@ const Navbar = () => {
                     )}
                   </button>
                   {isNotificationsOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-80 rounded-lg bg-accentBlue shadow-lg z-10 border border-accentGray">
+  <                 div className="absolute min-w-80 left-1/2 transform -translate-x-1/2 sm:right-0 top-full mt-2 w-full sm:w-96 sm:max-w-none rounded-lg bg-accentBlue shadow-lg z-10 border border-accentGray">
                       <div className="p-4">
                         <h3 className="text-lg font-semibold text-mainYellow mb-4">{t('notifications.title')}</h3>
                         {notifications.filter(request => request.status === 'pending').length === 0 ? (
@@ -145,7 +145,9 @@ const Navbar = () => {
                             {notifications
                               .filter(request => request.status === 'pending')
                               .map((request) => (
-                                <TrackRequest key={request._id} request={request} />
+                                <TrackRequest key={request._id} request={request} action={t('notifications.wantsToJoin')}
+                                 className=""
+                                 />
                               ))}
                           </div>
                         )}

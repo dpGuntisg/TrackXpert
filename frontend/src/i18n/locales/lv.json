@@ -13,7 +13,8 @@
     "length": "Garums",
     "min": "Min",
     "max": "Max",
-    "availability": "Pieejamība"
+    "availability": "Pieejamība",
+    "you": "Jūs"
   },
   "contact": {
     "title": "Izveidoja"
@@ -309,5 +310,14 @@
   "event": {
     "title": "Izpēti Pasākumus",
     "createEvent": "Izveidot Pasākumu"
+  },
+  "notifications": {
+    "title": "Paziņojumi",
+    "noNotifications": "Nav jauni paziņojumi",
+    "markAllRead": "Atzīmēt visus kā lasītus.",
+    "viewAll": "Apskatīt visus paziņojumus",
+    "sentRequests": "Sūtītie ziņojumi.",
+    "wantsToJoin": "vēlās pievienoties uz braucienu trasē:",
+    "youHaveSent": "esat nosūtijis pieprasījumu:"
   }
 } 

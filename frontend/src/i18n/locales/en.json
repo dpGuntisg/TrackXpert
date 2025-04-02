@@ -13,7 +13,8 @@
     "length": "Length",
     "min": "Min",
     "max": "Max",
-    "availability": "Availability"
+    "availability": "Availability",
+    "you": "You"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
@@ -318,6 +319,9 @@
     "title": "Notifications",
     "noNotifications": "No new notifications",
     "markAllRead": "Mark all as read",
-    "viewAll": "View all notifications"
+    "viewAll": "View all notifications",
+    "sentRequests": "Sent requests.",
+    "wantsToJoin": "wants to join your track:",
+    "youHaveSent": "You have sent a request"
   }
 } 

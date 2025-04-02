@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPaperPlane, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import axiosInstance from "../utils/axios";
 import { useTranslation } from 'react-i18next';
 import TrackRequest from "../components/TrackRequest";
+import { useAuth } from "../context/AuthContext";
 
 export default function NotificationPage() {
     const { t } = useTranslation();
+    const { user } = useAuth();
     const [notifications, setNotifications] = useState([]);
     const [sentRequests, setSentRequests] = useState([]);
     const [error, setError] = useState(null);
@@ -56,29 +60,25 @@ export default function NotificationPage() {
 
     return (
         <div className="min-h-screen bg-mainBlue p-4 sm:p-8">
-            <div className="max-w-4xl mx-auto">
+            <div className="">
                 <h1 className="text-3xl font-bold text-mainYellow mb-8">{t('notifications.title')}</h1>
                 
                 {/* Tabs */}
                 <div className="flex space-x-4 mb-6">
                     <button
                         onClick={() => setActiveTab('notifications')}
-                        className={`px-4 py-2 rounded-md transition-colors ${
-                            activeTab === 'notifications'
-                                ? 'bg-mainYellow text-mainBlue'
-                                : 'text-gray-400 hover:text-mainYellow'
-                        }`}
+                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'notifications'
+                            ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                     >
-                        {t('notifications.notifications')} ({notifications.length})
+                        <FontAwesomeIcon icon={faEnvelope} className="mr-2"/>
+                        {t('notifications.title')} ({notifications.length})
                     </button>
                     <button
                         onClick={() => setActiveTab('sent')}
-                        className={`px-4 py-2 rounded-md transition-colors ${
-                            activeTab === 'sent'
-                                ? 'bg-mainYellow text-mainBlue'
-                                : 'text-gray-400 hover:text-mainYellow'
-                        }`}
+                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'sent'
+                            ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                     >
+                        <FontAwesomeIcon icon={faPaperPlane} className="mr-2"/>
                         {t('notifications.sentRequests')} ({sentRequests.length})
                     </button>
                 </div>
@@ -103,6 +103,7 @@ export default function NotificationPage() {
                                     onStatusUpdate={updateRequestStatus}
                                     showActions={true}
                                     className="bg-accentBlue"
+                                    action={t('notifications.wantsToJoin')}
                                 />
                             ))}
                         </div>
@@ -121,6 +122,7 @@ export default function NotificationPage() {
                                     onStatusUpdate={updateRequestStatus}
                                     showActions={false}
                                     className="bg-accentBlue"
+                                    isSentByCurrentUser={request.sender?.id === user?.id}
                                 />
                             ))}
                         </div>
