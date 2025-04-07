@@ -591,14 +591,14 @@ export default function TrackDetailPage() {
                         <>
                         <button className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl" 
                             onClick={openRegisterForm}>
-                            {t('tracks.openRequestForm')}
+                            {t('tracks.form.bookSession')}
                         </button>
                         {registerForm && (
                             <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto" onClick={openRegisterForm}>
                                 <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 my-8" onClick={(e) => e.stopPropagation()}>
                                     <error>{error}</error>
                                     <div className="flex justify-between items-center">
-                                        <h3>Request form or something</h3>
+                                        <h3 className="font-bold text-xl">{t('tracks.form.requestFormTitle')}</h3>
                                         <p className="cursor-pointer font-bold text-gray-300 hover:text-white" onClick={openRegisterForm}>X</p>
                                     </div>
                                     <p className="text-gray-300">{track.joining_requirements}</p>

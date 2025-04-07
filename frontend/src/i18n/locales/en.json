@@ -145,7 +145,6 @@
     "editTrack": "Edit Track",
     "deleteTrack": "Delete Track",
     "viewDetails": "View Details",
-    "openRequestForm": "Book a track session",
     "loading": "Loading tracks...",
     "error": "Something went wrong",
     "tryAgain": "Try Again",
@@ -197,6 +196,8 @@
       "joiningRequirements": "Joining Requirements",
       "joiningRequirementsPlaceholder": "Specify any requirements for users who want to join your track (e.g., car specifications, experience level, etc.)",
       "joiningRequirementsHelp": "All users will still be able to contact you via the provided contact information.",
+      "requestFormTitle": "Track Participation Request",
+      "bookSession":"Rezervēt dalību trasē",
       "validation": {
         "nameTooShort": "Track name must be at least 5 characters long.",
         "nameTooLong": "Track name is too long (maximum 100 characters).",

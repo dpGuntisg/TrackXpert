@@ -6,6 +6,7 @@ const TrackRequestSchema = new mongoose.Schema({
     track: { type: mongoose.Schema.Types.ObjectId, ref: "Track", required: true },
     content: { type: String },
     status: { type: String, enum: ["pending", "accepted", "rejected"], default: "pending" },
+    read: { type: Boolean, default: false},
     createdAt: { type: Date, default: Date.now }
   });
 

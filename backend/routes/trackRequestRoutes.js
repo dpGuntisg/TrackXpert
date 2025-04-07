@@ -18,7 +18,7 @@ router.post("/create-request", verifyToken, async (req, res) => {
 // Get notifications (pending requests where user is receiver)
 router.get("/notifications", verifyToken, async (req, res) => {
     try {
-        const notifications = await TrackRequestService.getNotifications(req.userId);
+        const notifications = await TrackRequestService.getPendingNotifications(req.userId);
         res.status(200).json(notifications);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -60,7 +60,7 @@ router.put("/update-request/:requestId", verifyToken, async (req, res) => {
     try {
         const { status } = req.body;
         await TrackRequestService.updateRequestStatus(req.params.requestId, status);
-        const requests = await TrackRequestService.getTrackRequests(req.userId);
+        const requests = await TrackRequestService.getAllUserTrackRequests(req.userId);
         res.status(200).json(requests);
     } catch (error) {
         res.status(500).json({ message: error.message });

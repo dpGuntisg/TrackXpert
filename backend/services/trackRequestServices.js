@@ -3,22 +3,17 @@ import Track from "../models/Track.js";
 
 class TrackRequestService {
     static async createJoinRequest(userId, trackId, content) {
-        // Find the track and ensure it exists
-        const track = await Track.findById(trackId).populate('created_by', '_id');
-        if (!track) {
-            throw new Error("Track not found");
-        }
+        const track = await Track.findById(trackId).populate("created_by", "_id");
+        if (!track) throw new Error("Track not found");
 
         if (!track.joining_enabled) {
             throw new Error("This track does not accept joining requests");
         }
 
-        // Check if user is trying to join their own track
         if (track.created_by._id.toString() === userId) {
             throw new Error("Cannot send join request to your own track");
         }
 
-        // Check for existing pending request
         const existingRequest = await TrackRequest.findOne({
             sender: userId,
             track: trackId,
@@ -29,68 +24,55 @@ class TrackRequestService {
             throw new Error("A pending request already exists for this track");
         }
 
-        // Create the request
-        const request = await TrackRequest.create({
+        return await TrackRequest.create({
             sender: userId,
             receiver: track.created_by._id,
             track: trackId,
-            content: content || '',
+            content: content || "",
             status: "pending"
         });
-
-        return request;
     }
 
-    static async getTrackRequests(userId) {
-        // Get all requests where the user is either sender or receiver
-        const requests = await TrackRequest.find({
-            $or: [
-                { sender: userId },
-                { receiver: userId }
-            ]
+    static async getAllUserTrackRequests(userId) {
+        return await TrackRequest.find({
+            $or: [{ sender: userId }, { receiver: userId }]
         })
         .populate({
-            path: 'sender',
-            select: 'username profile_image',
+            path: "sender",
+            select: "username profile_image",
             populate: {
-                path: 'profile_image',
-                select: 'data mimeType'
+                path: "profile_image",
+                select: "data mimeType"
             }
         })
-        .populate('track', 'name')
+        .populate("track", "name")
         .sort({ createdAt: -1 });
-
-        return requests;
     }
 
-    static async getNotifications(userId) {
-        // Get only pending requests where the user is the receiver (track owner)
-        const notifications = await TrackRequest.find({
+    static async getPendingNotifications(userId) {
+        return await TrackRequest.find({
             receiver: userId,
             status: "pending"
         })
         .populate({
-            path: 'sender',
-            select: 'username profile_image',
+            path: "sender",
+            select: "username profile_image",
             populate: {
-                path: 'profile_image',
-                select: 'data mimeType'
+                path: "profile_image",
+                select: "data mimeType"
             }
         })
-        .populate('track', 'name')
+        .populate("track", "name")
         .sort({ createdAt: -1 });
-
-        return notifications;
     }
 
     static async updateRequestStatus(requestId, status) {
-        const request = await TrackRequest.findById(requestId);
-        if (!request) {
-            throw new Error("Request not found");
-        }
         if (!["pending", "accepted", "rejected"].includes(status)) {
             throw new Error("Invalid status");
         }
+
+        const request = await TrackRequest.findById(requestId);
+        if (!request) throw new Error("Request not found");
 
         request.status = status;
         await request.save();
@@ -100,15 +82,25 @@ class TrackRequestService {
 
     static async getSentRequests(userId) {
         return await TrackRequest.find({ sender: userId })
-            .populate('track', 'name')
+            .populate("track", "name")
             .sort({ createdAt: -1 });
     }
 
     static async getReceivedRequests(userId) {
         return await TrackRequest.find({ receiver: userId })
-            .populate('track', 'name')
-            .populate('sender', 'username profile_image')
+            .populate("track", "name")
+            .populate("sender", "username profile_image")
             .sort({ createdAt: -1 });
+    }
+
+    static async markRequestAsRead(requestId) {
+        const request = await TrackRequest.findById(requestId);
+        if (!request) throw new Error("Request not found");
+
+        request.read = true;
+        await request.save();
+
+        return request;
     }
 }
 

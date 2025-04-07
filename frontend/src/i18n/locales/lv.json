@@ -190,6 +190,8 @@
       "joiningRequirements": "Pievienošanās Prasības",
       "joiningRequirementsPlaceholder": "Norādiet prasības lietotājiem, kuri vēlas pievienoties jūsu trasei (piem., auto specifikācijas, pieredzes līmenis utt.)",
       "joiningRequirementsHelp": "Visi lietotāji joprojām varēs sazināties ar jums, izmantojot norādīto kontaktinformāciju.",
+      "requestFormTitle": "Pieteikums dalībai trasē",
+      "bookSession":"Rezervēt dalību trasē",
       "country": "Valsts",
       "selectCountry": "Izvēlieties valsti",
       "region": "Reģions/Novads",
