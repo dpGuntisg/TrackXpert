@@ -311,7 +311,12 @@
   },
   "event": {
     "title": "Izpēti Pasākumus",
-    "createEvent": "Izveidot Pasākumu"
+    "createEvent": "Izveidot Pasākumu",
+    "form":{
+      "validation":{
+        "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus"
+      }
+    }
   },
   "notifications": {
     "title": "Paziņojumi",

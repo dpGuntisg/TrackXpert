@@ -6,13 +6,8 @@ import { createImage } from "./helpers/imageHelper.js";
 import { validateEventTags } from './helpers/tagHelper.js';
 
 class EventService {
-    static async createEvent(userId, { name, description, date, tracks, capacity, status, registrationDeadline, images }) {
+    static async createEvent(userId, { name, description, date, tracks, capacity, status, registrationDeadline, images, tags }) {
         try {
-            // Validate tags if provided
-            if (tracks && Array.isArray(tracks)) {
-                validateEventTags(tracks);
-            }
-
             const created_by = userId;
             const tracks = tracks.map(track => track._id);
             const eventData = {
@@ -24,7 +19,8 @@ class EventService {
                 capacity,
                 status,
                 registrationDeadline,
-                images
+                images,
+                tags
             };
 
             const existingTracks = await Track.find({ _id: { $in: tracks } });

@@ -313,8 +313,13 @@
     }
   },
   "event": {
-    "title": "Explore Events",
-    "createEvent": "Create Event"
+    "title": "Izpēti Pasākumus",
+    "createEvent": "Izveidot Pasākumu",
+    "form":{
+      "validation":{
+        "tooManyImages": "You can only upload up to 7 images"
+      }
+    }
   },
   "notifications": {
     "title": "Notifications",
