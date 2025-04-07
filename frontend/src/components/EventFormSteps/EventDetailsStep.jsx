@@ -76,9 +76,25 @@ export const EventDetailsStep = ({
     setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
- return(
-    <div>
+  const handleInputChange = (field, value) => {
+    setValues({
+      ...values,
+      [field]: value
+    });
+  
+  };
 
+ return(
+    <div className='flex flex-col space-y-4'>
+        <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.name')}</label>
+        <input type="text" 
+               className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
+               ${errors.name && touched.name ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}/>
+
+        <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.description')}</label>
+        <input type="text" 
+               className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
+               ${errors.name && touched.name ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}/>
     </div>
 );
 };

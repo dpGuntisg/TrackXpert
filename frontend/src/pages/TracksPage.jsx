@@ -5,7 +5,7 @@ import { TrackForm } from '../components/TrackForm.jsx';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
 import JoiningRequestForm from '../components/JoiningRequestForm.jsx';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes, faArrowLeft, faExclamationCircle, faCheckCircle, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faTimes, faArrowLeft, faExclamationCircle,} from '@fortawesome/free-solid-svg-icons';
 import { MapSelector } from '../components/MapSelector';
 import { useTranslation } from 'react-i18next';
 import SearchAndFilter from '../components/SearchAndFilter';
