@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
@@ -29,22 +29,52 @@ const SearchAndFilter = ({
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState(initialFilters);
+  const [activeCategory, setActiveCategory] = useState(null);
   const searchButtonRef = useRef(null);
   const searchPanelRef = useRef(null);
+  const searchTimeoutRef = useRef(null);
+  const isFirstRender = useRef(true);
 
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-  };
+  const handleToggle = useCallback(() => {
+    setIsOpen(prev => !prev);
+  }, []);
 
-  const handleSearch = (query) => {
+  const handleSearch = useCallback((query) => {
     setSearchQuery(query);
-    onSearch(query);
-  };
+    
+    // Clear any existing timeout
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
 
-  const handleFilterChange = (newFilters) => {
+    // Don't search on first render or when query is empty
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    // Set a new timeout to debounce the search
+    searchTimeoutRef.current = setTimeout(() => {
+      onSearch(query);
+    }, 300); // 300ms delay
+  }, [onSearch]);
+
+  const handleFilterChange = useCallback((newFilters) => {
     setFilters(newFilters);
     onFilterChange(newFilters);
-  };
+  }, [onFilterChange]);
+
+  const handleCategorySelect = useCallback((category) => {
+    setActiveCategory(activeCategory === category ? null : category);
+  }, [activeCategory]);
+
+  // Reset search when component unmounts or panel closes
+  useEffect(() => {
+    if (!isOpen) {
+      setSearchQuery('');
+      onSearch('');
+    }
+  }, [isOpen, onSearch]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -61,6 +91,9 @@ const SearchAndFilter = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
     };
   }, []);
 
@@ -113,6 +146,8 @@ const SearchAndFilter = ({
             <Filter 
               onFilterChange={handleFilterChange}
               type={type}
+              activeCategory={activeCategory}
+              onCategorySelect={handleCategorySelect}
             />
           </div>
         </div>

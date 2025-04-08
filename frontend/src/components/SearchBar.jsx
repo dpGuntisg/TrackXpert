@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
-const SearchBar = ({ 
+const SearchBar = React.memo(({ 
   onSearch, 
   value = '',
   placeholder = "Search...",
@@ -13,16 +13,28 @@ const SearchBar = ({
 }) => {
   const { t } = useTranslation();
 
+  const handleChange = useCallback((e) => {
+    const newValue = e.target.value;
+    onSearch(newValue);
+  }, [onSearch]);
+
+  // Reset search when value becomes empty
+  useEffect(() => {
+    if (value === '') {
+      onSearch('');
+    }
+  }, [value, onSearch]);
+
   return (
     <div className={`relative ${className}`}>
       <input
         type="text"
         value={value}
-        onChange={(e) => onSearch(e.target.value)}
-        placeholder={placeholder}
+        onChange={handleChange}
+        placeholder={t(placeholder)}
         disabled={disabled}
         autoFocus={autoFocus}
-        className="w-full bg-inputBlue text-mainYellow border border-accentGray rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-mainRed focus:ring-2 focus:ring-mainRed disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full bg-gray-800 text-mainYellow border border-gray-700 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:border-mainRed focus:ring-2 focus:ring-mainRed disabled:opacity-50 disabled:cursor-not-allowed"
       />
       <FontAwesomeIcon 
         icon={faSearch} 
@@ -30,6 +42,8 @@ const SearchBar = ({
       />
     </div>
   );
-};
+});
+
+SearchBar.displayName = 'SearchBar';
 
 export default SearchBar; 

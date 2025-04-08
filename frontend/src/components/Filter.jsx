@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faFlagCheckered, 
+  faRoad, 
+  faCar, 
+  faStar, 
+  faLightbulb,
+  faChevronRight
+} from '@fortawesome/free-solid-svg-icons';
 
 const Filter = ({ 
   onFilterChange,
-  type = 'track', // 'track' or 'event'
+  type = 'track',
   className = "",
+  activeCategory,
+  onCategorySelect,
   initialFilters = {
     tags: [],
     minLength: '',
@@ -21,6 +32,23 @@ const Filter = ({
 }) => {
   const { t } = useTranslation();
   const [filters, setFilters] = useState(initialFilters);
+
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case 'trackType':
+        return faFlagCheckered;
+      case 'surfaceType':
+        return faRoad;
+      case 'vehicleType':
+        return faCar;
+      case 'difficulty':
+        return faStar;
+      case 'specialFeatures':
+        return faLightbulb;
+      default:
+        return null;
+    }
+  };
 
   const handleTagChange = (tag) => {
     const newTags = filters.tags.includes(tag)
@@ -39,7 +67,6 @@ const Filter = ({
       maxLength: max === '' ? undefined : parseFloat(max)
     };
     
-    // Ensure maxLength is not less than minLength
     if (newFilters.minLength !== undefined && newFilters.maxLength !== undefined && newFilters.maxLength < newFilters.minLength) {
       newFilters.maxLength = newFilters.minLength;
     }
@@ -81,34 +108,64 @@ const Filter = ({
     onFilterChange(newFilters);
   };
 
+  const categories = Object.keys(t(`tags.${type}`, { returnObjects: true }));
+
   return (
     <div className={`space-y-4 ${className}`}>
-      {/* Tags Section */}
+      {/* Categories Section */}
       <div>
-        <h4 className="text-sm font-medium text-mainYellow mb-2">{t('common.tags')}</h4>
-        <div className="flex flex-wrap gap-2">
-          {Object.entries(t(`tags.${type}`, { returnObjects: true })).map(([category, tags]) => (
-            <div key={category} className="w-full">
-              <h5 className="text-xs text-gray-400 mb-1">{t(`tags.${type}.${category}.title`)}</h5>
-              <div className="flex flex-wrap gap-2">
-                {Object.entries(tags).filter(([tag]) => tag !== 'title').map(([tag, label]) => (
-                  <button
-                    key={tag}
-                    onClick={() => handleTagChange(tag)}
-                    className={`px-2 py-1 rounded text-sm ${
-                      filters.tags.includes(tag)
-                        ? 'bg-mainRed text-white'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                ))}
+        <h4 className="text-sm font-medium text-mainYellow mb-2">{t('common.categories')}</h4>
+        <div className="space-y-2">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => onCategorySelect(category)}
+              className={`w-full flex items-center justify-between p-2 rounded-lg ${
+                activeCategory === category
+                  ? 'bg-mainRed text-white'
+                  : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <FontAwesomeIcon icon={getCategoryIcon(category)} />
+                <span>{t(`tags.${type}.${category}.title`)}</span>
               </div>
-            </div>
+              <FontAwesomeIcon 
+                icon={faChevronRight} 
+                className={`transform transition-transform ${
+                  activeCategory === category ? 'rotate-90' : ''
+                }`}
+              />
+            </button>
           ))}
         </div>
       </div>
+
+      {/* Tags Section - Only show when a category is selected */}
+      {activeCategory && (
+        <div className="mt-4">
+          <h4 className="text-sm font-medium text-mainYellow mb-2">
+            {t(`tags.${type}.${activeCategory}.title`)}
+          </h4>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(t(`tags.${type}.${activeCategory}`, { returnObjects: true }))
+              .filter(([tag]) => tag !== 'title')
+              .map(([tag, label]) => (
+                <button
+                  key={tag}
+                  onClick={() => handleTagChange(tag)}
+                  className={`px-2 py-1 rounded text-sm ${
+                    filters.tags.includes(tag)
+                      ? 'bg-mainRed text-white'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+          </div>
+        </div>
+      )}
 
       {/* Length Section */}
       <div>
@@ -135,7 +192,6 @@ const Filter = ({
       <div>
         <h4 className="text-sm font-medium text-mainYellow mb-2">{t('common.availability')}</h4>
         <div className="space-y-2">
-          {/* Filter Type Selection */}
           <div className="flex gap-2 mb-2">
             <button
               onClick={() => handleAvailabilityChange(null, 'single')}
@@ -159,7 +215,6 @@ const Filter = ({
             </button>
           </div>
 
-          {/* Days Selection based on filter type */}
           {filters.availability.filterType === 'single' ? (
             <div className="flex flex-wrap gap-2">
               {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faTag, faRoad, faCar, faFlagCheckered, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faTag, faRoad, faCar, faFlagCheckered, faHeart, faStar, faLightbulb } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
@@ -97,7 +97,7 @@ export default function TrackCard({ track, onLikeChange }) {
 
     // Function to get tag category and label from translations
     const getTagInfo = (tag) => {
-        const categories = ['trackType', 'roadType', 'carType'];
+        const categories = ['trackType', 'difficulty', 'surfaceType', 'vehicleType', 'specialFeatures'];
         
         for (const category of categories) {
             const categoryTags = t(`tags.track.${category}`, { returnObjects: true });
@@ -116,10 +116,14 @@ export default function TrackCard({ track, onLikeChange }) {
         switch (category) {
             case 'trackType':
                 return faFlagCheckered;
-            case 'roadType':
+            case 'surfaceType':
                 return faRoad;
-            case 'carType':
+            case 'vehicleType':
                 return faCar;
+            case 'difficulty':
+                return faStar;
+            case 'specialFeatures':
+                return faLightbulb;
             default:
                 return faTag;
         }

@@ -6,7 +6,7 @@ import { createImage } from "./helpers/imageHelper.js";
 import { validateEventTags } from './helpers/tagHelper.js';
 
 class EventService {
-    static async createEvent(userId, { name, description, date, tracks, capacity, status, registrationDeadline, images, tags }) {
+    static async createEvent(userId, { name, description, location, date, tracks, capacity, status, registrationDeadline, images, tags }) {
         try {
             const created_by = userId;
             const tracks = tracks.map(track => track._id);
@@ -14,6 +14,7 @@ class EventService {
                 created_by,
                 name,
                 description,
+                location,
                 date,
                 tracks,
                 capacity,
