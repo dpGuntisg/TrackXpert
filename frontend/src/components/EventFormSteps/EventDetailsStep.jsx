@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
+import  LocationSelector  from '../LocationSelector';
+import TagManager from '../TagManager';
 
 export const EventDetailsStep = ({
     values, 
@@ -13,6 +15,7 @@ export const EventDetailsStep = ({
 }) => {
     const {t} = useTranslation();
     const [imagePreviews, setImagePreviews] = useState([]);
+    const [showLocationSelector, setShowLocationSelector] = useState(false);
 
     const handleImageChange = (e) => {
         const files = Array.from(e.target.files);
@@ -84,19 +87,121 @@ export const EventDetailsStep = ({
   
   };
 
+  const toggleLocation = (e) =>{
+    setShowLocationSelector(e.target.checked);
+  };
+
+  const handleTagChange = (tags) => {
+    setValues({
+      ...values,
+      tags
+    });
+  };
+
  return(
     <div className='flex flex-col space-y-4'>
-        <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.name')}</label>
-        <input type="text" 
-               className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
-               ${errors.name && touched.name ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}/>
-
-        <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.description')}</label>
-        <input type="text" 
-               className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
-               ${errors.name && touched.name ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}/>
+        <div>
+          <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.name')}</label>
+          <input type="text" 
+                placeholder={t('event.form.namePlaceholder')}
+                value={values.name|| ''}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
+                ${errors.name && touched.name ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}/>
+        </div>
+        <div>
+          <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.description')}</label>
+          <textarea
+              value={values.description || ''}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              placeholder={t('tracks.form.enterDescription')}
+              className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
+                ${errors.description && touched.description ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}
+              rows="4"
+          />
+        </div>
+        <div>
+          <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.location')}</label>
+          <div className='flex items-center'>
+            <input
+              type='checkbox'
+              className="h-4 w-4"
+              checked={showLocationSelector}
+              onChange={toggleLocation}
+            />
+            <p className='text-sm font-medium text-gray-300 ml-1'>{t('event.form.locationEnable')}</p>
+          </div>
+        </div>
+        {showLocationSelector &&(
+          <div>
+            <LocationSelector
+              value={values.location}
+              onChange={(value) => handleInputChange('location', value)}
+              error={errors.location}
+              touched={touched.location}
+            />
+          </div>
+        )}
+        <div>
+          <TagManager
+              value={values.tags || []}
+              onChange={handleTagChange}
+              type="event"
+              error={errors.tags && touched.tags}
+              helperText={errors.tags && touched.tags ? errors.tags : t('tracks.form.tagHelper')}
+          />
+        </div>
+        {/*image preview */}
+        <div>
+          <label className='block text-sm font-medium text-gray-300 mb-2'>{t('event.form.images')}</label>
+          {values.images && values.images.length > 0 && (
+            <div className="mb-4 max-h-48 overflow-y-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {values.images.map((image, index) => (
+                  <div 
+                    key={`image-${index}`} 
+                    className="relative group rounded-lg overflow-hidden h-32 bg-gray-800 hover:border-mainRed border-2 border-gray-700 transition-colors"
+                  >
+                    <img 
+                      src={image.data} 
+                      alt={image.name || `Image ${index + 1}`}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(index)}
+                      className="absolute top-1 right-2 text-white hover:text-mainRed opacity-0 group-hover:opacity-100 transition-opacity"                
+                    >
+                      <FontAwesomeIcon icon={faTimes} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* Image upload button */}
+          <div>
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImageChange}
+                className="hidden"
+                id="image-upload"
+              />
+              <label 
+                htmlFor="image-upload" 
+                className="flex items-center justify-center w-full py-3 px-4 bg-gray-800 border border-gray-700 hover:border-mainRed rounded-lg cursor-pointer transition-colors"
+              >
+              <FontAwesomeIcon icon={faPlus} className="mr-2" />
+              <span>{t('tracks.form.addImages')}</span>
+              </label>
+            </div>
+          </div>
+        </div>
     </div>
-);
+  );
 };
 
         

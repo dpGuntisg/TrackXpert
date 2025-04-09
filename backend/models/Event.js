@@ -9,7 +9,7 @@ const EventSchema = new mongoose.Schema({
         startDate: { type: Date, required: true },
         endDate: { type: Date, required: true },
     },
-    location: { type: String, required: true },
+    location: { type: String,},
     track: { type: mongoose.Schema.Types.ObjectId, ref: 'Track', required: true },
     maxParticipants: { type: Number, required: true },
     currentParticipants: { type: Number, default: 0 },

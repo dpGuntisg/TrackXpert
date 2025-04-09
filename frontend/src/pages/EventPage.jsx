@@ -8,10 +8,38 @@ import SearchAndFilter from '../components/SearchAndFilter';
 function EventPage() {
     const { t } = useTranslation();
     const { userId } = useAuth();
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filters, setFilters] = useState({
+        tags: [],
+        minLength: '',
+        maxLength: '',
+        availability: {
+            days: [],
+            filterType: 'single',
+            rangeDays: {
+                from: '',
+                to: ''
+            }
+        }
+    });
+
+    const handleSearch = (query) => {
+        setSearchQuery(query);
+    };
+
+    const handleFilterChange = (newFilters) => {
+        setFilters(newFilters);
+    };
+
     return (
         <div className='p-5 sm:p-10 bg-mainBlue min-h-screen'>
             <div className="flex items-center justify-between mb-10">
-                <SearchAndFilter/>
+                <SearchAndFilter
+                    onSearch={handleSearch}
+                    onFilterChange={handleFilterChange}
+                    type="event"
+                    searchPlaceholder={t('event.searchPlaceholder')}
+                />
                 <div className="absolute left-1/2 transform -translate-x-1/2 text-center">
                     <h1 className="text-4xl font-bold">{t('event.title')}</h1>
                 </div>
@@ -23,7 +51,6 @@ function EventPage() {
                         <span className="hidden sm:inline">{t('event.createEvent')}</span>
                     </Link>
                 }
-                
             </div>
         </div>
     );

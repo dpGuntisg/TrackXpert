@@ -14,7 +14,8 @@
     "min": "Min",
     "max": "Max",
     "availability": "Availability",
-    "you": "You"
+    "you": "You",
+    "categories": "Categories"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
@@ -180,7 +181,7 @@
       "selectRegion": "Select a region",
       "city": "City",
       "selectCity": "Select a city",
-      "outsideCity": "Track is outside a city",
+      "outsideCity": "Location is outside a city",
       "customLocation": "Custom Location",
       "enterCustomLocation": "Enter specific location (optional)",
       "address": "Address",
@@ -435,9 +436,17 @@
     }
   },
   "event": {
-    "title": "Izpēti Pasākumus",
-    "createEvent": "Izveidot Pasākumu",
+    "title": "Explore Events",
+    "createEvent": "Create Event",
+    "searchPlaceholder": "Search for an event",
     "form":{
+      "name": "Event Name",
+      "namePlaceholder": "Enter the event name *",
+      "description": "Description",
+      "descriptionPlaceholder": "Enter the event description *",
+      "location": "Location (optional)",
+      "locationEnable": "Add event meeting location",
+      "images": "Event Images",
       "validation":{
         "tooManyImages": "You can only upload up to 7 images"
       }

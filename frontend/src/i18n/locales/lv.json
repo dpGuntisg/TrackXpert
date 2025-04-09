@@ -14,7 +14,8 @@
     "min": "Min",
     "max": "Max",
     "availability": "Pieejamība",
-    "you": "Jūs"
+    "you": "Jūs",
+    "categories": "Kategorijas"
   },
   "contact": {
     "title": "Izveidoja"
@@ -198,12 +199,13 @@
       "selectRegion": "Izvēlieties reģionu",
       "city": "Pilsēta",
       "selectCity": "Izvēlieties pilsētu",
-      "outsideCity": "Trase atrodas ārpus pilsētas",
+      "outsideCity": "Vieta atrodas ārpus pilsētas",
       "customLocation": "Pielāgota Vieta",
       "enterCustomLocation": "Ievadiet konkrētu vietu (neobligāti)",
       "address": "Adrese",
       "enterAddress": "Ievadiet ielas adresi (neobligāti)",
       "loadingLocations": "Ielādē vietas...",
+      "tagHelper": "Izvēlaties kaut kādu tipu vismaz 2 fix this.",
       "validation": {
         "nameTooShort": "Trases nosaukumam jābūt vismaz 5 rakstzīmes garam.",
         "nameTooLong": "Trases nosaukums ir pārāk garš (maksimums 100 rakstzīmes).",
@@ -434,7 +436,15 @@
   "event": {
     "title": "Izpēti Pasākumus",
     "createEvent": "Izveidot Pasākumu",
+    "searchPlaceholder": "Meklēt pasākumu",
     "form":{
+      "name": "Pasākuma Nosaukums",
+      "namePlaceholder": "Ievadiet pasākuma nosaukumu *",
+      "description": "Apraksts",
+      "descriptionPlaceholder": "Ievadiet pasākuma aprakstu *",
+      "location": "Vieta (neobligāta)",
+      "locationEnable": "Pievienot Pasākuma tikšanāš vietu",
+      "images": "Pasakuma Attēli",
       "validation":{
         "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus"
       }
