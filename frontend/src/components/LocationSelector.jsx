@@ -90,82 +90,117 @@ const LocationSelector = ({ value, onChange, error, touched, required }) => {
     fetchCities();
   }, [selectedCountry, selectedRegion, hasRegions, isOutsideCity]);
 
+  // Update the location value when form fields change
+  const updateLocationValue = () => {
+    if (!selectedCountry) return;
+    
+    // Find the selected country object
+    const country = countries.find(c => c.code === selectedCountry);
+    if (!country) return;
+    
+    // Build location string
+    let locationParts = [country.name];
+    
+    // Add region if available and selected
+    if (hasRegions && selectedRegion) {
+      const region = regions.find(r => r.code === selectedRegion);
+      if (region) {
+        locationParts.push(region.name);
+      }
+    }
+    
+    // Add city if selected
+    if (selectedCity && !isOutsideCity) {
+      locationParts.push(selectedCity);
+    }
+    
+    // Add custom location if outside city
+    if (isOutsideCity && customLocation) {
+      locationParts.push(customLocation);
+    }
+    
+    // Add address if provided
+    if (address) {
+      locationParts.push(address);
+    }
+    
+    // Update value with comma-separated string
+    onChange(locationParts.join(', '));
+  };
+
   // Handle country selection
   const handleCountryChange = (e) => {
     const countryCode = e.target.value;
-    const country = countries.find(c => c.code === countryCode);
     setSelectedCountry(countryCode);
     setSelectedRegion('');
     setSelectedCity('');
     setCustomLocation('');
     setAddress('');
     setIsOutsideCity(false);
-    onChange(country.name);
+    
+    // Just update with country name for now
+    const country = countries.find(c => c.code === countryCode);
+    if (country) {
+      onChange(country.name);
+    }
   };
 
   // Handle region selection
   const handleRegionChange = (e) => {
     const regionCode = e.target.value;
-    const country = countries.find(c => c.code === selectedCountry);
-    const region = regions.find(r => r.code === regionCode);
     setSelectedRegion(regionCode);
     setSelectedCity('');
     setCustomLocation('');
-    setAddress('');
-    onChange(`${country.name}, ${region.name}`);
+    
+    // Update location value
+    setTimeout(updateLocationValue, 0);
   };
 
   // Handle city selection
   const handleCityChange = (e) => {
     const cityName = e.target.value;
-    const country = countries.find(c => c.code === selectedCountry);
-    const region = regions.find(r => r.code === selectedRegion);
     setSelectedCity(cityName);
     setCustomLocation('');
-    setAddress('');
-    const location = hasRegions 
-      ? `${country.name}, ${region.name}, ${cityName}`
-      : `${country.name}, ${cityName}`;
-    onChange(location);
+    
+    // Update location value
+    setTimeout(updateLocationValue, 0);
   };
 
   // Handle custom location input
   const handleCustomLocationChange = (e) => {
     const location = e.target.value;
-    const country = countries.find(c => c.code === selectedCountry);
-    const region = regions.find(r => r.code === selectedRegion);
     setCustomLocation(location);
-    const baseLocation = hasRegions 
-      ? `${country.name}, ${region.name}`
-      : country.name;
-    onChange(`${baseLocation}${location ? `, ${location}` : ''}`);
+    
+    // Update location value
+    setTimeout(updateLocationValue, 0);
   };
 
   // Handle address input
   const handleAddressChange = (e) => {
     const newAddress = e.target.value;
-    const country = countries.find(c => c.code === selectedCountry);
-    const region = regions.find(r => r.code === selectedRegion);
     setAddress(newAddress);
-    const baseLocation = hasRegions 
-      ? `${country.name}, ${region.name}${selectedCity ? `, ${selectedCity}` : ''}`
-      : `${country.name}${selectedCity ? `, ${selectedCity}` : ''}`;
-    onChange(`${baseLocation}${newAddress ? `, ${newAddress}` : ''}`);
+    
+    // Update location value
+    setTimeout(updateLocationValue, 0);
   };
 
   // Handle outside city toggle
   const handleOutsideCityToggle = (e) => {
     setIsOutsideCity(e.target.checked);
-    const country = countries.find(c => c.code === selectedCountry);
-    const region = regions.find(r => r.code === selectedRegion);
     setSelectedCity('');
     setCustomLocation('');
-    setAddress('');
-    const baseLocation = hasRegions 
-      ? `${country.name}, ${region.name}`
-      : country.name;
-    onChange(baseLocation);
+    
+    // Update location value
+    setTimeout(updateLocationValue, 0);
   };
+
+  // Update location value when dependencies change
+  useEffect(() => {
+    updateLocationValue();
+  }, [selectedCountry, selectedRegion, selectedCity, customLocation, address, isOutsideCity]);
+
+  // Disable city selection if no country or required region is selected
+  const isCityDisabled = !selectedCountry || (hasRegions && !selectedRegion);
 
   return (
     <div className="space-y-4">
@@ -224,6 +259,7 @@ const LocationSelector = ({ value, onChange, error, touched, required }) => {
             className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none text-gray-300
               ${error && touched ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}
             required={required}
+            disabled={isCityDisabled}
           >
             <option value="" className="text-gray-300">{t('tracks.form.selectCity')}</option>
             {cities.map((city) => (
@@ -232,6 +268,11 @@ const LocationSelector = ({ value, onChange, error, touched, required }) => {
               </option>
             ))}
           </select>
+          {isCityDisabled && hasRegions && (
+            <p className="text-mainRed text-xs mt-1">
+              {t('tracks.form.selectRegionFirst')}
+            </p>
+          )}
         </div>
       )}
 
@@ -242,6 +283,7 @@ const LocationSelector = ({ value, onChange, error, touched, required }) => {
           checked={isOutsideCity}
           onChange={handleOutsideCityToggle}
           className="h-4 w-4 text-mainRed focus:ring-mainRed border-gray-700 rounded bg-inputBlue"
+          disabled={!selectedCountry || (hasRegions && !selectedRegion)}
         />
         <label htmlFor="outsideCity" className="ml-2 block text-sm text-gray-300">
           {t('tracks.form.outsideCity')}
@@ -275,7 +317,13 @@ const LocationSelector = ({ value, onChange, error, touched, required }) => {
           placeholder={t('tracks.form.enterAddress')}
           className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
             ${error && touched ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}
+          disabled={!selectedCountry}
         />
+        {!selectedCountry && (
+          <p className="text-mainRed text-xs mt-1">
+            {t('tracks.form.selectCountryFirst')}
+          </p>
+        )}
       </div>
 
       {isLoading && (
@@ -295,4 +343,4 @@ const LocationSelector = ({ value, onChange, error, touched, required }) => {
   );
 };
 
-export default LocationSelector; 
+export default LocationSelector;
