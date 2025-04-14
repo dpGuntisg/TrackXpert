@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { EventDetailsStep } from '../components/EventFormSteps/EventDetailsStep';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faArrowLeft, faArrowRight, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
-
+import { faArrowLeft, faArrowRight, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import EventStepper from '../components/EventFormSteps/EventStepper';
 function CreateEventPage() {
     const [values, setValues] = useState({
         name: '',
@@ -31,7 +31,6 @@ function CreateEventPage() {
         { number: 3, label: t('event.schedule') },
         { number: 4, label: t('event.registration') }
     ];
-
     const handleStepNavigation = (direction) => {
         if (direction === 'next') {
             setStep(prev => Math.min(prev + 1, steps.length));
@@ -66,7 +65,10 @@ function CreateEventPage() {
             default:
                 return null;
         }
-    };
+
+
+
+};
    
 return (
         <div className="min-h-screen p-4 sm:p-6 md:p-8 lg:p-10">
@@ -78,51 +80,8 @@ return (
 
                 <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-10">
                     {/* Sidebar */}
-                    <div className="w-full lg:w-1/4 bg-gray-800/30 rounded-xl p-4 mb-6 lg:mb-0 border border-accentGray">
-                        <div className="flex lg:flex-col overflow-x-auto lg:overflow-visible pb-2 lg:pb-0">
-                            {steps.map((item) => (
-                                <div
-                                    key={item.number}
-                                    className={`flex items-center mb-2 py-3 px-4 rounded-lg transition-all duration-200 min-w-fit
-                                        ${step === item.number ? 'bg-mainRed/30' : 'hover:bg-gray-700/50'}`}
-                                >
-                                    <div
-                                        className={`flex items-center justify-center w-8 h-8 rounded-full
-                                        ${step === item.number ? 'bg-mainRed text-white border-2 border-mainRed'
-                                            : item.number < step
-                                                ? 'bg-mainYellow text-mainBlue border-2 border-mainYellow'
-                                                : 'bg-mainBlue/20 text-gray-300 border-2 border-accentBlue'}`}
-                                    >
-                                        {item.number < step ? (
-                                            <FontAwesomeIcon icon={faCheck} className="h-4 w-4" />
-                                        ) : (
-                                            item.number
-                                        )}
-                                    </div>
-                                    <span
-                                        className={`ml-3 ${step === item.number ? 'font-medium text-white'
-                                            : item.number < step
-                                                ? 'text-mainYellow'
-                                                : 'text-gray-400'}`}
-                                    >
-                                        {item.label}
-                                    </span>
-                                </div>
-                            ))}
-                        </div>
-
-                        {/* Progress Bar (only on desktop) */}
-                        <div className="mt-6 px-2 hidden lg:block">
-                            <div className="w-full bg-accentGray rounded-full h-2">
-                                <div
-                                    className="bg-mainRed h-2 rounded-full transition-all duration-500"
-                                    style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
-                                />
-                            </div>
-                            <p className="text-sm text-gray-400 mt-2">{t('common.step')} {step} {t('common.of')} {steps.length}</p>
-                        </div>
-                    </div>
-
+                    <EventStepper steps={steps} step={step} setStep={setStep} t={t} />
+            
                     {/* Main Step Content */}
                     <div className="w-full lg:w-3/4 bg-gray-800/30 rounded-xl p-4 sm:p-6 border border-accentGray">
                         <div className="min-h-[400px]">
