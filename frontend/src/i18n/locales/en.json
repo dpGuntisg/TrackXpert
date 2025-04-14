@@ -15,7 +15,9 @@
     "max": "Max",
     "availability": "Availability",
     "you": "You",
-    "categories": "Categories"
+    "categories": "Categories",
+    "step": "step",
+    "of":"of"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
@@ -440,6 +442,10 @@
     "createEvent": "Create Event",
     "createEventDescription": "Complete all steps to create an event",
     "searchPlaceholder": "Search for an event",
+    "details": "Details",
+    "tracks": "Tracks",
+    "schedule": "Event schedule",
+    "registration": "Event registration",
     "form":{
       "name": "Event Name",
       "namePlaceholder": "Enter the event name *",

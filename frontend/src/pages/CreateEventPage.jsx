@@ -26,10 +26,10 @@ function CreateEventPage() {
     const { t } = useTranslation();
 
     const steps = [
-        { number: 1, label: "Details" },
-        { number: 2, label: "Tracks" },
-        { number: 3, label: "Advanced Settings" },
-        { number: 4, label: "Branding & Design" }
+        { number: 1, label: t('event.details') },
+        { number: 2, label: t('event.tracks') },
+        { number: 3, label: t('event.schedule') },
+        { number: 4, label: t('event.registration') }
     ];
 
     const handleStepNavigation = (direction) => {
@@ -119,7 +119,7 @@ return (
                                     style={{ width: `${((step - 1) / (steps.length - 1)) * 100}%` }}
                                 />
                             </div>
-                            <p className="text-sm text-gray-400 mt-2">Step {step} of {steps.length}</p>
+                            <p className="text-sm text-gray-400 mt-2">{t('common.step')} {step} {t('common.of')} {steps.length}</p>
                         </div>
                     </div>
 

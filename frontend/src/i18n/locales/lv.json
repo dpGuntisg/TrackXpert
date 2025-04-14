@@ -15,7 +15,9 @@
     "max": "Max",
     "availability": "Pieejamība",
     "you": "Jūs",
-    "categories": "Kategorijas"
+    "categories": "Kategorijas",
+    "step": "solis",
+    "of":"no"
   },
   "contact": {
     "title": "Izveidoja"
@@ -438,6 +440,10 @@
     "createEventDescription": "Izpildiet visus soļus lai izveidotu pasākumu",
     "createEvent": "Izveidot Pasākumu",
     "searchPlaceholder": "Meklēt pasākumu",
+    "details": "Pamatinformācija",
+    "tracks": "Trases",
+    "schedule": "Pasākuma grafiks",
+    "registration": "Pasākuma reģistrācija",
     "form":{
       "name": "Pasākuma Nosaukums",
       "namePlaceholder": "Ievadiet pasākuma nosaukumu *",
