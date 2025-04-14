@@ -435,6 +435,7 @@
   },
   "event": {
     "title": "Izpēti Pasākumus",
+    "createEventDescription": "Izpildiet visus soļus lai izveidotu pasākumu",
     "createEvent": "Izveidot Pasākumu",
     "searchPlaceholder": "Meklēt pasākumu",
     "form":{

@@ -438,6 +438,7 @@
   "event": {
     "title": "Explore Events",
     "createEvent": "Create Event",
+    "createEventDescription": "Complete all steps to create an event",
     "searchPlaceholder": "Search for an event",
     "form":{
       "name": "Event Name",
