@@ -1,207 +1,165 @@
 import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { EventDetailsStep } from '../components/EventFormSteps/EventDetailsStep';
 import { useTranslation } from 'react-i18next';
-import  LocationSelector  from '../LocationSelector';
-import TagManager from '../TagManager';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowLeft, faArrowRight, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import EventStepper from '../components/EventFormSteps/EventStepper';
 
-export const EventDetailsStep = ({
-    values, 
-    setValues, 
-    errors = {}, 
-    touched = {},
-    currentImageIndex,
-    setCurrentImageIndex
-}) => {
-    const {t} = useTranslation();
-    const [imagePreviews, setImagePreviews] = useState([]);
-    const [showLocationSelector, setShowLocationSelector] = useState(false);
+function CreateEventPage() {
+    const [values, setValues] = useState({
+        name: '',
+        description: '',
+        date: '',
+        track: '',
+        location: '',
+        tags: [],
+        images: []
+    });
+    const [errors, setErrors] = useState({});
+    const [step, setStep] = useState(1);
+    const { t } = useTranslation();
 
-    const handleImageChange = (e) => {
-        const files = Array.from(e.target.files);
+    const validateStep = (stepNumber) => {
+        const newErrors = {};
+        let isValid = true;
 
-        if(files.length > 0){  
-            if ((values.images?.length || 0) + files.length > 7) {
-                alert(t('event.form.validation.tooManyImages'));
-                return;
-            }
-        
-            const fileReaders = files.map(file =>{
-                return new Promise((resolve)=>{
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                        resolve({
-                            data: reader.result,
-                            mimeType: reader.type,
-                            file: file,
-                            name: file.name
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                });
-            });
+        switch(stepNumber) {
+            case 1:
+                if (!values.name || values.name.length < 5) {
+                    newErrors.name = t('tracks.form.validation.nameTooShort');
+                    isValid = false;
+                }
+                if (!values.description || values.description.length < 10) {
+                    newErrors.description = t('tracks.form.validation.descriptionTooShort');
+                    isValid = false;
+                }
+                if(!values.tags || values.tags.length === 0){
+                    newErrors.tags = t('tracks.form.validation.tagRequired');
+                    isValid = false;
+                }
+                if (!values.images || values.images.length === 0) {
+                    newErrors.images = t('tracks.form.validation.imageRequired');
+                    isValid = false;
+                }
+                break;
+            case 2:
+                // Add validation for step 2 here
+                break;
+            case 3:
+                // Add validation for step 3 here
+                break;
+            case 4:
+                // Add validation for step 4 here
+                break;
+            default:
+                break;
+        }
 
-            Promise.all(fileReaders).then(newFileData => {
-                setValues(prev => ({
-                    ...prev,
-                    images: [
-                        ...(prev.images || []),
-                        ...newFileData
-                    ]
-                }));
-                setImagePreviews(prev => [...prev, ...newFileData]);
-            })
-        };
+        setErrors(newErrors);
+        return isValid;
     };
 
-  const removeImage = (indexToRemove) => {
-    setValues(prev => {
-      const updatedImages = prev.images.filter((_, index) => index !== indexToRemove);
-      // If all images are removed, reset currentImageIndex to 0
-      if (updatedImages.length === 0) {
-        if (setCurrentImageIndex) {
-          setCurrentImageIndex(0);
+
+    const handleStepNavigation = (direction) => {
+        if (direction === 'next') {
+            if (validateStep(step)) {
+                setStep(prev => Math.min(prev + 1, steps.length));
+            }
+        } else if (direction === 'prev') {
+            setStep(prev => Math.max(prev - 1, 1));
         }
-      } else if (indexToRemove === prev.images.length - 1 && indexToRemove > 0) {
-        // Update the currentImageIndex if it's passed as a prop
-        if (currentImageIndex !== undefined && setCurrentImageIndex) {
-          setCurrentImageIndex(Math.max(0, indexToRemove - 1));
-        }
-      }
-  
-      return {
-        ...prev,
-        images: updatedImages
-      };
-    });
-  
-    //update the previews
-    setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
-  };
+    };
 
-  const handleInputChange = (field, value) => {
-    setValues({
-      ...values,
-      [field]: value
-    });
-  
-  };
+    const steps = [
+        { number: 1, label: t('event.details') },
+        { number: 2, label: t('event.tracks') },
+        { number: 3, label: t('event.schedule') },
+        { number: 4, label: t('event.registration') }
+    ];
 
-  const toggleLocation = (e) =>{
-    setShowLocationSelector(e.target.checked);
-  };
-
-  const handleTagChange = (tags) => {
-    setValues({
-      ...values,
-      tags
-    });
-  };
-
- return(
-    <div className='flex flex-col space-y-4'>
-        <div>
-          <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.name')}</label>
-          <input type="text" 
-                placeholder={t('event.form.namePlaceholder')}
-                value={values.name|| ''}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
-                ${errors.name && touched.name ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}/>
-        </div>
-        <div>
-          <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.description')}</label>
-          <textarea
-              value={values.description || ''}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder={t('tracks.form.enterDescription')}
-              className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
-                ${errors.description && touched.description ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}
-              rows="4"
-          />
-        </div>
-        <div>
-          <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.location')}</label>
-          <div className='flex items-center'>
-            <input
-              type='checkbox'
-              className="h-4 w-4"
-              checked={showLocationSelector}
-              onChange={toggleLocation}
-            />
-            <p className='text-sm font-medium text-gray-300 ml-1'>{t('event.form.locationEnable')}</p>
-          </div>
-        </div>
-        {showLocationSelector &&(
-          <div>
-            <LocationSelector
-              value={values.location}
-              onChange={(value) => handleInputChange('location', value)}
-              error={errors.location}
-              touched={touched.location}
-            />
-          </div>
-        )}
-        <div>
-          <TagManager
-              value={values.tags || []}
-              onChange={handleTagChange}
-              type="event"
-              error={errors.tags && touched.tags}
-              helperText={errors.tags && touched.tags ? errors.tags : t('tracks.form.tagHelper')}
-          />
-        </div>
-        {/*image preview */}
-        <div>
-          <label className='block text-sm font-medium text-gray-300 mb-2'>{t('event.form.images')}</label>
-          {values.images && values.images.length > 0 && (
-            <div className="mb-4 max-h-48 overflow-y-auto">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {values.images.map((image, index) => (
-                  <div 
-                    key={`image-${index}`} 
-                    className="relative group rounded-lg overflow-hidden h-32 bg-gray-800 hover:border-mainRed border-2 border-gray-700 transition-colors"
-                  >
-                    <img 
-                      src={image.data} 
-                      alt={image.name || `Image ${index + 1}`}
-                      className="w-full h-full object-cover"
+    const RenderEventSteps = () => {
+        switch(step){
+            case 1:
+                return(
+                    <EventDetailsStep
+                        values={values}
+                        setValues={setValues}
+                        errors={errors}
                     />
-                    <button
-                      type="button"
-                      onClick={() => removeImage(index)}
-                      className="absolute top-1 right-2 text-white hover:text-mainRed opacity-0 group-hover:opacity-100 transition-opacity"                
-                    >
-                      <FontAwesomeIcon icon={faTimes} />
-                    </button>
-                  </div>
-                ))}
-              </div>
+                );
+            case 2:
+                return(
+                    <p> second step tester</p>
+                );
+            case 3:
+                return(
+                    <p> third step tester</p>
+                );
+            case 4:
+                return(
+                    <p> fourth step tester</p>
+                );
+            default:
+                return null;
+        }
+    };
+   
+return (
+        <div className="min-h-screen p-4 sm:p-6 md:p-8 lg:p-10">
+            <div className="max-w-7xl mx-auto">
+                <header className="mb-8 text-center">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-mainYellow">{t('event.createEvent')}</h1>
+                    <p className="mt-2 text-gray-400">{t('event.createEventDescription')}</p>
+                </header>
+
+                <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-10">
+                    {/* Sidebar */}
+                    <EventStepper steps={steps} step={step} setStep={setStep} t={t} />
+            
+                    {/* Main Step Content */}
+                    <div className="w-full lg:w-3/4 bg-gray-800/30 rounded-xl p-4 sm:p-6 border border-accentGray">
+                        <div className="min-h-[400px]">
+                            <RenderEventSteps/>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex flex-col sm:flex-row sm:justify-between mt-8 gap-4">
+                            <button
+                                onClick={() => handleStepNavigation('prev')}
+                                className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-3 rounded-lg font-medium transition-colors
+                                    disabled:opacity-50 disabled:cursor-not-allowed order-2 sm:order-1"
+                                disabled={step === 1}
+                            >
+                                <span className="flex items-center justify-center">
+                                    <FontAwesomeIcon icon={faArrowLeft} className="mr-2" />
+                                    {t('tracks.back') || 'Back'}
+                                </span>
+                            </button>
+
+                            <button
+                                onClick={() => handleStepNavigation('next')}
+                                className="px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center order-1 sm:order-2 bg-mainRed hover:bg-red-700"
+                            >
+                                {step === steps.length ? (
+                                    <span className="flex items-center">
+                                        {t('common.finish') || 'Finish'}
+                                        <FontAwesomeIcon icon={faCheckCircle} className="ml-2" />
+                                    </span>
+                                ) : (
+                                    <span className="flex items-center">
+                                        {t('tracks.next') || 'Next'}
+                                        <FontAwesomeIcon icon={faArrowRight} className="ml-2" />
+                                    </span>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
-          )}
-          {/* Image upload button */}
-          <div>
-            <div className="relative">
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-                className="hidden"
-                id="image-upload"
-              />
-              <label 
-                htmlFor="image-upload" 
-                className="flex items-center justify-center w-full py-3 px-4 bg-gray-800 border border-gray-700 hover:border-mainRed rounded-lg cursor-pointer transition-colors"
-              >
-              <FontAwesomeIcon icon={faPlus} className="mr-2" />
-              <span>{t('tracks.form.addImages')}</span>
-              </label>
-            </div>
-          </div>
         </div>
-    </div>
-  );
-};
+    );
+}
+
+export default CreateEventPage;
 
         
