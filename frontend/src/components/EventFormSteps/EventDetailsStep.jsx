@@ -207,7 +207,8 @@ export const EventDetailsStep = ({
           />
           <label 
             htmlFor="image-upload" 
-            className="flex items-center justify-center w-full py-3 px-4 bg-gray-800 border border-gray-700 hover:border-mainRed rounded-lg cursor-pointer transition-colors"
+            className={`flex items-center justify-center w-full py-3 px-4 bg-gray-800 rounded-lg cursor-pointer transition-colors
+              ${errors.images ? 'border-red-500 hover:border-red-500' : 'border-gray-700 hover:border-mainRed'} border`}
           >
             <FontAwesomeIcon icon={faPlus} className="mr-2" />
             <span>{t('tracks.form.addImages')}</span>

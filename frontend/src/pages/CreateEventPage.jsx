@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { EventDetailsStep } from '../components/EventFormSteps/EventDetailsStep';
+import { EventTrackSelectionStep } from '../components/EventFormSteps/EventTrackSelectionStep';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
@@ -103,7 +104,7 @@ function CreateEventPage() {
                 );
             case 2:
                 return(
-                    <p>second step tester</p>
+                    <EventTrackSelectionStep/>
                 );
             case 3:
                 return(
