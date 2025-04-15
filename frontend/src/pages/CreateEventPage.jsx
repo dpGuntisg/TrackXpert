@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { EventDetailsStep } from '../components/EventFormSteps/EventDetailsStep';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -17,9 +17,22 @@ function CreateEventPage() {
     });
     const [errors, setErrors] = useState({});
     const [step, setStep] = useState(1);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const { t } = useTranslation();
 
-    const validateStep = (stepNumber) => {
+    // Use useCallback to prevent function recreation on every render
+    const setValuesCallback = useCallback((valuesUpdater) => {
+        setValues(prevValues => {
+            // If it's a function, call it with prevValues
+            if (typeof valuesUpdater === 'function') {
+                return valuesUpdater(prevValues);
+            }
+            // Otherwise, it's an object to merge
+            return { ...prevValues, ...valuesUpdater };
+        });
+    }, []);
+
+    const validateStep = useCallback((stepNumber) => {
         const newErrors = {};
         let isValid = true;
 
@@ -57,10 +70,9 @@ function CreateEventPage() {
 
         setErrors(newErrors);
         return isValid;
-    };
+    }, [values, t]);
 
-
-    const handleStepNavigation = (direction) => {
+    const handleStepNavigation = useCallback((direction) => {
         if (direction === 'next') {
             if (validateStep(step)) {
                 setStep(prev => Math.min(prev + 1, steps.length));
@@ -68,7 +80,7 @@ function CreateEventPage() {
         } else if (direction === 'prev') {
             setStep(prev => Math.max(prev - 1, 1));
         }
-    };
+    }, [step, validateStep]);
 
     const steps = [
         { number: 1, label: t('event.details') },
@@ -77,34 +89,36 @@ function CreateEventPage() {
         { number: 4, label: t('event.registration') }
     ];
 
-    const RenderEventSteps = () => {
+    const renderStep = () => {
         switch(step){
             case 1:
                 return(
                     <EventDetailsStep
                         values={values}
-                        setValues={setValues}
+                        setValues={setValuesCallback}
                         errors={errors}
+                        currentImageIndex={currentImageIndex}
+                        setCurrentImageIndex={setCurrentImageIndex}
                     />
                 );
             case 2:
                 return(
-                    <p> second step tester</p>
+                    <p>second step tester</p>
                 );
             case 3:
                 return(
-                    <p> third step tester</p>
+                    <p>third step tester</p>
                 );
             case 4:
                 return(
-                    <p> fourth step tester</p>
+                    <p>fourth step tester</p>
                 );
             default:
                 return null;
         }
     };
    
-return (
+    return (
         <div className="min-h-screen p-4 sm:p-6 md:p-8 lg:p-10">
             <div className="max-w-7xl mx-auto">
                 <header className="mb-8 text-center">
@@ -114,12 +128,17 @@ return (
 
                 <div className="flex flex-col lg:flex-row gap-6 sm:gap-8 lg:gap-10">
                     {/* Sidebar */}
-                    <EventStepper steps={steps} step={step} setStep={setStep} t={t} />
+                    <EventStepper 
+                        steps={steps} 
+                        step={step} 
+                        setStep={setStep} 
+                        t={t} 
+                    />
             
                     {/* Main Step Content */}
                     <div className="w-full lg:w-3/4 bg-gray-800/30 rounded-xl p-4 sm:p-6 border border-accentGray">
                         <div className="min-h-[400px]">
-                            <RenderEventSteps/>
+                            {renderStep()}
                         </div>
 
                         {/* Buttons */}
@@ -161,5 +180,3 @@ return (
 }
 
 export default CreateEventPage;
-
-        
