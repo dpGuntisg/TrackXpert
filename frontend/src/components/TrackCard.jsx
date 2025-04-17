@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faTag, faRoad, faCar, faFlagCheckered, faHeart, faStar, faLightbulb } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faTag, faRoad, faCar, faFlagCheckered, faHeart, faStar, faLightbulb, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 
-export default function TrackCard({ track, onLikeChange }) {
+export default function TrackCard({ 
+    track, 
+    onLikeChange, 
+    disableLink = false,
+    className = "",
+    isSelectionMode = false 
+}) {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { userId } = useAuth();
@@ -129,12 +135,23 @@ export default function TrackCard({ track, onLikeChange }) {
         }
     };
 
-    return (
-        <Link to={`/tracks/${track._id}`} 
-        className='flex flex-col bg-accentBlue drop-shadow-lg outline outline-12 outline-mainRed hover:outline-mainYellow overflow-hidden hover:scale-105 transition-all ease-in-out duration-300
-            h-[550px] w-[340px] rounded'>
-          
-            <div className='relative w-full h-[220px]'>
+    // Conditional styling based on selection mode
+    const getCardStyles = () => {
+        if (isSelectionMode) {
+            // Compact version for selection - no hover effects
+            return 'flex flex-col bg-accentBlue drop-shadow-lg outline outline-1 outline-gray-700 hover:scale-105 transition-all ease-in-out duration-300 overflow-hidden h-[350px] w-full rounded cursor-pointer';
+        }
+        
+        // Original full-sized version with hover effects
+        return 'flex flex-col bg-accentBlue drop-shadow-lg outline outline-12 outline-mainRed hover:outline-mainYellow overflow-hidden hover:scale-105 transition-all ease-in-out duration-300 h-[550px] w-[340px] rounded';
+    };
+
+    // Adjust image height for selection mode
+    const imageHeight = isSelectionMode ? 'h-[140px]' : 'h-[220px]';
+
+    const cardContent = (
+        <>
+            <div className={`relative w-full ${imageHeight}`}>
                 <img src={firstImage} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
                 <div className="absolute bottom-4 left-4 space-y-2 bg-gray-800 bg-opacity-50 p-2">
                     <div className='flex items-center space-x-2 max-w-72'>
@@ -142,10 +159,9 @@ export default function TrackCard({ track, onLikeChange }) {
                         <p className='font-bold text-sm text-gray-300'>{track.location}</p>
                     </div>
                 </div>
-
             </div>
 
-            {userId && userId !== track.created_by?._id && (
+            {userId && userId !== track.created_by?._id && !isSelectionMode && (
                 <button 
                     onClick={handleLikeClick}
                     className={`absolute bottom-4 left-4 text-2xl ${isLiked ? 'text-mainRed' : 'text-gray-400'} hover:text-mainRed transition-colors duration-200`}
@@ -160,30 +176,40 @@ export default function TrackCard({ track, onLikeChange }) {
                 </div>
             )}
 
-            <div className="p-6 flex flex-col flex-grow">
-                <h3 className='font-bold text-xl text-white mb-2'>{track.name}</h3>
-                <p className='text-sm text-gray-300 line-clamp-4 mb-4'>{truncatedDescription}</p>
+            <div className={`p-4 flex flex-col flex-grow ${isSelectionMode ? 'space-y-2' : 'p-6'}`}>
+                <h3 className={`font-bold ${isSelectionMode ? 'text-lg' : 'text-xl'} text-white mb-2`}>{track.name}</h3>
+                
+                {/* Show shorter description in selection mode */}
+                {isSelectionMode ? (
+                    <p className='text-xs text-gray-300 line-clamp-2 mb-2'>{truncatedDescription}</p>
+                ) : (
+                    <p className='text-sm text-gray-300 line-clamp-4 mb-4'>{truncatedDescription}</p>
+                )}
                 
                 {track.tags && track.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
-                        {track.tags.map((tag, index) => {
+                    <div className="flex flex-wrap gap-2 mb-2">
+                        {/* Show fewer tags in selection mode */}
+                        {track.tags.slice(0, isSelectionMode ? 2 : undefined).map((tag, index) => {
                             const tagInfo = getTagInfo(tag);
                             if (!tagInfo) return null;
                             return (
                                 <div 
                                     key={index}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-800 text-white text-sm font-medium border border-gray-700"
+                                    className={`flex items-center gap-1.5 px-2 py-1 rounded-lg bg-gray-800 text-white ${isSelectionMode ? 'text-xs' : 'text-sm'} font-medium border border-gray-700`}
                                 >
                                     <FontAwesomeIcon icon={getTagIcon(tagInfo.category)} className="text-mainYellow" />
                                     <span>{tagInfo.label}</span>
                                 </div>
                             );
                         })}
+                        {isSelectionMode && track.tags.length > 2 && (
+                            <div className="text-xs text-gray-400">+{track.tags.length - 2} more</div>
+                        )}
                     </div>
                 )}
 
-                <div className="mt-2">
-                    {track.availability && track.availability.length > 0 && (
+                {!isSelectionMode && track.availability && track.availability.length > 0 && (
+                    <div className="mt-2">
                         <div className="text-sm text-gray-400">
                             {track.availability.slice(0, 3).map((slot, index) => (
                                 <div key={index}>
@@ -201,13 +227,36 @@ export default function TrackCard({ track, onLikeChange }) {
                                 <p className="text-xs text-gray-400">+{track.availability.length - 3} {t('tracks.more')}</p>
                             )}
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
+                
+                {/* Compact availability display for selection mode */}
+                {isSelectionMode && track.availability && track.availability.length > 0 && (
+                    <div className="text-xs text-gray-400">
+                        <span>{track.availability.length} available time slot{track.availability.length !== 1 ? 's' : ''}</span>
+                    </div>
+                )}
             </div>
 
-            <div className='fixed bottom-2 left-1/2 transform -translate-x-1/2'>
-                <span className="mt-2 text-sm font-semibold">{t('tracks.viewDetails')}</span>
+            {!disableLink && !isSelectionMode && (
+                <div className='fixed bottom-2 left-1/2 transform -translate-x-1/2'>
+                    <span className="mt-2 text-sm font-semibold">{t('tracks.viewDetails')}</span>
+                </div>
+            )}
+        </>
+    );
+
+    if (disableLink) {
+        return (
+            <div className={`${getCardStyles()} ${className}`}>
+                {cardContent}
             </div>
+        );
+    }
+
+    return (
+        <Link to={`/tracks/${track._id}`} className={`${getCardStyles()} ${className}`}>
+            {cardContent}
         </Link>
     );
 }

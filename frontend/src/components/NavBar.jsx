@@ -118,6 +118,7 @@ const Navbar = () => {
 
           {/* Right side items */}
           <div className="flex items-center space-x-4">
+          <LanguageSwitcher />
             {isUserLoggedIn() ? (
               <>
                 {/* Notifications */}
@@ -159,7 +160,7 @@ const Navbar = () => {
                   )}
                 </div>
 
-                <LanguageSwitcher />
+                
 
                 {/* Sign Out */}
                 <button 
