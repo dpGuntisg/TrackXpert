@@ -1,0 +1,124 @@
+.calendar-container {
+    background-color: #233438;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 290px;
+}
+
+.custom-datepicker {
+    background-color: #233438;
+    color: #F7FEBE;
+}
+
+.custom-calendar {
+    background-color: #233438;
+    color: #F7FEBE;
+    border: none;
+}
+
+.custom-calendar .react-datepicker__header {
+    background-color: #1d2c2f;
+    border-bottom: 1px solid #374151;
+    padding: 1rem;
+}
+
+.custom-calendar .react-datepicker__day {
+    color: #FFFFFF;
+    border-radius: 4px;
+    margin: 0.2rem;
+    padding: 0.3rem;
+}
+
+.custom-calendar .react-datepicker__day:hover {
+    background-color: #374151;
+}
+
+.custom-calendar .react-datepicker__day--selected,
+.custom-calendar .react-datepicker__day--in-range {
+    background-color: #F04642;
+    color: #FFFFFF;
+}
+
+.custom-calendar .react-datepicker__day--in-selecting-range {
+    background-color: #374151;
+    color: #FFFFFF;
+}
+
+.custom-calendar .react-datepicker__day--keyboard-selected {
+    background-color: #F04642;
+    color: #FFFFFF;
+}
+
+.custom-calendar .react-datepicker__day--disabled {
+    color: #374151;
+    cursor: not-allowed;
+}
+
+.custom-calendar .react-datepicker__day-name {
+    color: #F7FEBE;
+    font-weight: bold;
+}
+
+.custom-calendar .weekend {
+    color: #F04642;
+}
+
+.custom-calendar .react-datepicker__day--today {
+    color: #FFFFFF;
+    background-color: #1d2c2f;
+    font-weight: normal;
+}
+
+.custom-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    color: #F7FEBE;
+}
+
+.month-year {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.nav-button {
+    background: none;
+    border: none;
+    color: #F7FEBE;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+
+.nav-button:hover {
+    background-color: #374151;
+}
+
+.nav-button:disabled {
+    color: #374151;
+    cursor: not-allowed;
+}
+
+.react-datepicker__triangle {
+    display: none;
+}
+
+/* Make the calendar grid proportional */
+.react-datepicker__month-container {
+    width: 100%;
+}
+
+.react-datepicker__month {
+    margin: 0;
+    width: 100%;
+}
+
+.react-datepicker__week {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+} 

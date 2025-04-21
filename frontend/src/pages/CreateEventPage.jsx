@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { EventDetailsStep } from '../components/EventFormSteps/EventDetailsStep';
 import { EventTrackSelectionStep } from '../components/EventFormSteps/EventTrackSelectionStep';
+import { EventScheduleStep } from '../components/EventFormSteps/EventScheduleStep';
 import EventStepper from '../components/EventFormSteps/EventStepper';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -119,7 +120,10 @@ function CreateEventPage() {
                 );
             case 3:
                 return(
-                    <p>third step tester</p>
+                    <EventScheduleStep
+                        values={values}
+                        setValues={setValuesCallback}
+                    />
                 );
             case 4:
                 return(
