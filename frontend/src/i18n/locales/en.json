@@ -455,9 +455,10 @@
       "locationEnable": "Add event meeting location",
       "images": "Event Images",
       "imagesPlaceholder": "Add event images",
-      "selectTracks": "Select tracks for your event:",
+      "selectTracks": "Select tracks for your event",
       "validation":{
-        "tooManyImages": "You can only upload up to 7 images"
+        "tooManyImages": "You can only upload up to 7 images",
+        "trackRequired": "Please select at least one track"
       }
     }
   },

@@ -3,11 +3,13 @@ import axiosInstance from "../../utils/axios";
 import TrackCard from "../TrackCard";
 import { useAuth } from "../../context/AuthContext";
 import { useTranslation } from 'react-i18next';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faExclamationCircle } from "@fortawesome/free-solid-svg-icons";
 
 export const EventTrackSelectionStep = ({
     selectedTracks = [],
     onSelectionChange = () => {},
-    error
+    errors
 }) => {
     const { userId } = useAuth();
     const [userTracks, setUserTracks] = useState([]);
@@ -30,10 +32,26 @@ export const EventTrackSelectionStep = ({
         }
     }, [userId]);
 
+    const handleCardClick = (trackId) => {
+        const isSelected = selectedTracks.includes(trackId);
+    
+        const updatedTracks = isSelected
+            ? selectedTracks.filter(id => id !== trackId) // remove
+            : [...selectedTracks, trackId]; // add
+    
+        onSelectionChange(updatedTracks); // update parent
+    };
+      
+
     return (
         <div>
             <h3 className="text-lg font-semibold mb-4">{t('event.form.selectTracks')}</h3>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+            {errors?.track &&
+                <div className="flex items-center gap-2 text-red-500 bg-red-500/10 p-3 rounded-lg mb-4">
+                    <FontAwesomeIcon icon={faExclamationCircle} />
+                    <p className="text-sm">{errors.track}</p>
+                </div>
+            }
             
             {loading ? (
                 <div className="flex justify-center items-center h-64">
@@ -49,6 +67,8 @@ export const EventTrackSelectionStep = ({
                                 disableLink={true}
                                 className="compact-track-selection"
                                 isSelectionMode={true}
+                                isSelected={selectedTracks.includes(track._id)}
+                                onClick={() => handleCardClick(track._id)} 
                             />
                         ))
                     ) : (

@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
 import { EventDetailsStep } from '../components/EventFormSteps/EventDetailsStep';
 import { EventTrackSelectionStep } from '../components/EventFormSteps/EventTrackSelectionStep';
+import EventStepper from '../components/EventFormSteps/EventStepper';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
-import EventStepper from '../components/EventFormSteps/EventStepper';
 
 function CreateEventPage() {
     const [values, setValues] = useState({
@@ -57,7 +57,10 @@ function CreateEventPage() {
                 }
                 break;
             case 2:
-                // Add validation for step 2 here
+                if (!values.track || values.track.length === 0) {
+                    newErrors.track = t('event.form.validation.trackRequired');
+                    isValid = false;
+                }
                 break;
             case 3:
                 // Add validation for step 3 here
@@ -90,6 +93,10 @@ function CreateEventPage() {
         { number: 4, label: t('event.registration') }
     ];
 
+    const handleTrackSelectionChange = (updatedTracks) => {
+        setValuesCallback({ track: updatedTracks });
+    };
+
     const renderStep = () => {
         switch(step){
             case 1:
@@ -104,7 +111,11 @@ function CreateEventPage() {
                 );
             case 2:
                 return(
-                    <EventTrackSelectionStep/>
+                    <EventTrackSelectionStep
+                        selectedTracks={values.track}
+                        onSelectionChange={handleTrackSelectionChange}
+                        errors={errors}
+                    />
                 );
             case 3:
                 return(

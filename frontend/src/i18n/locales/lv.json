@@ -453,9 +453,10 @@
       "locationEnable": "Pievienot Pasākuma tikšanāš vietu",
       "images": "Pasakuma Attēli",
       "addImages": "Pievienot Attēlus",
-      "selectTracks": "Pievienojiet pasākuma trases:",
+      "selectTracks": "Pievienojiet pasākuma trases",
       "validation":{
-        "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus"
+        "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus",
+        "trackRequired": "Lūdzu Izvēlaties vismaz vienu trasi"
       }
     }
   },

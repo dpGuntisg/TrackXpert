@@ -12,7 +12,9 @@ export default function TrackCard({
     onLikeChange, 
     disableLink = false,
     className = "",
-    isSelectionMode = false 
+    isSelectionMode = false,
+    isSelected,
+    onClick
 }) {
     const { t } = useTranslation();
     const navigate = useNavigate();
@@ -135,15 +137,28 @@ export default function TrackCard({
         }
     };
 
-    // Conditional styling based on selection mode
+    // Conditional styling based on selection mode and selection state
     const getCardStyles = () => {
         if (isSelectionMode) {
-            // Compact version for selection - no hover effects
-            return 'flex flex-col bg-accentBlue drop-shadow-lg outline outline-1 outline-gray-700 hover:scale-105 transition-all ease-in-out duration-300 overflow-hidden h-[350px] w-full rounded cursor-pointer';
+            // Compact version for selection with different styling based on selection state
+            const baseStyle = 'flex flex-col bg-accentBlue drop-shadow-lg overflow-hidden h-[350px] w-full rounded cursor-pointer transition-all ease-in-out duration-300';
+            
+            // If selected, use mainRed border, otherwise use gray border
+            return isSelected 
+                ? `${baseStyle} outline outline-2 outline-mainRed hover:outline-mainYellow`
+                : `${baseStyle} outline outline-1 outline-gray-700 hover:scale-105`;
         }
         
         // Original full-sized version with hover effects
         return 'flex flex-col bg-accentBlue drop-shadow-lg outline outline-12 outline-mainRed hover:outline-mainYellow overflow-hidden hover:scale-105 transition-all ease-in-out duration-300 h-[550px] w-[340px] rounded';
+    };
+
+    // Handle track card click in selection mode
+    const handleCardClick = (e) => {
+        e.preventDefault(); // Prevent navigation if it's a link
+        if (isSelectionMode && onClick) {
+            onClick(track._id);
+        }
     };
 
     // Adjust image height for selection mode
@@ -153,6 +168,14 @@ export default function TrackCard({
         <>
             <div className={`relative w-full ${imageHeight}`}>
                 <img src={firstImage} alt={track.name} className="w-full h-full object-cover" loading="lazy"/>
+                
+                {/* Checkmark icon for selected tracks */}
+                {isSelectionMode && isSelected && (
+                    <div className="absolute top-2 right-2 bg-mainRed rounded-full p-2 z-10">
+                        <FontAwesomeIcon icon={faCheck} className="text-white text-sm" />
+                    </div>
+                )}
+                
                 <div className="absolute bottom-4 left-4 space-y-2 bg-gray-800 bg-opacity-50 p-2">
                     <div className='flex items-center space-x-2 max-w-72'>
                         <FontAwesomeIcon icon={faLocationDot} color='white' />
@@ -246,9 +269,12 @@ export default function TrackCard({
         </>
     );
 
-    if (disableLink) {
+    if (disableLink || isSelectionMode) {
         return (
-            <div className={`${getCardStyles()} ${className}`}>
+            <div 
+                className={`${getCardStyles()} ${className}`} 
+                onClick={handleCardClick}
+            >
                 {cardContent}
             </div>
         );
