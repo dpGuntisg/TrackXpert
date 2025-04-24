@@ -457,7 +457,8 @@
       "validation":{
         "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus",
         "trackRequired": "Lūdzu Izvēlaties vismaz vienu trasi"
-      }
+      },
+      "selectDates": "Izvēlēties pasākuma datumus"
     }
   },
   "notifications": {

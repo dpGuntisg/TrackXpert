@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTimes, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faTimes, faExclamationCircle, faCalendar } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import LocationSelector from '../LocationSelector';
 import TagManager from '../TagManager';
+import Calendar from '../Calendar';
 
 export const EventDetailsStep = ({
     values, 
@@ -16,6 +17,7 @@ export const EventDetailsStep = ({
   // Initialize state based on props to prevent re-initializing on every render
   const [imagePreviews, setImagePreviews] = useState(values.images || []);
   const [showLocationSelector, setShowLocationSelector] = useState(!!values.location);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Update imagePreviews when values.images changes from parent
   useEffect(() => {
@@ -103,6 +105,25 @@ export const EventDetailsStep = ({
     }));
   };
 
+  const handleDateRangeChange = (dates) => {
+    setValues(prev => ({
+      ...prev,
+      date: {
+        startDate: dates[0],
+        endDate: dates[1]
+      }
+    }));
+  };
+
+  const formatDate = (date) => {
+    if (!date) return "";
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   return(
     <div className='flex flex-col space-y-4'>
       <div>
@@ -139,6 +160,37 @@ export const EventDetailsStep = ({
           </p>
         )}
       </div>
+
+      {/* Event Dates Section */}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-300">
+          {t('event.form.selectDates')}
+        </label>
+        <button
+          type="button"
+          onClick={() => setShowCalendar(true)}
+          className={`flex items-center justify-center w-full py-3 px-4 bg-gray-800 rounded-lg cursor-pointer transition-colors
+            ${errors.images ? 'border-red-500 hover:border-red-500' : 'border-gray-700 hover:border-mainRed'} border`}            
+        >
+          <FontAwesomeIcon icon={faCalendar} className="mr-2" />
+          {values.date?.startDate && values.date?.endDate ? (
+            `${formatDate(values.date.startDate)} to ${formatDate(values.date.endDate)}`
+          ) : (
+            t('event.form.selectDates')
+          )}
+        </button>
+      </div>
+
+      {showCalendar && (
+        <Calendar
+          isRange={true}
+          startDate={values.date?.startDate}
+          endDate={values.date?.endDate}
+          onChange={handleDateRangeChange}
+          onClose={() => setShowCalendar(false)}
+        />
+      )}
+
       <div>
         <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.location')}</label>
         <div className='flex items-center'>

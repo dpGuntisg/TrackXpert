@@ -459,7 +459,8 @@
       "validation":{
         "tooManyImages": "You can only upload up to 7 images",
         "trackRequired": "Please select at least one track"
-      }
+      },
+      "selectDates": "Select Event Dates"
     }
   },
   "notifications": {
