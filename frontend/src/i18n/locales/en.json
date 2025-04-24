@@ -446,6 +446,8 @@
     "tracks": "Tracks",
     "schedule": "Event schedule",
     "registration": "Event registration",
+    "participants": "Participant count",
+    "unlimitedParticipants": "Unlimited",
     "form":{
       "name": "Event Name",
       "namePlaceholder": "Enter the event name *",

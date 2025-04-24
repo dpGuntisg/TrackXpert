@@ -5,7 +5,7 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons';
 const EventStepper = ({ steps, step, t }) => {
     return (
         <div className="w-full lg:w-1/4 bg-gray-800/30 rounded-xl p-4 mb-6 lg:mb-0 border border-accentGray">
-            {/* Horizontal stepper for mobile (no onClick) */}
+            {/* Horizontal stepper for mobile */}
             <div className="flex lg:hidden overflow-x-auto pb-2">
                 {steps.map((item) => (
                     <div
@@ -21,7 +21,7 @@ const EventStepper = ({ steps, step, t }) => {
                 ))}
             </div>
 
-            {/* Vertical sidebar stepper for desktop (no onClick) */}
+            {/* Vertical sidebar stepper for desktop */}
             <div className="hidden lg:block">
                 {steps.map((item) => (
                     <div

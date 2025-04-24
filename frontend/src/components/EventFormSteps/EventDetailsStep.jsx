@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import LocationSelector from '../LocationSelector';
 import TagManager from '../TagManager';
 import Calendar from '../Calendar';
+import CustomCheckbox from '../CustomCheckbox';
 
 export const EventDetailsStep = ({
     values, 
@@ -108,7 +109,7 @@ export const EventDetailsStep = ({
   const handleDateRangeChange = (dates) => {
     setValues(prev => ({
       ...prev,
-      date: {
+      eventDate: {
         startDate: dates[0],
         endDate: dates[1]
       }
@@ -164,7 +165,7 @@ export const EventDetailsStep = ({
       {/* Event Dates Section */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-300">
-          {t('event.form.selectDates')}
+          {t('event.form.selectEventDates')}
         </label>
         <button
           type="button"
@@ -173,10 +174,10 @@ export const EventDetailsStep = ({
             ${errors.images ? 'border-red-500 hover:border-red-500' : 'border-gray-700 hover:border-mainRed'} border`}            
         >
           <FontAwesomeIcon icon={faCalendar} className="mr-2" />
-          {values.date?.startDate && values.date?.endDate ? (
-            `${formatDate(values.date.startDate)} to ${formatDate(values.date.endDate)}`
+          {values.eventDate?.startDate && values.eventDate?.endDate ? (
+            `${formatDate(values.eventDate.startDate)} to ${formatDate(values.eventDate.endDate)}`
           ) : (
-            t('event.form.selectDates')
+            t('event.form.selectEventDates')
           )}
         </button>
       </div>
@@ -184,8 +185,8 @@ export const EventDetailsStep = ({
       {showCalendar && (
         <Calendar
           isRange={true}
-          startDate={values.date?.startDate}
-          endDate={values.date?.endDate}
+          startDate={values.eventDate?.startDate}
+          endDate={values.eventDate?.endDate}
           onChange={handleDateRangeChange}
           onClose={() => setShowCalendar(false)}
         />
@@ -194,13 +195,7 @@ export const EventDetailsStep = ({
       <div>
         <label className='block text-sm font-medium text-gray-300 mb-1'>{t('event.form.location')}</label>
         <div className='flex items-center'>
-          <input
-            type='checkbox'
-            className="h-4 w-4"
-            checked={showLocationSelector}
-            onChange={toggleLocation}
-          />
-          <p className='text-sm font-medium text-gray-300 ml-1'>{t('event.form.locationEnable')}</p>
+          <CustomCheckbox label={t('event.form.locationEnable')} checked={showLocationSelector} onChange={toggleLocation} />
         </div>
       </div>
       {showLocationSelector && (

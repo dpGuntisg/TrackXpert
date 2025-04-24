@@ -444,6 +444,8 @@
     "tracks": "Trases",
     "schedule": "Pasākuma grafiks",
     "registration": "Pasākuma reģistrācija",
+    "participants": "Dalībnieku skaits",
+    "unlimitedParticipants": "Neierobežots skaits",
     "form":{
       "name": "Pasākuma Nosaukums",
       "namePlaceholder": "Ievadiet pasākuma nosaukumu *",

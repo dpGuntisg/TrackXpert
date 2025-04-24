@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { EventDetailsStep } from '../components/EventFormSteps/EventDetailsStep';
 import { EventTrackSelectionStep } from '../components/EventFormSteps/EventTrackSelectionStep';
+import { EventRegistrationStep } from '../components/EventFormSteps/EventRegistrationStep';
 import EventStepper from '../components/EventFormSteps/EventStepper';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,7 +11,14 @@ function CreateEventPage() {
     const [values, setValues] = useState({
         name: '',
         description: '',
-        date: '',
+        eventDate: {
+            startDate: null,
+            endDate: null
+        },
+        registrationDate: {
+            startDate: null,
+            endDate: null
+        },
         track: '',
         location: '',
         tags: [],
@@ -47,6 +55,10 @@ function CreateEventPage() {
                     newErrors.description = t('tracks.form.validation.descriptionTooShort');
                     isValid = false;
                 }
+                if (!values.eventDate?.startDate || !values.eventDate?.endDate) {
+                    newErrors.eventDate = t('event.form.validation.eventDateRequired');
+                    isValid = false;
+                }
                 if(!values.tags || values.tags.length === 0){
                     newErrors.tags = t('tracks.form.validation.tagRequired');
                     isValid = false;
@@ -63,10 +75,14 @@ function CreateEventPage() {
                 }
                 break;
             case 3:
-                // Add validation for step 3 here
-                break;
-            case 4:
-                // Add validation for step 4 here
+                if (!values.registrationDate?.startDate || !values.registrationDate?.endDate) {
+                    newErrors.registrationDate = t('event.form.validation.registrationDateRequired');
+                    isValid = false;
+                }
+                if (values.registrationDate?.endDate > values.eventDate?.startDate) {
+                    newErrors.registrationDate = t('event.form.validation.registrationEndBeforeEventStart');
+                    isValid = false;
+                }
                 break;
             default:
                 break;
@@ -89,8 +105,7 @@ function CreateEventPage() {
     const steps = [
         { number: 1, label: t('event.details') },
         { number: 2, label: t('event.tracks') },
-        { number: 3, label: t('event.schedule') },
-        { number: 4, label: t('event.registration') }
+        { number: 3, label: t('event.registration') }
     ];
 
     const handleTrackSelectionChange = (updatedTracks) => {
@@ -119,11 +134,11 @@ function CreateEventPage() {
                 );
             case 3:
                 return(
-                    <p>third step tester</p>
-                );
-            case 4:
-                return(
-                    <p>fourth step tester</p>
+                    <EventRegistrationStep
+                        values={values}
+                        setValues={setValuesCallback}
+                        errors={errors}
+                    />
                 );
             default:
                 return null;
