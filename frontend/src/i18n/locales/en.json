@@ -17,7 +17,8 @@
     "you": "You",
     "categories": "Categories",
     "step": "step",
-    "of":"of"
+    "of":"of",
+    "pickDate": "Pick a date"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
@@ -448,6 +449,13 @@
     "registration": "Event registration",
     "participants": "Participant count",
     "unlimitedParticipants": "Unlimited",
+    "selectDates": "Select Event Dates",
+    "regDates": "Registration Dates",
+    "selectRegDates": "Select Registration Dates",
+    "regInstructions": "Registration Instructions",
+    "regInstructionsPlaceholder": "E.g. 'Bring your ID card and a driver's license'",
+    "requireManualApproval": "Turn on manual approval",
+    "generatePDF": "Generate PDF Tickets",
     "form":{
       "name": "Event Name",
       "namePlaceholder": "Enter the event name *",
@@ -461,8 +469,11 @@
       "validation":{
         "tooManyImages": "You can only upload up to 7 images",
         "trackRequired": "Please select at least one track"
-      },
-      "selectDates": "Select Event Dates"
+      }
+    },
+    "tips": {
+      "manualApproval": "You will need to manually approve each participant, before they can join your event.",
+      "pdfTickets": "The system will generate PDF tickets for your event participants, they can download and print them, or email them to their email address."
     }
   },
   "notifications": {

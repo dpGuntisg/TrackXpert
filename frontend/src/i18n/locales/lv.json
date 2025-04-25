@@ -17,7 +17,8 @@
     "you": "Jūs",
     "categories": "Kategorijas",
     "step": "solis",
-    "of":"no"
+    "of":"no",
+    "pickDate": "Izveleieties datumu"
   },
   "contact": {
     "title": "Izveidoja"
@@ -446,6 +447,13 @@
     "registration": "Pasākuma reģistrācija",
     "participants": "Dalībnieku skaits",
     "unlimitedParticipants": "Neierobežots skaits",
+    "selectDates": "Izvēlēties Pasākuma Datumus",
+    "regDates": "Reģistrācijas Datumi",
+    "selectRegDates": "Izvēlēties Reģistrācijas Datumus",
+    "regInstructions": "Reģistrācijas instrukcijas",
+    "regInstructionsPlaceholder": "Piem. 'Līdzi ņemt ID karti un ķiveri'",
+    "requireManualApproval": "Ieslēgt manuālo apstiprināšanu",
+    "generatePDF": "PDF bilžu ģenerēšana",
     "form":{
       "name": "Pasākuma Nosaukums",
       "namePlaceholder": "Ievadiet pasākuma nosaukumu *",
@@ -459,8 +467,11 @@
       "validation":{
         "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus",
         "trackRequired": "Lūdzu Izvēlaties vismaz vienu trasi"
-      },
-      "selectDates": "Izvēlēties pasākuma datumus"
+      }
+    },
+    "tips": {
+      "manualApproval": "Jums manuāli būs jāapstiprina katrs dalībnieks, pirms viņš varēs piedalīties pasākumā.",
+      "pdfTickets": "Sistēma ģenerēs PDF biļetes, kuras dalībnieki varēs lejupielādēt un izdrukāt vai uzrādīt ierīcē."
     }
   },
   "notifications": {

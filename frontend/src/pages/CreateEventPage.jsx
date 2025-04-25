@@ -22,7 +22,12 @@ function CreateEventPage() {
         track: '',
         location: '',
         tags: [],
-        images: []
+        images: [],
+        participants: '',
+        unlimitedParticipants: false,
+        registrationInstructions: '',
+        requireManualApproval: false,
+        generatePdfTickets: false
     });
     const [errors, setErrors] = useState({});
     const [step, setStep] = useState(1);
@@ -82,6 +87,18 @@ function CreateEventPage() {
                 if (values.registrationDate?.endDate > values.eventDate?.startDate) {
                     newErrors.registrationDate = t('event.form.validation.registrationEndBeforeEventStart');
                     isValid = false;
+                }
+                if (!values.unlimitedParticipants) {
+                    if (values.participants === '' || values.participants === undefined) {
+                        newErrors.participants = t('event.form.validation.participantsRequired');
+                        isValid = false;
+                    } else if (parseInt(values.participants, 10) <= 0) {
+                        newErrors.participants = t('event.form.validation.participantsPositive');
+                        isValid = false;
+                    } else if (parseInt(values.participants, 10) > 100) {
+                        newErrors.participants = t('event.form.validation.participantsTooMany');
+                        isValid = false;
+                    }
                 }
                 break;
             default:

@@ -165,7 +165,7 @@ export const EventDetailsStep = ({
       {/* Event Dates Section */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-300">
-          {t('event.form.selectEventDates')}
+          {t('event.schedule')}
         </label>
         <button
           type="button"
@@ -177,7 +177,7 @@ export const EventDetailsStep = ({
           {values.eventDate?.startDate && values.eventDate?.endDate ? (
             `${formatDate(values.eventDate.startDate)} to ${formatDate(values.eventDate.endDate)}`
           ) : (
-            t('event.form.selectEventDates')
+            t('event.selectDates')
           )}
         </button>
       </div>

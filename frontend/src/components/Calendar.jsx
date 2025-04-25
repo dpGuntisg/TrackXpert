@@ -32,7 +32,7 @@ const Calendar = ({ isRange = false, startDate, endDate, onChange, onClose }) =>
                     {startDate && endDate ? (
                         `${formatDate(startDate)} to ${formatDate(endDate)}`
                     ) : (
-                        t('event.form.selectDates')
+                        t('common.pickDate')
                     )}
                 </div>
 
