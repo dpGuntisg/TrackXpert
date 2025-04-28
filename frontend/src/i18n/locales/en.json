@@ -457,6 +457,7 @@
     "createEvent": "Create Event",
     "createEventDescription": "Complete all steps to create an event",
     "searchPlaceholder": "Search for an event",
+    "noEvents": "No events found",
     "details": "Details",
     "tracks": "Tracks",
     "schedule": "Event schedule",

@@ -147,11 +147,42 @@ class EventService {
         }
     }
 
-    static async getAllEvents({ page = 1, limit = 6 }) {
+    static async getAllEvents({ page = 1, limit = 6, filters = {} }) {
         try {
             const skip = (page - 1) * limit;
-            const events = await Event.find().skip(skip).limit(limit).populate("images", "data mimeType"); 
-            const totalEvents = await Event.countDocuments();
+            let query = {};
+
+            // Handle search filter
+            if (filters.search) {
+                query.$or = [
+                    { name: { $regex: filters.search, $options: 'i' } },
+                    { description: { $regex: filters.search, $options: 'i' } }
+                ];
+            }
+
+            // Handle tags filter
+            if (filters.tags && filters.tags.length > 0) {
+                query.tags = { $all: filters.tags };
+            }
+
+            // Handle date range filter
+            if (filters.startDate || filters.endDate) {
+                query['date.startDate'] = {};
+                if (filters.startDate) {
+                    query['date.startDate'].$gte = new Date(filters.startDate);
+                }
+                if (filters.endDate) {
+                    query['date.startDate'].$lte = new Date(filters.endDate);
+                }
+            }
+
+            const events = await Event.find(query)
+                .skip(skip)
+                .limit(limit)
+                .populate("images", "data mimeType")
+                .populate("tracks", "name length availability");
+            
+            const totalEvents = await Event.countDocuments(query);
 
             return {
                 events,
