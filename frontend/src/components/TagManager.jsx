@@ -19,7 +19,8 @@ const TagManager = ({
     hasTrackTypeTags: false,
     hasEnoughTags: false,
     hasTooManyTags: false,
-    hasTooManyTrackTypeTags: false
+    hasTooManyTrackTypeTags: false,
+    hasDuplicateTags: false
   });
 
   // Get all valid tags from translations based on type
@@ -78,33 +79,27 @@ const TagManager = ({
 
   // Validate tags and update validation state
   const validateTags = (tags) => {
-    const trackTypeTags = tags.filter(tag => getTagInfo(tag)?.category === 'trackType');
-    const hasTrackTypeTags = trackTypeTags.length > 0;
+    // Common validation for both track and event tags
     const hasEnoughTags = tags.length >= 1;
     const hasTooManyTags = tags.length > maxTags;
-    const hasTooManyTrackTypeTags = trackTypeTags.length > maxTrackTypeTags;
+    const hasDuplicateTags = new Set(tags).size !== tags.length;
 
     setValidationState({
-      hasTrackTypeTags,
       hasEnoughTags,
       hasTooManyTags,
-      hasTooManyTrackTypeTags
+      hasDuplicateTags
     });
 
     if (hasTooManyTags) {
       setError(t('tracks.form.validation.tooManyTags'));
       return false;
     }
-    if (hasTooManyTrackTypeTags) {
-      setError(t('tracks.form.validation.tooManyTrackTypeTags'));
+    if (hasDuplicateTags) {
+      setError(t('tracks.form.validation.duplicateTags'));
       return false;
     }
     if (!hasEnoughTags) {
       setError(t('tracks.form.validation.tagsRequired'));
-      return false;
-    }
-    if (!hasTrackTypeTags) {
-      setError(t('tracks.form.validation.trackTypeRequired'));
       return false;
     }
 

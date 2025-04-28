@@ -6,6 +6,8 @@ import EventStepper from '../components/EventFormSteps/EventStepper';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import axiosInstance from '../utils/axios';
+import { toast } from 'react-toastify';
 
 function CreateEventPage() {
     const [values, setValues] = useState({
@@ -46,6 +48,26 @@ function CreateEventPage() {
         });
     }, []);
 
+    const handleSubmit = async () => {
+        if (!validateStep(step)) {
+            return;
+        }
+        try {
+            const formData = {
+                ...values,
+                date: values.eventDate,
+                registrationDate: values.registrationDate,
+                tracks: Array.isArray(values.track) ? values.track : [values.track]
+            };
+            
+            await axiosInstance.post("/events/createevent", formData);
+            toast.success(t('event.createdSuccessfully'));
+        } catch (error) {
+            console.error('Error submitting form:', error);
+            toast.error(error.response?.data?.message || t('common.error'));
+        }
+    };
+
     const validateStep = useCallback((stepNumber) => {
         const newErrors = {};
         let isValid = true;
@@ -64,8 +86,8 @@ function CreateEventPage() {
                     newErrors.eventDate = t('event.form.validation.eventDateRequired');
                     isValid = false;
                 }
-                if(!values.tags || values.tags.length === 0){
-                    newErrors.tags = t('tracks.form.validation.tagRequired');
+                if (!values.tags || values.tags.length === 0) {
+                    newErrors.tags = t('event.form.validation.eventTypeRequired');
                     isValid = false;
                 }
                 if (!values.images || values.images.length === 0) {
@@ -200,7 +222,13 @@ function CreateEventPage() {
                             </button>
 
                             <button
-                                onClick={() => handleStepNavigation('next')}
+                                onClick={() => {
+                                    if (step === steps.length) {
+                                        handleSubmit();
+                                    } else {
+                                        handleStepNavigation('next');
+                                    }
+                                }}
                                 className="px-6 py-3 rounded-lg font-medium transition-colors flex items-center justify-center order-1 sm:order-2 bg-mainRed hover:bg-red-700"
                             >
                                 {step === steps.length ? (

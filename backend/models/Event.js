@@ -34,11 +34,11 @@ const EventSchema = new mongoose.Schema({
     location: {
         type: String,
     },
-    track: { 
+    tracks: [{ 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Track', 
-        required: [true, "Track selection is required"] 
-    },
+        ref: 'Track',
+        required: true
+    }],
     maxParticipants: { 
         type: Number, 
         validate: {
@@ -52,15 +52,14 @@ const EventSchema = new mongoose.Schema({
     unlimitedParticipants: {
         type: Boolean,
         default: false
-      },
+    },
     currentParticipants: { 
         type: Number, 
         default: 0,
         validate: {
             validator: function(v) {
-            // Current participants must not exceed maximum (if limited)
-            if (this.unlimitedParticipants) return true;
-            return v <= this.maxParticipants;
+                if (this.unlimitedParticipants) return true;
+                return v <= this.maxParticipants;
             },
             message: props => `Current participants cannot exceed maximum participants`
         }
@@ -68,28 +67,24 @@ const EventSchema = new mongoose.Schema({
     images: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Image',
-        validate: {
-          validator: function(v) {
-            // At least one image is required
-            return Array.isArray(v) && v.length > 0;
-          },
-          message: props => "At least one image is required"
-        }
+        required: true
     }],
     status: { 
         type: String, 
         enum: ['soon', 'active', 'completed'],
         default: "soon"
     },
-    registrationDeadline: { 
-        type: Date, 
-        required: [true, "Registration deadline is required"]
+    registrationDate: {
+        startDate: {
+            type: Date,
+            required: [true, "Registration start date is required"]
+        },
+        endDate: {
+            type: Date,
+            required: [true, "Registration deadline is required"]
+        }
     },
-    registrationStartDate: {
-        type: Date,
-        required: [true, "Registration start date is required"]
-    },
-    requireManualRegistration: {
+    requireManualApproval: {
         type: Boolean,
         default: false
     },
@@ -101,11 +96,10 @@ const EventSchema = new mongoose.Schema({
         type: String,
         validate: {
             validator: function(v) {
-            // Required to have detailed instructions if manual approval is required
-            if (this.requireManualApproval) {
-              return v && v.trim().length >= 10;
-            }
-            return true;
+                if (this.requireManualApproval) {
+                    return v && v.trim().length >= 10;
+                }
+                return true;
             },
             message: props => "Detailed registration instructions are required for events with manual approval"
         }
@@ -132,11 +126,11 @@ EventSchema.pre('save', function(next) {
     }
     
     // Validate registration dates
-    if (this.registrationDeadline > this.date.startDate) {
+    if (this.registrationDate.endDate > this.date.startDate) {
       return next(new Error('Registration must end before event starts'));
     }
     
-    if (this.registrationStartDate > this.registrationDeadline) {
+    if (this.registrationDate.startDate > this.registrationDate.endDate) {
       return next(new Error('Registration start date must be before deadline'));
     }
     

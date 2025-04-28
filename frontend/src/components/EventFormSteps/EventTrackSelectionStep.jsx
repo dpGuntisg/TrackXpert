@@ -39,7 +39,8 @@ export const EventTrackSelectionStep = ({
             ? selectedTracks.filter(id => id !== trackId) // remove
             : [...selectedTracks, trackId]; // add
     
-        onSelectionChange(updatedTracks); // update parent
+        // Ensure always pass an array to the parent
+        onSelectionChange(Array.isArray(updatedTracks) ? updatedTracks : [updatedTracks]);
     };
       
 

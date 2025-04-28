@@ -485,7 +485,16 @@
       "selectTracks": "Pievienojiet pasākuma trases",
       "validation":{
         "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus",
-        "trackRequired": "Lūdzu Izvēlaties vismaz vienu trasi"
+        "trackRequired": "Lūdzu Izvēlaties vismaz vienu trasi",
+        "nameTooShort": "Pasākuma nosaukumam jābūt vismaz 5 rakstzīmes garam",
+        "descriptionTooShort": "Pasākuma aprakstam jābūt vismaz 10 rakstzīmes garam",
+        "eventDateRequired": "Pasākuma datumiem jābūt norādītiem",
+        "registrationDateRequired": "Reģistrācijas datumiem jābūt norādītiem",
+        "registrationEndBeforeEventStart": "Reģistrācijai jābeidzas pirms pasākuma sākuma",
+        "participantsRequired": "Dalībnieku skaitam jābūt norādītam",
+        "participantsPositive": "Dalībnieku skaitam jābūt lielākam par 0",
+        "participantsTooMany": "Maksimālais dalībnieku skaits ir 100",
+        "eventTypeRequired": "Lūdzu izvēlieties vismaz vienu pasākuma tipa tagu"
       }
     },
     "tips": {

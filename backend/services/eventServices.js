@@ -4,31 +4,38 @@ import Image from "../models/Images.js";
 import User from "../models/User.js";
 import { createImage } from "./helpers/imageHelper.js";
 import { validateEventTags } from './helpers/tagHelper.js';
+import mongoose from 'mongoose';
 
 class EventService {
-    static async createEvent(userId, { name, description, location, date, tracks, capacity, status, registrationDeadline, images, tags }) {
+    static async createEvent(userId, { name, description, location, date, tracks, participants, unlimitedParticipants, status, registrationDate, images, tags, registrationInstructions, requireManualApproval, generatePdfTickets }) {
         try {
             const created_by = userId;
-            const tracks = tracks.map(track => track._id);
             const eventData = {
                 created_by,
                 name,
                 description,
                 location,
-                date,
-                tracks,
-                capacity,
-                status,
-                registrationDeadline,
-                images,
-                tags
+                date: {
+                    startDate: date?.startDate ? new Date(date.startDate) : null,
+                    endDate: date?.endDate ? new Date(date.endDate) : null
+                },
+                tracks: tracks || [],
+                maxParticipants: unlimitedParticipants ? null : participants,
+                unlimitedParticipants,
+                currentParticipants: 0,
+                status: status || 'soon',
+                registrationDate: {
+                    startDate: registrationDate?.startDate ? new Date(registrationDate.startDate) : null,
+                    endDate: registrationDate?.endDate ? new Date(registrationDate.endDate) : null
+                },
+                images: [],
+                tags: tags || [],
+                registrationInstructions,
+                requireManualApproval,
+                generatePdfTickets
             };
 
-            const existingTracks = await Track.find({ _id: { $in: tracks } });
-            if (existingTracks.length !== tracks.length) {
-                throw new Error("One or more tracks not found");
-            }
-
+            // Handle images first
             if (images && Array.isArray(images)) {
                 const imageIds = [];
                 for (let image of images) {
@@ -37,23 +44,71 @@ class EventService {
                 }
                 eventData.images = imageIds;
             }
+
+            // Validate tracks
+            if (!eventData.tracks || !Array.isArray(eventData.tracks) || eventData.tracks.length === 0) {
+                throw new Error("At least one track is required");
+            }
+
+            // Convert track IDs to ObjectId
+            eventData.tracks = eventData.tracks.map(trackId => {
+                if (typeof trackId === 'string') {
+                    return new mongoose.Types.ObjectId(trackId);
+                }
+                return trackId;
+            });
+
+            // Validate that tracks exist
+            const existingTracks = await Track.find({ _id: { $in: eventData.tracks } });
+            if (existingTracks.length !== eventData.tracks.length) {
+                throw new Error("One or more tracks not found");
+            }
+
+            // Validate dates
+            if (!eventData.date.startDate || !eventData.date.endDate) {
+                throw new Error("Event dates are required");
+            }
+            if (eventData.date.endDate < eventData.date.startDate) {
+                throw new Error("Event end date must be after start date");
+            }
+
+            if (!eventData.registrationDate.startDate || !eventData.registrationDate.endDate) {
+                throw new Error("Registration dates are required");
+            }
+            if (eventData.registrationDate.endDate > eventData.date.startDate) {
+                throw new Error("Registration must end before event starts");
+            }
+            if (eventData.registrationDate.startDate > eventData.registrationDate.endDate) {
+                throw new Error("Registration start date must be before deadline");
+            }
+
+            // Validate participants
+            if (!unlimitedParticipants) {
+                if (!participants || participants <= 0) {
+                    throw new Error("Number of participants must be greater than 0");
+                }
+                if (participants > 100) {
+                    throw new Error("Maximum number of participants is 100");
+                }
+            }
+
             return await Event.create(eventData);
         } catch (error) {
-            console.error("Error creating an event:", error);
-            throw new Error("Failed to create event");
+            console.error("Error creating event:", error);
+            throw new Error(error.message || "Failed to create event");
         }
     }
 
     static async updateEvent(eventId, userId, updated) {
         try {
+            const event = await Event.findById(eventId);
+            if (!event) throw new Error("Event not found");
+            if (event.created_by.toString() !== userId) throw new Error("Unauthorized");
+
             // Validate tags if provided
             if (updated.tags !== undefined) {
                 validateEventTags(updated.tags || []);
             }
-
-            const event = await Event.findById(eventId);
-            if (!event) throw new Error("Event not found");
-            if (event.created_by.toString() !== userId) throw new Error("Unauthorized");
 
             const imagesToDelete = [];
       
@@ -71,6 +126,13 @@ class EventService {
                 imagesToDelete.push(...existingImageIds.filter(id => !imageIds.includes(id)));
 
                 updated.images = imageIds;
+            }
+
+            // Handle participants update
+            if (updated.unlimitedParticipants !== undefined) {
+                updated.maxParticipants = updated.unlimitedParticipants ? null : updated.participants;
+            } else if (updated.participants !== undefined) {
+                updated.maxParticipants = event.unlimitedParticipants ? null : updated.participants;
             }
 
             if (imagesToDelete.length > 0) {

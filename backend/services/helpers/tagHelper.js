@@ -106,42 +106,46 @@ export const validateTrackTags = (tags) => {
     return true;
 };
 
+// Get all valid tags from both track and event categories
+export const getAllValidTags = () => {
+    const allTags = new Set();
+    
+    // Add track tags
+    Object.values(TRACK_TAG_CATEGORIES).forEach(category => {
+        category.forEach(tag => allTags.add(tag));
+    });
+    
+    // Add event tags
+    Object.values(EVENT_TAG_CATEGORIES).forEach(category => {
+        category.forEach(tag => allTags.add(tag));
+    });
+    
+    return Array.from(allTags);
+};
+
 // Validate event tags
 export const validateEventTags = (tags) => {
-    if (!tags || !Array.isArray(tags)) {
+    if (!Array.isArray(tags)) {
         throw new Error("Tags must be an array");
     }
 
-    // Check if there's at least one event type tag
-    const eventTypeTags = tags.filter(tag => EVENT_TAG_CATEGORIES.eventType.includes(tag));
-    if (eventTypeTags.length === 0) {
-        throw new Error("Event must have at least one event type tag");
+    // Check if all tags are valid
+    const validTags = getAllValidTags();
+    for (const tag of tags) {
+        if (!validTags.includes(tag)) {
+            throw new Error(`Invalid tag: ${tag}`);
+        }
     }
 
-    // Check if there's at least one vehicle requirement tag
-    const vehicleRequirementTags = tags.filter(tag => EVENT_TAG_CATEGORIES.vehicleRequirements.includes(tag));
-    if (vehicleRequirementTags.length === 0) {
-        throw new Error("Event must have at least one vehicle requirement tag");
+    // Check for duplicate tags
+    const uniqueTags = new Set(tags);
+    if (uniqueTags.size !== tags.length) {
+        throw new Error("Duplicate tags are not allowed");
     }
 
-    // Check difficulty tags limit
-    const difficultyTags = tags.filter(tag => EVENT_TAG_CATEGORIES.difficulty.includes(tag));
-    if (difficultyTags.length > 1) {
-        throw new Error("Event can only have one difficulty level");
-    }
-
-    // Check total number of tags
+    // Maximum 10 tags
     if (tags.length > 10) {
-        throw new Error("Event cannot have more than 10 tags total");
-    }
-
-    // Validate tag values
-    const validTags = Object.values(EVENT_TAG_CATEGORIES).reduce((acc, category) => {
-        return [...acc, ...category];
-    }, []);
-    const invalidTags = tags.filter(tag => !validTags.includes(tag));
-    if (invalidTags.length > 0) {
-        throw new Error(`Invalid tags: ${invalidTags.join(', ')}`);
+        throw new Error("Maximum 10 tags allowed");
     }
 
     return true;

@@ -482,12 +482,21 @@
       "selectTracks": "Select tracks for your event",
       "validation":{
         "tooManyImages": "You can only upload up to 7 images",
-        "trackRequired": "Please select at least one track"
+        "trackRequired": "Please select at least one track",
+        "nameTooShort": "Event name must be at least 5 characters long",
+        "descriptionTooShort": "Event description must be at least 10 characters long",
+        "eventDateRequired": "Event dates are required",
+        "registrationDateRequired": "Registration dates are required",
+        "registrationEndBeforeEventStart": "Registration must end before event starts",
+        "participantsRequired": "Number of participants is required",
+        "participantsPositive": "Number of participants must be greater than 0",
+        "participantsTooMany": "Maximum number of participants is 100",
+        "eventTypeRequired": "Please select at least one event type tag"
       }
     },
     "tips": {
-      "manualApproval": "You will need to manually approve each participant, before they can join your event.",
-      "pdfTickets": "The system will generate PDF tickets for your event participants, they can download and print them, or email them to their email address."
+      "manualApproval": "You will need to manually approve each participant before they can attend the event.",
+      "pdfTickets": "The system will generate PDF tickets that participants can download and print or show on their device."
     }
   },
   "notifications": {
