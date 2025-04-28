@@ -189,6 +189,8 @@
       "enterCustomLocation": "Enter specific location (optional)",
       "address": "Address",
       "enterAddress": "Enter street address (optional)",
+      "locationDetails": "Location Details",
+      "enterLocationDetails": "Enter specific location details (e.g., street address, landmark)",
       "loadingLocations": "Loading locations...",
       "trackImages": "Track Images",
       "addImages": "Add Images",
@@ -202,6 +204,7 @@
       "joiningRequirementsHelp": "All users will still be able to contact you via the provided contact information.",
       "requestFormTitle": "Track Participation Request",
       "bookSession":"Rezervēt dalību trasē",
+      "selectedTags": "Selected Tags",
       "validation": {
         "nameTooShort": "Track name must be at least 5 characters long.",
         "nameTooLong": "Track name is too long (maximum 100 characters).",
@@ -210,15 +213,24 @@
         "locationTooShort": "Track location must be at least 5 characters long.",
         "locationTooLong": "Track location is too long (maximum 100 characters).",
         "imageRequired": "At least one track image is required.",
-        "tagsRequired": "At least one tag is required.",
-        "tooManyTrackTypeTags": "You can only select up to 2 track type tags.",
-        "tooManyTags": "You can only select up to 5 tags total.",
+        "tagsRequired": "Please select at least one tag",
+        "trackTypeRequired": "Please select at least one track type",
+        "selectTrackType": "Select track type",
+        "selectMoreTags": "Select more tags",
+        "tooManyTrackTypeTags": "You can select up to 2 track types",
+        "oneDifficultyLevel": "You can only select one difficulty level",
+        "tooManyTags": "You can select up to 5 tags",
         "tooManyImages": "You can only upload up to 7 images",
         "fixErrors": "Please fix the errors before continuing.",
         "notAuthenticated": "You must be logged in to create a track.",
         "availabilityRequired": "Please add at least one availability slot",
         "saveDrawing": "To save the drawing, please click the 'Save' icon on the map.",
-        "geometryRequired": "Please either place a marker or draw a track on the map"
+        "geometryRequired": "Please either place a marker or draw a track on the map",
+        "fetchCountries": "Failed to load countries. Please try again.",
+        "fetchRegions": "Failed to load regions. Please try again.",
+        "fetchCities": "Failed to load cities. Please try again.",
+        "selectCountryFirst": "Please select a country first",
+        "selectRegionFirst": "Please select a region first"
       },
       "success": "Track created successfully!",
       "successEdit": "Track updated successfully!",
@@ -265,6 +277,7 @@
   },
   "tags": {
     "track": {
+      "title": "Track Tags",
       "trackType": {
         "title": "Track Type",
         "road_course": "Road Course",
@@ -350,6 +363,7 @@
       }
     },
     "event": {
+      "title": "Event Tags",
       "eventType": {
         "title": "Event Type",
         "track_day": "Track Day",

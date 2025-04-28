@@ -208,8 +208,10 @@
       "address": "Adrese",
       "enterAddress": "Ievadiet ielas adresi (neobligāti)",
       "loadingLocations": "Ielādē vietas...",
-      "tagHelper": "Izvēlaties kaut kādu tipu vismaz 2 fix this.",
-      "validation": {
+      "tagHelper": "Lūdzu, izvēlieties vismaz vienu tagu",
+      "locationDetails": "Vietas informācija",
+      "enterLocationDetails": "Ievadiet konkrētas vietas aprakstu (piem., ielas adrese, orientieris)",
+      "errors": {
         "nameTooShort": "Trases nosaukumam jābūt vismaz 5 rakstzīmes garam.",
         "nameTooLong": "Trases nosaukums ir pārāk garš (maksimums 100 rakstzīmes).",
         "descriptionTooShort": "Trases aprakstam jābūt vismaz 10 rakstzīmes garam.",
@@ -222,13 +224,28 @@
         "availabilityRequired": "Lūdzu, pievienojiet vismaz vienu pieejamības laiku",
         "geometryRequired": "Lūdzu, novietojiet marķieri vai uzzīmējiet trasi uz kartes",
         "saveDrawing": "Lai saglabātu zīmējumu, lūdzu, noklikšķiniet uz 'Saglabāt' ikonas kartē.",
-        "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus"
+        "tooManyImages": "Jūs varat augšupielādēt tikai 7 attēlus",
+        "fetchCountries": "Neizdevās ielādēt valstis. Lūdzu, mēģiniet vēlreiz.",
+        "fetchRegions": "Neizdevās ielādēt reģionus. Lūdzu, mēģiniet vēlreiz.",
+        "fetchCities": "Neizdevās ielādēt pilsētas. Lūdzu, mēģiniet vēlreiz.",
+        "selectCountryFirst": "Lūdzu, vispirms izvēlieties valsti",
+        "selectRegionFirst": "Lūdzu, vispirms izvēlieties reģionu"
       },
       "success": "Trase veiksmīgi izveidota!",
       "successEdit": "Trase veiksmīgi rediģēta!",
       "successDelete": "Trase veiksmīgi dzēsta!",
       "deleteSuccess": "Profils veiksmīgi dzēsts!",
-      "error": "Neizdevās izveidot trasi. Lūdzu, mēģiniet vēlreiz."
+      "error": "Neizdevās izveidot trasi. Lūdzu, mēģiniet vēlreiz.",
+      "selectedTags": "Izvēlētie tagi",
+      "validation": {
+        "tooManyTrackTypeTags": "Jūs varat izvēlēties līdz 2 trases tipiem",
+        "oneDifficultyLevel": "Var izvēlēties tikai vienu grūtības līmeni",
+        "tooManyTags": "Jūs varat izvēlēties līdz 5 tagiem",
+        "tagsRequired": "Lūdzu, izvēlieties vismaz vienu tagu",
+        "trackTypeRequired": "Lūdzu, izvēlieties vismaz vienu trases tipu",
+        "selectTrackType": "Izvēlieties trases tipu",
+        "selectMoreTags": "Izvēlieties vairāk tagu"
+      }
     }
   },
   "notFound": {
@@ -263,6 +280,7 @@
   },
   "tags": {
     "track": {
+      "title": "Trases Tagi",
       "trackType": {
         "title": "Trases Tips",
         "road_course": "Ceļa Trase",
@@ -348,6 +366,7 @@
       }
     },
     "event": {
+      "title": "Pasākuma Tagi",
       "eventType": {
         "title": "Pasākuma Tips",
         "track_day": "Trases Diena",

@@ -148,13 +148,13 @@ export const TrackForm = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">{t('tracks.form.trackTags')}</label>
         <TagManager
           value={values.tags || []}
           onChange={handleTagChange}
           type="track"
           error={errors.tags && touched.tags}
           helperText={errors.tags && touched.tags ? errors.tags : t('tracks.form.tagHelper')}
+          touched={touched.tags}
         />
       </div>
 
