@@ -13,15 +13,9 @@ const SearchAndFilter = ({
   className = "",
   initialFilters = {
     tags: [],
-    minLength: '',
-    maxLength: '',
-    availability: {
-      days: [],
-      filterType: 'single',
-      rangeDays: {
-        from: '',
-        to: ''
-      }
+    dateRange: {
+      startDate: null,
+      endDate: null
     }
   }
 }) => {
@@ -148,6 +142,7 @@ const SearchAndFilter = ({
               type={type}
               activeCategory={activeCategory}
               onCategorySelect={handleCategorySelect}
+              initialFilters={filters}
             />
           </div>
         </div>

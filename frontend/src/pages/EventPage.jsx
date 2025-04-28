@@ -4,24 +4,55 @@ import { useTranslation } from 'react-i18next';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
 import SearchAndFilter from '../components/SearchAndFilter';
+import EventCard from '../components/EventCard';
 
 function EventPage() {
     const { t } = useTranslation();
     const { userId } = useAuth();
     const [searchQuery, setSearchQuery] = useState('');
+    const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState({
         tags: [],
-        minLength: '',
-        maxLength: '',
-        availability: {
-            days: [],
-            filterType: 'single',
-            rangeDays: {
-                from: '',
-                to: ''
-            }
+        dateRange: {
+            startDate: null,
+            endDate: null
         }
     });
+
+    const fetchEvents = async () => {
+        try {
+            setLoading(true);
+            const params = new URLSearchParams();
+            
+            if (searchQuery) {
+                params.append('search', searchQuery);
+            }
+            
+            if (filters.tags.length > 0) {
+                params.append('tags', filters.tags.join(','));
+            }
+            
+            if (filters.dateRange.startDate) {
+                params.append('startDate', filters.dateRange.startDate);
+            }
+            
+            if (filters.dateRange.endDate) {
+                params.append('endDate', filters.dateRange.endDate);
+            }
+            
+            const response = await axiosInstance.get(`/events/getevents?${params.toString()}`);
+            setEvents(response.data.events);
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchEvents();
+    }, [searchQuery, filters]);
 
     const handleSearch = (query) => {
         setSearchQuery(query);
@@ -51,6 +82,23 @@ function EventPage() {
                         <span className="hidden sm:inline">{t('event.createEvent')}</span>
                     </Link>
                 }
+            </div>
+
+            {/* Events Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {loading ? (
+                    <div className="col-span-full flex justify-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainRed"></div>
+                    </div>
+                ) : events.length > 0 ? (
+                    events.map(event => (
+                        <EventCard key={event._id} event={event} />
+                    ))
+                ) : (
+                    <div className="col-span-full text-center text-gray-400">
+                        {t('event.noEvents')}
+                    </div>
+                )}
             </div>
         </div>
     );

@@ -150,7 +150,7 @@ class EventService {
     static async getAllEvents({ page = 1, limit = 6 }) {
         try {
             const skip = (page - 1) * limit;
-            const events = await Event.find().skip(skip).limit(limit).populate("images", "data mimeType"); // Added `await`
+            const events = await Event.find().skip(skip).limit(limit).populate("images", "data mimeType"); 
             const totalEvents = await Event.countDocuments();
 
             return {
