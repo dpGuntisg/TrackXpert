@@ -236,6 +236,26 @@ class EventService {
             throw new Error("Failed to delete event");
         }
     }
+
+    static async likeEvent(eventId, userId) {
+        const event = await Event.findById(eventId);
+        if (!event) throw new Error("Event not found");
+        if (!event.likes) event.likes = [];
+        if (!event.likes.includes(userId)) {
+            event.likes.push(userId);
+            await event.save();
+        }
+        return event;
+    }
+
+    static async unlikeEvent(eventId, userId) {
+        const event = await Event.findById(eventId);
+        if (!event) throw new Error("Event not found");
+        if (!event.likes) event.likes = [];
+        event.likes = event.likes.filter(id => id.toString() !== userId);
+        await event.save();
+        return event;
+    }
 }
 
 export default EventService;

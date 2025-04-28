@@ -364,6 +364,7 @@
     },
     "event": {
       "title": "Event Tags",
+      "helper": "Select event tags (type, difficulty, vehicle requirements, features)",
       "eventType": {
         "title": "Event Type",
         "track_day": "Track Day",
@@ -493,7 +494,8 @@
         "participantsPositive": "Number of participants must be greater than 0",
         "participantsTooMany": "Maximum number of participants is 100",
         "eventTypeRequired": "Please select at least one event type tag"
-      }
+      },
+      "tagHelper": "Select event tags (type, difficulty, vehicle requirements, features)"
     },
     "tips": {
       "manualApproval": "You will need to manually approve each participant before they can attend the event.",

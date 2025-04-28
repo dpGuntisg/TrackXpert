@@ -27,7 +27,7 @@ const TagManager = ({
   const getValidTags = () => {
     const type = isEvent ? 'event' : 'track';
     const categories = isEvent 
-      ? ['eventType', 'difficulty', 'vehicleRequirements', 'specialFeatures', 'eventFormat']
+      ? ['eventType', 'difficulty', 'vehicleRequirements', 'specialFeatures']
       : ['trackType', 'difficulty', 'surfaceType', 'vehicleType', 'specialFeatures'];
     
     return categories.reduce((acc, category) => {
@@ -40,7 +40,7 @@ const TagManager = ({
   const getTagInfo = (tag) => {
     const type = isEvent ? 'event' : 'track';
     const categories = isEvent 
-      ? ['eventType', 'difficulty', 'vehicleRequirements', 'specialFeatures', 'eventFormat']
+      ? ['eventType', 'difficulty', 'vehicleRequirements', 'specialFeatures']
       : ['trackType', 'difficulty', 'surfaceType', 'vehicleType', 'specialFeatures'];
     
     for (const category of categories) {
@@ -151,7 +151,7 @@ const TagManager = ({
   const getCategories = () => {
     const type = isEvent ? 'event' : 'track';
     return isEvent 
-      ? ['eventType', 'difficulty', 'vehicleRequirements', 'specialFeatures', 'eventFormat']
+      ? ['eventType', 'difficulty', 'vehicleRequirements', 'specialFeatures']
       : ['trackType', 'difficulty', 'surfaceType', 'vehicleType', 'specialFeatures'];
   };
 
@@ -171,7 +171,9 @@ const TagManager = ({
     <div className="space-y-4">
       {/* Title */}
       <h3 className="text-sm font-medium text-gray-400">
-        {t(`tags.${isEvent ? 'event' : 'track'}.title`)}
+        {isEvent
+          ? 'Select event tags (type, difficulty, vehicle requirements, features)'
+          : t(`tags.track.title`)}
       </h3>
 
       {/* Category Selection */}

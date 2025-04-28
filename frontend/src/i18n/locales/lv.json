@@ -367,6 +367,7 @@
     },
     "event": {
       "title": "Pasākuma Tagi",
+      "helper": "Izvēlieties pasākuma tagus (tips, grūtības pakāpe, transportlīdzekļu prasības, īpašības)",
       "eventType": {
         "title": "Pasākuma Tips",
         "track_day": "Trases Diena",
@@ -473,6 +474,7 @@
     "regInstructionsPlaceholder": "Piem. 'Līdzi ņemt ID karti un ķiveri'",
     "requireManualApproval": "Ieslēgt manuālo apstiprināšanu",
     "generatePDF": "PDF bilžu ģenerēšana",
+    "tagHelper": "Izvēlieties pasākuma tagus (tips, grūtības pakāpe, transportlīdzekļu prasības, īpašības)",
     "form":{
       "name": "Pasākuma Nosaukums",
       "namePlaceholder": "Ievadiet pasākuma nosaukumu *",
@@ -495,7 +497,8 @@
         "participantsPositive": "Dalībnieku skaitam jābūt lielākam par 0",
         "participantsTooMany": "Maksimālais dalībnieku skaits ir 100",
         "eventTypeRequired": "Lūdzu izvēlieties vismaz vienu pasākuma tipa tagu"
-      }
+      },
+      "tagHelper": "Izvēlieties pasākuma tagus (tips, grūtības pakāpe, transportlīdzekļu prasības, īpašības)"
     },
     "tips": {
       "manualApproval": "Jums manuāli būs jāapstiprina katrs dalībnieks, pirms viņš varēs piedalīties pasākumā.",

@@ -113,7 +113,8 @@ const EventSchema = new mongoose.Schema({
             },
             message: props => `${props.value} contains invalid tags!`
         }
-    }
+    },
+    likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, {
     timestamps: true
 });

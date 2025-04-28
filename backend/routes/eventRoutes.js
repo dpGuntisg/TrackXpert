@@ -31,4 +31,22 @@ router.get("/getevents", async (req, res) =>{
       }
 });
 
+router.post("/:id/like", verifyToken, async (req, res) => {
+    try {
+        const event = await EventService.likeEvent(req.params.id, req.userId);
+        res.status(200).json({ message: "Event liked", event });
+    } catch (error) {
+        res.status(error.status || 500).json({ message: error.message });
+    }
+});
+
+router.post("/:id/unlike", verifyToken, async (req, res) => {
+    try {
+        const event = await EventService.unlikeEvent(req.params.id, req.userId);
+        res.status(200).json({ message: "Event unliked", event });
+    } catch (error) {
+        res.status(error.status || 500).json({ message: error.message });
+    }
+});
+
 export default router;

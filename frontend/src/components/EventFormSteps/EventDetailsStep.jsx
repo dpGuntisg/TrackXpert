@@ -211,9 +211,9 @@ export const EventDetailsStep = ({
         <TagManager
           value={values.tags || []}
           onChange={handleTagChange}
-          type="event"
+          isEvent={true}
           error={errors.tags}
-          helperText={errors.tags ? errors.tags : t('tracks.form.tagHelper')}
+          helperText={errors.tags ? errors.tags : 'Select event tags (type, difficulty, vehicle requirements, features)'}
         />
       </div>
       <div>
