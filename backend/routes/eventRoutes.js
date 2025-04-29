@@ -39,6 +39,25 @@ router.get("/:id", async (req, res) =>{
     }
 });
 
+router.patch("/:id", verifyToken, async (req, res) => {
+    try {
+        const event = await EventService.updateEvent(req.params.id, req.userId, req.body);
+        res.status(200).json({ message: "Event updated successfully", event });
+    } catch (error) {
+        res.status(error.status || 500).json({ message: error.message });
+    }
+});
+
+router.delete("/:id", verifyToken, async (req, res) => {
+    try {
+        const event = await EventService.deleteEvents(req.params.id, req.userId);
+        res.status(200).json({ message: "Event deleted successfully", event });
+    } catch (error) {
+        res.status(error.status || 500).json({ message: error.message });
+    }
+});
+
+
 router.post("/:id/like", verifyToken, async (req, res) => {
     try {
         const event = await EventService.likeEvent(req.params.id, req.userId);
@@ -56,6 +75,5 @@ router.post("/:id/unlike", verifyToken, async (req, res) => {
         res.status(error.status || 500).json({ message: error.message });
     }
 });
-
 
 export default router;

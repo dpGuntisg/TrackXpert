@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faHeart, faCalendarAlt, faMapMarkerAlt, faUsers, faTicketAlt, 
   faTag, faFlagCheckered, faRoad, faCar, faStar, faCog, faLightbulb,
   faChevronLeft, faChevronRight, faArrowLeft, faClock, faIdCard,
-  faCheckCircle, faTimesCircle, faInfoCircle, faSpinner, faExclamationCircle
+  faCheckCircle, faTimesCircle, faInfoCircle, faSpinner, faExclamationCircle,
+  faPencil, faTrash
 } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
 import UserContact from "../components/UserContact.jsx";
 import TrackCard from "../components/TrackCard.jsx";
+import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 
 // Reuse tag utility functions from EventCard
 const getTagIcon = (category) => {
@@ -77,6 +79,7 @@ const formatDate = (dateString) => {
 const EventDetailPage = () => {
     const { t } = useTranslation();
     const { id } = useParams();
+    const navigate = useNavigate();
     const { userId, isAuthenticated } = useAuth();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -86,6 +89,7 @@ const EventDetailPage = () => {
     const [likeCount, setLikeCount] = useState(0);
     const [isRegistered, setIsRegistered] = useState(false);
     const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
+    const [deleteConfirmation, setDeleteConfirmation] = useState(false);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -163,6 +167,17 @@ const EventDetailPage = () => {
             setCurrentImageIndex(prev => (prev === 0 ? event.images.length - 1 : prev - 1));
         } else {
             setCurrentImageIndex(prev => (prev === event.images.length - 1 ? 0 : prev + 1));
+        }
+    };
+
+    const handleDelete = async () => {
+        try {
+            await axiosInstance.delete(`/events/${id}`);
+            toast.success(t('event.deletedSuccessfully'));
+            navigate('/events');
+        } catch (error) {
+            console.error('Error deleting event:', error);
+            toast.error(error.response?.data?.message || t('common.error'));
         }
     };
 
@@ -270,18 +285,40 @@ const EventDetailPage = () => {
                             <div className="flex justify-between items-start mb-4">
                                 <h1 className="text-3xl font-bold text-mainYellow">{event.name}</h1>
                                 
-                                {/* Like button */}
-                                {userId && userId !== event.created_by?._id && (
-                                    <button
-                                        onClick={handleLikeClick}
-                                        className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-                                            isLiked ? 'bg-mainRed text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-                                        } transition-colors`}
-                                    >
-                                        <FontAwesomeIcon icon={faHeart} />
-                                        <span>{likeCount}</span>
-                                    </button>
-                                )}
+                                <div className="flex items-center gap-2">
+                                    {/* Like button */}
+                                    {userId && userId !== event.created_by?._id && (
+                                        <button
+                                            onClick={handleLikeClick}
+                                            className={`flex items-center gap-2 px-4 py-2 rounded-full ${
+                                                isLiked ? 'bg-mainRed text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                                            } transition-colors`}
+                                        >
+                                            <FontAwesomeIcon icon={faHeart} />
+                                            <span>{likeCount}</span>
+                                        </button>
+                                    )}
+                                    
+                                    {/* Edit and Delete buttons for event owner */}
+                                    {userId === event.created_by?._id && (
+                                        <>
+                                            <button
+                                                onClick={() => navigate(`/events/edit/${id}`)}
+                                                className="font-semibold text-mainYellow px-6 py-2 rounded-lg hover:text-mainRed transition-colors flex items-center"
+                                            >
+                                                <FontAwesomeIcon icon={faPencil} className="mr-2" />
+                                                <span>{t('common.edit')}</span>
+                                            </button>
+                                            <button
+                                                onClick={() => setDeleteConfirmation(true)}
+                                                className="font-semibold text-mainYellow px-6 py-2 rounded-lg hover:text-mainRed transition-colors flex items-center"
+                                            >
+                                                <FontAwesomeIcon icon={faTrash} className="mr-2" />
+                                                <span>{t('common.delete')}</span>
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
                             </div>
                             
                             {/* Tags */}
@@ -448,6 +485,18 @@ const EventDetailPage = () => {
                     </div>
                 </div>
             </div>
+            
+            {/* Delete Confirmation Modal */}
+            {deleteConfirmation && (
+                <DeleteConfirmationModal 
+                    onCancel={() => setDeleteConfirmation(false)}
+                    onConfirm={handleDelete}
+                    title={t('event.deleteEvent')}
+                    message={t('event.confirmDelete')}
+                    confirmText={t('event.confirmDelete')}
+                    cancelText={t('common.cancel')}
+                />
+            )}
         </div>
     );
 };

@@ -76,7 +76,7 @@ function EventPage() {
                 </div>
                 {userId && 
                     <Link className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-                        to="/create-event"
+                        to="/events/create"
                         aria-label={t('event.createEvent')}>
                         <span className="text-xl">+</span>
                         <span className="hidden sm:inline">{t('event.createEvent')}</span>

@@ -460,7 +460,11 @@
   "event": {
     "title": "Izpēti Pasākumus",
     "createEventDescription": "Izpildiet visus soļus lai izveidotu pasākumu",
+    "editEventDescription": "Izpildiet visus soļus lai rediģētu pasākumu",
     "createEvent": "Izveidot Pasākumu",
+    "editEvent": "Rediģēt Pasākumu",
+    "deleteEvent": "Dzēst Pasākumu",
+    "confirmDelete": "Vai tiešām vēlaties neatgriezeniski dzēst šo pasākumu? Šo darbību nevar atsaukt.",
     "searchPlaceholder": "Meklēt pasākumu",
     "details": "Pamatinformācija",
     "tracks": "Trases",

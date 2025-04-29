@@ -55,10 +55,19 @@ const router = createBrowserRouter([
         errorElement: <NotFoundPage />,
       },
       {
-        path: "/create-event",
+        path: "/events/create",
         element: (
           <ProtectedRoute>
-            <CreateEventPage />
+            <CreateEventPage mode="create" />
+          </ProtectedRoute>
+        ),
+        errorElement: <NotFoundPage />,
+      },
+      {
+        path: "/events/edit/:eventId",
+        element: (
+          <ProtectedRoute>
+            <CreateEventPage mode="edit" />
           </ProtectedRoute>
         ),
         errorElement: <NotFoundPage />,

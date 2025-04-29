@@ -118,7 +118,11 @@ export const EventDetailsStep = ({
 
   const formatDate = (date) => {
     if (!date) return "";
-    return date.toLocaleDateString('en-US', {
+    // Ensure we have a Date object
+    const dateObj = date instanceof Date ? date : new Date(date);
+    // Check if the date is valid
+    if (isNaN(dateObj.getTime())) return "";
+    return dateObj.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
       day: 'numeric'
