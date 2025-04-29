@@ -18,7 +18,8 @@
     "categories": "Categories",
     "step": "step",
     "of":"of",
-    "pickDate": "Pick a date"
+    "pickDate": "Pick a date",
+    "backToEvents":"Back to Events"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
@@ -472,6 +473,34 @@
     "regInstructionsPlaceholder": "E.g. 'Bring your ID card and a driver's license'",
     "requireManualApproval": "Turn on manual approval",
     "generatePDF": "Generate PDF Tickets",
+    "liked": "Liked",
+    "unliked": "Unliked",
+    "like": "Like",
+    "unlike": "Unlike",
+    "backToEvents": "Back to Events",
+    "noImagesAvailable": "No images available",
+    "description": "Description",
+    "to": "to",
+    "location": "Location",
+    "registrationPeriod": "Registration Period",
+    "registrationOpen": "Registration is open",
+    "registrationClosed": "Registration is closed",
+    "registrationCloses": "Registration closes on {{date}}",
+    "registrationOpens": "Registration opens on {{date}}",
+    "registrationEnded": "Registration has ended",
+    "approvalRequired": "Manual Approval Required",
+    "approvalExplanation": "Your registration will need to be approved by the event organizer before you can participate.",
+    "pdfTicketsProvided": "PDF tickets will be provided upon registration",
+    "alreadyRegistered": "Already Registered",
+    "requestRegistration": "Request Registration",
+    "register": "Register",
+    "eventCompleted": "Event Completed",
+    "status": {
+      "completed": "Completed",
+      "active": "Active",
+      "upcoming": "Upcoming"
+    },
+    "noTracks": "No tracks available for this event",
     "form":{
       "name": "Event Name",
       "namePlaceholder": "Enter the event name *",
@@ -500,7 +529,8 @@
     "tips": {
       "manualApproval": "You will need to manually approve each participant before they can attend the event.",
       "pdfTickets": "The system will generate PDF tickets that participants can download and print or show on their device."
-    }
+    },
+    "dates": "Dates"
   },
   "notifications": {
     "title": "Notifications",

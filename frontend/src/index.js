@@ -13,6 +13,7 @@ import TracksPage from './pages/TracksPage';
 import TrackDetailPage from './pages/TrackDetailPage';
 import EventPage from './pages/EventPage';
 import CreateEventPage from './pages/CreateEventPage';
+import EventDetailPage from './pages/EventDetailPage';
 import ProfilePage from './pages/ProfilePage';
 import NotificationPage from './pages/NotificationPage';
 import Layout from './components/Layout';
@@ -60,6 +61,11 @@ const router = createBrowserRouter([
             <CreateEventPage />
           </ProtectedRoute>
         ),
+        errorElement: <NotFoundPage />,
+      },
+      {
+        path: "/events/:id",
+        element: <EventDetailPage />,
         errorElement: <NotFoundPage />,
       },
       {

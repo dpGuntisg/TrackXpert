@@ -204,8 +204,16 @@ class EventService {
     static async getEventsById(eventId) {
         try {
             const event = await Event.findById(eventId)
-                .populate("created_by", "username _id") 
-                .populate("images", "data mimeType");
+                .populate("created_by", "username _id email") 
+                .populate("images", "data mimeType")
+                .populate({
+                    path: "tracks",
+                    select: "name length availability description images location",
+                    populate: {
+                        path: "images",
+                        select: "data mimeType"
+                    }
+                });
 
             return event;
         } catch (error) {

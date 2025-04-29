@@ -111,8 +111,7 @@ const EventCard = ({ event }) => {
         }
     };
 
-    // Card styles: all cards same size, balanced
-    const cardBase = 'h-[320px] w-full bg-accentBlue rounded-xl shadow-lg overflow-hidden relative flex flex-col';
+    const cardBase = 'h-[320px] w-full bg-accentBlue rounded-xl shadow-lg overflow-hidden relative flex flex-col drop-shadow-lg outline outline-12 outline-mainRed hover:outline-mainYellow hover:scale-105 transition-all ease-in-out duration-300';
 
     return (
         <div className={cardBase + ' group'}>

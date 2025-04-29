@@ -18,7 +18,8 @@
     "categories": "Kategorijas",
     "step": "solis",
     "of":"no",
-    "pickDate": "Izveleieties datumu"
+    "pickDate": "Izveleieties datumu",
+    "backToEvents":"Atpakaļ uz pasākumiem"
   },
   "contact": {
     "title": "Izveidoja"
@@ -30,7 +31,7 @@
   },
   "home": {
     "title": "Kur Trases Iegūst Dzīvību",
-    "subtitle": "Atklāj, Radi, un Sacenties Kā Nekad Iepriekš",
+    "subtitle": "Atklāj, Radi, un Sacientes Kā Nekad Iepriekš",
     "description": "Izpēti mūsu plašo trašu klāstu – izvēlies tās, kas atbilst tavam stilam un piedzīvojumu garam. Sāc savu ceļojumu, izpētot citiem lietotājiem pievienotās trases, vai pievieno jaunas vietas mūsu kopienai!",
     "exploreButton": "IZPĒTIT TRĀSES",
     "features": {
@@ -474,6 +475,35 @@
     "regInstructionsPlaceholder": "Piem. 'Līdzi ņemt ID karti un ķiveri'",
     "requireManualApproval": "Ieslēgt manuālo apstiprināšanu",
     "generatePDF": "PDF bilžu ģenerēšana",
+    "liked": "Patīk",
+    "unliked": "Nepatīk",
+    "like": "Patīk",
+    "unlike": "Nepatīk",
+    "backToEvents": "Atpakaļ uz pasākumiem",
+    "noImagesAvailable": "Nav pieejamu attēlu",
+    "description": "Apraksts",
+    "dateAndTime": "Datums un Laiks",
+    "to": "līdz",
+    "location": "Vieta",
+    "registrationPeriod": "Reģistrācijas periods",
+    "registrationOpen": "Reģistrācija ir atvērta",
+    "registrationClosed": "Reģistrācija ir slēgta",
+    "registrationCloses": "Reģistrācija beidzas {{date}}",
+    "registrationOpens": "Reģistrācija sākas {{date}}",
+    "registrationEnded": "Reģistrācija ir beigusies",
+    "approvalRequired": "Nepieciešama manuāla apstiprināšana",
+    "approvalExplanation": "Jūsu reģistrācija būs jāapstiprina pasākuma organizatoram, pirms jūs varēsiet piedalīties.",
+    "pdfTicketsProvided": "PDF biļetes tiks izsniegtas pēc reģistrācijas",
+    "alreadyRegistered": "Jau reģistrēts",
+    "requestRegistration": "Pieprasīt reģistrāciju",
+    "register": "Reģistrēties",
+    "eventCompleted": "Pasākums ir pabeigts",
+    "status": {
+      "completed": "Pabeigts",
+      "active": "Aktīvs",
+      "upcoming": "Gaida sākšanos"
+    },
+    "noTracks": "Šim pasākumam nav pieejamu trašu",
     "tagHelper": "Izvēlieties pasākuma tagus (tips, grūtības pakāpe, transportlīdzekļu prasības, īpašības)",
     "form":{
       "name": "Pasākuma Nosaukums",
@@ -503,7 +533,8 @@
     "tips": {
       "manualApproval": "Jums manuāli būs jāapstiprina katrs dalībnieks, pirms viņš varēs piedalīties pasākumā.",
       "pdfTickets": "Sistēma ģenerēs PDF biļetes, kuras dalībnieki varēs lejupielādēt un izdrukāt vai uzrādīt ierīcē."
-    }
+    },
+    "dates": "Datumi"
   },
   "notifications": {
     "title": "Paziņojumi",
