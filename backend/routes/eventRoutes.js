@@ -19,10 +19,9 @@ router.get("/getevents", async (req, res) =>{
         const limit = parseInt(req.query.limit) || 6;
         const filters = {
           search: req.query.search,
-          tags: req.query.tags ? JSON.parse(req.query.tags) : undefined,
-          minLength: req.query.minLength,
-          maxLength: req.query.maxLength,
-          availability: req.query.availability ? JSON.parse(req.query.availability) : undefined
+          tags: req.query.tags ? req.query.tags.split(',') : undefined,
+          startDate: req.query.startDate,
+          endDate: req.query.endDate
         };
         const { events, totalPages } = await EventService.getAllEvents({ page, limit, filters });
         res.status(200).json({ message: "Events fetched successfully", events, totalPages });

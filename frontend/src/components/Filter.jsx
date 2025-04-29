@@ -10,6 +10,16 @@ import {
   faCalendar,
   faChevronRight
 } from '@fortawesome/free-solid-svg-icons';
+import Calendar from './Calendar';
+
+const formatDate = (date) => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+};
 
 const Filter = ({ 
   onFilterChange,
@@ -40,6 +50,7 @@ const Filter = ({
 }) => {
   const { t } = useTranslation();
   const [filters, setFilters] = useState(initialFilters);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   // Ensure availability is always defined for tracks
   const currentFilters = type === 'track' ? {
@@ -135,12 +146,12 @@ const Filter = ({
     onFilterChange(newFilters);
   };
 
-  const handleDateRangeChange = (startDate, endDate) => {
+  const handleDateRangeChange = (dates) => {
     const newFilters = {
       ...currentFilters,
       dateRange: {
-        startDate,
-        endDate
+        startDate: dates[0],
+        endDate: dates[1]
       }
     };
     setFilters(newFilters);
@@ -313,21 +324,29 @@ const Filter = ({
       {type === 'event' && (
         <div>
           <h4 className="text-sm font-medium text-mainYellow mb-2">{t('event.schedule')}</h4>
-          <div className="flex gap-2">
-            <input
-              type="date"
-              value={currentFilters.dateRange?.startDate || ''}
-              onChange={(e) => handleDateRangeChange(e.target.value, currentFilters.dateRange?.endDate)}
-              className="w-1/2 bg-gray-800 text-mainYellow border border-gray-700 rounded px-2 py-1"
-            />
-            <input
-              type="date"
-              value={currentFilters.dateRange?.endDate || ''}
-              onChange={(e) => handleDateRangeChange(currentFilters.dateRange?.startDate, e.target.value)}
-              className="w-1/2 bg-gray-800 text-mainYellow border border-gray-700 rounded px-2 py-1"
-            />
-          </div>
+          <button
+            type="button"
+            onClick={() => setShowCalendar(true)}
+            className="flex items-center justify-center w-full py-3 px-4 bg-gray-800 rounded-lg cursor-pointer transition-colors border border-gray-700 hover:border-mainRed"
+          >
+            <FontAwesomeIcon icon={faCalendar} className="mr-2" />
+            {currentFilters.dateRange?.startDate && currentFilters.dateRange?.endDate ? (
+              `${formatDate(currentFilters.dateRange.startDate)} to ${formatDate(currentFilters.dateRange.endDate)}`
+            ) : (
+              t('event.selectDates')
+            )}
+          </button>
         </div>
+      )}
+
+      {showCalendar && (
+        <Calendar
+          isRange={true}
+          startDate={currentFilters.dateRange?.startDate}
+          endDate={currentFilters.dateRange?.endDate}
+          onChange={handleDateRangeChange}
+          onClose={() => setShowCalendar(false)}
+        />
       )}
     </div>
   );

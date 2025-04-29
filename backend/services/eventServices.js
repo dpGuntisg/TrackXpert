@@ -167,13 +167,18 @@ class EventService {
 
             // Handle date range filter
             if (filters.startDate || filters.endDate) {
-                query['date.startDate'] = {};
-                if (filters.startDate) {
-                    query['date.startDate'].$gte = new Date(filters.startDate);
-                }
-                if (filters.endDate) {
-                    query['date.startDate'].$lte = new Date(filters.endDate);
-                }
+                const startDate = filters.startDate ? new Date(filters.startDate) : new Date(0);
+                const endDate = filters.endDate ? new Date(filters.endDate) : new Date('9999-12-31');
+
+                // Find events that overlap with the selected date range
+                query.$and = [
+                    {
+                        'date.startDate': { $lte: endDate }
+                    },
+                    {
+                        'date.endDate': { $gte: startDate }
+                    }
+                ];
             }
 
             const events = await Event.find(query)
