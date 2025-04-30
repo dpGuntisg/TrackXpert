@@ -184,6 +184,7 @@ class EventService {
             const events = await Event.find(query)
                 .skip(skip)
                 .limit(limit)
+                .populate("created_by", "username _id email")
                 .populate("images", "data mimeType")
                 .populate("tracks", "name length availability");
             
@@ -253,6 +254,12 @@ class EventService {
     static async likeEvent(eventId, userId) {
         const event = await Event.findById(eventId);
         if (!event) throw new Error("Event not found");
+        
+        // Check if user is the creator of the event
+        if (event.created_by.toString() === userId) {
+            throw new Error("You cannot like your own event");
+        }
+        
         if (!event.likes) event.likes = [];
         if (!event.likes.includes(userId)) {
             event.likes.push(userId);
@@ -264,6 +271,12 @@ class EventService {
     static async unlikeEvent(eventId, userId) {
         const event = await Event.findById(eventId);
         if (!event) throw new Error("Event not found");
+        
+        // Check if user is the creator of the event
+        if (event.created_by.toString() === userId) {
+            throw new Error("You cannot unlike your own event");
+        }
+        
         if (!event.likes) event.likes = [];
         event.likes = event.likes.filter(id => id.toString() !== userId);
         await event.save();

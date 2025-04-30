@@ -84,7 +84,7 @@ const EventCard = ({ event }) => {
 
     useEffect(() => {
         if (event && Array.isArray(event.likes) && userId) {
-            setIsLiked(event.likes.some(likeId => likeId?.toString() === userId));
+            setIsLiked(event.likes.some(likeId => likeId?.toString() === userId.toString()));
         }
     }, [event, userId]);
 

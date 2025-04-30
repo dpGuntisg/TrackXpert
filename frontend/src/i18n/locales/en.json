@@ -203,8 +203,11 @@
       "joiningRequirements": "Joining Requirements",
       "joiningRequirementsPlaceholder": "Specify any requirements for users who want to join your track (e.g., car specifications, experience level, etc.)",
       "joiningRequirementsHelp": "All users will still be able to contact you via the provided contact information.",
+      "requestMessage": "Your Message",
+      "requestMessagePlaceholder": "Enter your message here...",
+      "sendRequest": "Send Request",
       "requestFormTitle": "Track Participation Request",
-      "bookSession":"Rezervēt dalību trasē",
+      "bookSession": "Book a track session",
       "selectedTags": "Selected Tags",
       "validation": {
         "nameTooShort": "Track name must be at least 5 characters long.",
@@ -534,7 +537,12 @@
       "manualApproval": "You will need to manually approve each participant before they can attend the event.",
       "pdfTickets": "The system will generate PDF tickets that participants can download and print or show on their device."
     },
-    "dates": "Dates"
+    "dates": "Dates",
+    "registrationInfo": "Registration Information",
+    "registrationInfoPlaceholder": "Write the requested information (e.g., your name, contact details, vehicle information, etc.)",
+    "registrationSuccess": "Registration successful!",
+    "registrationPending": "Your registration request has been submitted. The organizer will review it shortly.",
+    "noRegistrationInstructions": "No specific registration instructions provided. Please contact the organizer if you have any questions."
   },
   "notifications": {
     "title": "Notifications",

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler, faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler, faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock, faCheck, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import { MapSelector, startIcon, endIcon} from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
@@ -589,23 +589,85 @@ export default function TrackDetailPage() {
                     )}
                     {track.joining_enabled === true && userId && userId !== track.created_by._id && (
                         <>
-                        <button className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl" 
-                            onClick={openRegisterForm}>
+                        <button 
+                            className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl" 
+                            onClick={openRegisterForm}
+                        >
                             {t('tracks.form.bookSession')}
                         </button>
                         {registerForm && (
-                            <div className="fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 overflow-y-auto" onClick={openRegisterForm}>
-                                <div className="bg-mainBlue rounded-xl p-6 w-full max-w-xl space-y-4 my-8" onClick={(e) => e.stopPropagation()}>
-                                    <error>{error}</error>
-                                    <div className="flex justify-between items-center">
-                                        <h3 className="font-bold text-xl">{t('tracks.form.requestFormTitle')}</h3>
-                                        <p className="cursor-pointer font-bold text-gray-300 hover:text-white" onClick={openRegisterForm}>X</p>
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                                <div className="bg-accentBlue rounded-xl shadow-lg max-w-2xl w-full p-6 relative">
+                                    {/* Close button */}
+                                    <button
+                                        onClick={openRegisterForm}
+                                        className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                                    >
+                                        <FontAwesomeIcon icon={faTimes} size="lg" />
+                                    </button>
+
+                                    <h2 className="text-2xl font-bold text-mainYellow mb-6">
+                                        {t('tracks.form.requestFormTitle')}
+                                    </h2>
+
+                                    {/* Requirements Section */}
+                                    {track.joining_requirements && (
+                                        <div className="mb-6 bg-gray-800/50 p-4 rounded-lg">
+                                            <div className="flex items-start gap-3">
+                                                <FontAwesomeIcon icon={faInfoCircle} className="text-mainYellow mt-1" />
+                                                <div>
+                                                    <h3 className="font-semibold text-white mb-2">
+                                                        {t('tracks.form.joiningRequirements')}
+                                                    </h3>
+                                                    <p className="text-gray-300 text-sm whitespace-pre-line">
+                                                        {track.joining_requirements}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Error message */}
+                                    {error && (
+                                        <div className="mb-6 bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
+                                            <p>{error}</p>
+                                        </div>
+                                    )}
+
+                                    {/* Input field */}
+                                    <div className="mb-6">
+                                        <label className="block text-white font-medium mb-2">
+                                            {t('tracks.form.requestMessage')}
+                                        </label>
+                                        <textarea
+                                            value={content}
+                                            onChange={(e) => setContent(e.target.value)}
+                                            placeholder={t('tracks.form.requestMessagePlaceholder')}
+                                            className="w-full bg-gray-800 text-white rounded-lg p-3 border border-gray-700 focus:border-mainYellow focus:ring-1 focus:ring-mainYellow outline-none min-h-[100px]"
+                                            required
+                                        />
                                     </div>
-                                    <p className="text-gray-300">{track.joining_requirements}</p>
-                                    <input className="w-full px-4 py-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-mainRed focus:ring-2 focus:ring-mainRed transition-all duration-200 outline-none" type="text" value={content} onChange={(e) => setContent(e.target.value)} />
-                                    <div className="flex justify-between">
-                                        <button className="bg-mainYellow hover:bg-yellow-400 text-mainBlue px-6 py-2 rounded-lg font-medium transition-colors" onClick={() => sendRequest(content)}>Send</button>
-                                        <button className="bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors" onClick={openRegisterForm}>Cancel</button>
+
+                                    {/* Action buttons */}
+                                    <div className="flex justify-end gap-4">
+                                        <button
+                                            onClick={openRegisterForm}
+                                            className="px-6 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+                                        >
+                                            {t('common.cancel')}
+                                        </button>
+                                        <button
+                                            onClick={() => sendRequest(content)}
+                                            disabled={!content.trim()}
+                                            className={`px-6 py-2 rounded-lg flex items-center gap-2 transition-colors ${
+                                                !content.trim()
+                                                    ? 'bg-gray-700 cursor-not-allowed opacity-60'
+                                                    : 'bg-mainRed hover:bg-red-700'
+                                            } text-white`}
+                                        >
+                                            <FontAwesomeIcon icon={faCheck} />
+                                            {t('tracks.form.sendRequest')}
+                                        </button>
                                     </div>
                                 </div>
                             </div>

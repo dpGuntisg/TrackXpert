@@ -15,6 +15,7 @@ import { toast } from 'react-toastify';
 import UserContact from "../components/UserContact.jsx";
 import TrackCard from "../components/TrackCard.jsx";
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
+import RegistrationModal from '../components/RegistrationModal';
 
 // Reuse tag utility functions from EventCard
 const getTagIcon = (category) => {
@@ -90,6 +91,7 @@ const EventDetailPage = () => {
     const [isRegistered, setIsRegistered] = useState(false);
     const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+    const [showRegistrationModal, setShowRegistrationModal] = useState(false);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -140,18 +142,22 @@ const EventDetailPage = () => {
         }
     };
 
-    const handleRegister = async () => {
+    const handleRegister = async (registrationInfo) => {
         if (!userId) {
             toast.error(t('auth.loginRequired'));
             return;
         }
         
         try {
-            const response = await axiosInstance.post(`/events/${id}/register`);
+            const response = await axiosInstance.post(`/events/${id}/register`, {
+                registrationInfo: registrationInfo || null
+            });
             if (response.data.success) {
                 setIsRegistered(true);
+                setShowRegistrationModal(false);
                 toast.success(t('event.registrationSuccess'));
             } else if (event.requireManualApproval) {
+                setShowRegistrationModal(false);
                 toast.info(t('event.registrationPending'));
             }
         } catch (error) {
@@ -399,26 +405,7 @@ const EventDetailPage = () => {
                                 </p>
                             </div>
                             
-                            {/* Registration approval info */}
-                            {event.requireManualApproval && (
-                                <div className="mb-6 p-3 rounded-lg bg-gray-800/50 border border-gray-700">
-                                    <div className="flex items-start gap-2">
-                                        <FontAwesomeIcon icon={faInfoCircle} className="text-mainYellow mt-1" />
-                                        <div>
-                                            <p className="font-medium text-white">{t('event.approvalRequired')}</p>
-                                            <p className="text-sm text-gray-300 mt-1">{t('event.approvalExplanation')}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                            
-                            {/* Registration instructions if any */}
-                            {event.registrationInstructions && (
-                                <div className="mb-6">
-                                    <h3 className="font-semibold mb-2 text-white">{t('event.regInstructions')}</h3>
-                                    <p className="text-gray-300 text-sm whitespace-pre-line">{event.registrationInstructions}</p>
-                                </div>
-                            )}
+
                             
                             {/* PDF tickets info */}
                             {event.generatePdfTickets && (
@@ -430,7 +417,7 @@ const EventDetailPage = () => {
                             
                             {/* Register button */}
                             <button
-                                onClick={handleRegister}
+                                onClick={() => setShowRegistrationModal(true)}
                                 disabled={!isRegistrationOpen || isRegistered || eventStatus === 'completed'}
                                 className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                                     isRegistered ? 'bg-green-600 hover:bg-green-700 cursor-default' :
@@ -441,7 +428,7 @@ const EventDetailPage = () => {
                                 {isRegistered ? t('event.alreadyRegistered') :
                                 !isRegistrationOpen ? t('event.registrationClosed') :
                                 eventStatus === 'completed' ? t('event.eventCompleted') :
-                                event.requireManualApproval ? t('event.requestRegistration') : t('event.register')}
+                                t('event.register')}
                             </button>
                         </div>
                         {/* Dates section */}
@@ -497,6 +484,16 @@ const EventDetailPage = () => {
                     cancelText={t('common.cancel')}
                 />
             )}
+
+            {/* Registration Modal */}
+            <RegistrationModal
+                isOpen={showRegistrationModal}
+                onClose={() => setShowRegistrationModal(false)}
+                onRegister={handleRegister}
+                registrationInstructions={event.registrationInstructions}
+                requireManualApproval={event.requireManualApproval}
+                eventStatus={eventStatus}
+            />
         </div>
     );
 };
