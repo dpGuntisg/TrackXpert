@@ -16,6 +16,7 @@ import UserContact from "../components/UserContact.jsx";
 import TrackCard from "../components/TrackCard.jsx";
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import RegistrationModal from '../components/RegistrationModal';
+import EventParticipants from '../components/EventParticipants';
 
 // Reuse tag utility functions from EventCard
 const getTagIcon = (category) => {
@@ -393,9 +394,9 @@ const EventDetailPage = () => {
                     </div>
                     
                     {/* Right column - Registration and organizer info */}
-                    <div className="lg:col-span-1">
+                    <div className="lg:col-span-1 space-y-8">
                         {/* Registration card */}
-                        <div className="bg-accentBlue p-6 rounded-xl shadow-lg mb-8 top-8">
+                        <div className="bg-accentBlue p-6 rounded-xl shadow-lg">
                             <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
                                 <FontAwesomeIcon icon={faTicketAlt} className="mr-2 text-mainYellow" />
                                 {t('event.registration')}
@@ -465,8 +466,12 @@ const EventDetailPage = () => {
                                 </div>
                             )}
                         </div>
+
+                        {/* Participants section */}
+                        <EventParticipants eventId={id} />
+
                         {/* Dates section */}
-                        <div className="bg-accentBlue p-6 rounded-xl shadow-lg mb-8">
+                        <div className="bg-accentBlue p-6 rounded-xl shadow-lg">
                             <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
                                 <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 text-mainYellow" />
                                 {t('event.dates')}

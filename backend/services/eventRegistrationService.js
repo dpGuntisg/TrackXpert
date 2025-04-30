@@ -61,7 +61,14 @@ class EventRegistrationService {
     static async getEventRegistrations(eventId) {
         try {
             return await EventRegistration.find({ event: eventId })
-                .populate('user', 'username email')
+                .populate({
+                    path: 'user',
+                    select: 'username email profile_image',
+                    populate: {
+                        path: 'profile_image',
+                        select: 'data mimeType'
+                    }
+                })
                 .sort({ registeredAt: -1 });
         } catch (error) {
             console.error("Error fetching event registrations:", error);
