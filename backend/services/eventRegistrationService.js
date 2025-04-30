@@ -18,8 +18,13 @@ class EventRegistrationService {
 
             // Check if registration period is open
             const now = new Date();
-            if (now < new Date(event.registrationDate.startDate) || now > new Date(event.registrationDate.endDate)) {
-                throw new Error("Registration period is closed");
+            const startDate = new Date(event.registrationDate.startDate);
+            const endDate = new Date(event.registrationDate.endDate);
+            // Set end date to end of day (23:59:59) to include the full end date
+            endDate.setHours(23, 59, 59, 999);
+
+            if (now < startDate || now > endDate) {
+                throw new Error('Registration is not open for this event');
             }
 
             // Check if event has reached maximum participants

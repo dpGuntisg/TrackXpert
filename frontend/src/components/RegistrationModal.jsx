@@ -13,11 +13,21 @@ const RegistrationModal = ({
 }) => {
     const { t } = useTranslation();
     const [registrationInfo, setRegistrationInfo] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     if (!isOpen) return null;
 
-    const handleSubmit = () => {
-        onRegister(registrationInfo);
+    const handleSubmit = async () => {
+        if (isSubmitting) return;
+        
+        try {
+            setIsSubmitting(true);
+            await onRegister(registrationInfo);
+        } catch (error) {
+            console.error('Registration error:', error);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     return (
@@ -112,15 +122,15 @@ const RegistrationModal = ({
                     </button>
                     <button
                         onClick={handleSubmit}
-                        disabled={registrationInstructions && !registrationInfo.trim()}
+                        disabled={isSubmitting || (registrationInstructions && !registrationInfo.trim())}
                         className={`px-6 py-2 rounded-lg flex items-center gap-2 transition-colors ${
-                            registrationInstructions && !registrationInfo.trim()
+                            isSubmitting || (registrationInstructions && !registrationInfo.trim())
                                 ? 'bg-gray-700 cursor-not-allowed opacity-60'
                                 : 'bg-mainRed hover:bg-red-700'
                         } text-white`}
                     >
                         <FontAwesomeIcon icon={faCheckCircle} />
-                        {requireManualApproval ? t('event.requestRegistration') : t('event.register')}
+                        {isSubmitting ? t('common.loading') : (requireManualApproval ? t('event.requestRegistration') : t('event.register'))}
                     </button>
                 </div>
             </div>

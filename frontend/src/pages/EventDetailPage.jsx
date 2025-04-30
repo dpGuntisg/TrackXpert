@@ -116,6 +116,8 @@ const EventDetailPage = () => {
                     const now = new Date();
                     const startDate = new Date(response.data.event.registrationDate.startDate);
                     const endDate = new Date(response.data.event.registrationDate.endDate);
+                    // Set end date to end of day (23:59:59) to include the full end date
+                    endDate.setHours(23, 59, 59, 999);
                     setIsRegistrationOpen(now >= startDate && now <= endDate);
                 }
                 
@@ -175,23 +177,19 @@ const EventDetailPage = () => {
         }
         
         try {
-            const response = await axiosInstance.post(`/event-registrations/register/${id}`, {
+            await axiosInstance.post(`/event-registrations/register/${id}`, {
                 registrationInfo: registrationInfo || null
             });
             
-            if (response.data.success) {
-                setIsRegistered(true);
-                setShowRegistrationModal(false);
-                toast.success(t('event.registrationSuccess'));
-                
-                // Update event's current participants count
-                if (event && !event.unlimitedParticipants) {
-                    setEvent(prev => ({
-                        ...prev,
-                        currentParticipants: prev.currentParticipants + 1
-                    }));
-                }
-            }
+            // Close modal and show success message
+            setShowRegistrationModal(false);
+            toast.success(t('event.registrationSuccess'));
+            
+            // Refetch event data to update UI
+            const response = await axiosInstance.get(`/events/${id}`);
+            setEvent(response.data.event);
+            setIsRegistered(true);
+            
         } catch (error) {
             console.error('Error during registration:', error);
             toast.error(error.response?.data?.message || t('common.error'));
@@ -211,7 +209,7 @@ const EventDetailPage = () => {
     const handleDelete = async () => {
         try {
             await axiosInstance.delete(`/events/${id}`);
-            toast.success(t('event.deletedSuccessfully'));
+            toast.success(t('event.deletedSuccess'));
             navigate('/events');
         } catch (error) {
             console.error('Error deleting event:', error);
@@ -488,9 +486,9 @@ const EventDetailPage = () => {
                                     ) : (
                                         <button
                                             onClick={() => setShowRegistrationModal(true)}
-                                            disabled={!userId || event.currentParticipants >= event.maxParticipants || isEventCreator}
+                                            disabled={!userId || (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) || isEventCreator}
                                             className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                                                !userId || event.currentParticipants >= event.maxParticipants || isEventCreator
+                                                !userId || (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) || isEventCreator
                                                     ? 'bg-gray-700 cursor-not-allowed opacity-60'
                                                     : 'bg-mainRed hover:bg-red-700'
                                             } text-white`}
@@ -499,7 +497,7 @@ const EventDetailPage = () => {
                                                 ? t('event.loginToRegister')
                                                 : isEventCreator
                                                 ? t('event.cannotRegisterAsCreator')
-                                                : event.currentParticipants >= event.maxParticipants
+                                                : !event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants
                                                 ? t('event.registrationFull')
                                                 : t('event.register')}
                                         </button>

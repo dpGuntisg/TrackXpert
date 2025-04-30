@@ -467,6 +467,7 @@
     "editEvent": "Edit Event",
     "deleteEvent": "Delete Event",
     "confirmDelete": "Are you sure you want to delete this event? This action cannot be undone.",
+    "deleteSuccess": "Event deleted successfully!",
     "createEventDescription": "Complete all steps to create an event",
     "editEventDescription": "Complete all steps to edit an event",
     "searchPlaceholder": "Search for an event",
@@ -507,6 +508,9 @@
     "requestRegistration": "Request Registration",
     "register": "Register",
     "eventCompleted": "Event Completed",
+    "registrationFull": "Event is full",
+    "loginToRegister": "Login to register",
+    "cannotRegisterAsCreator": "You cannot register for your own event",
     "status": {
       "completed": "Completed",
       "active": "Active",
@@ -553,7 +557,6 @@
     "registrationRejectedMessage": "Your registration request has been rejected by the organizer",
     "noRegistrationInstructions": "No specific registration instructions provided. Please contact the organizer if you have any questions.",
     "defaultRegistrationMessage": "You are about to register for this event. Please review the event details and click the register button below to confirm your participation.",
-    "cannotRegisterAsCreator": "You cannot register for your own event"
   },
   "notifications": {
     "title": "Notifications",

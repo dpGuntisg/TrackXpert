@@ -470,6 +470,7 @@
     "editEvent": "Rediģēt Pasākumu",
     "deleteEvent": "Dzēst Pasākumu",
     "confirmDelete": "Vai tiešām vēlaties neatgriezeniski dzēst šo pasākumu? Šo darbību nevar atsaukt.",
+    "deleteSuccess": "Pasākums veiksmīgi dzēsts!",
     "searchPlaceholder": "Meklēt pasākumu",
     "details": "Pamatinformācija",
     "tracks": "Trases",
@@ -515,6 +516,9 @@
     "requestRegistration": "Pieprasīt reģistrāciju",
     "register": "Reģistrēties",
     "eventCompleted": "Pasākums ir pabeigts",
+    "registrationFull": "Pasākums ir pilns",
+    "loginToRegister": "Ielogoties, lai reģistrētos",
+    "cannotRegisterAsCreator": "Jūs nevarat reģistrēties savā pasākumā",
     "status": {
       "completed": "Pabeigts",
       "active": "Aktīvs",
@@ -555,7 +559,6 @@
     "registered": "Jūs esat reģistrējies šim pasākumam",
     "registrationConfirmed":"Jūs esat apstiprināts un pievienots pasākumam.",
     "defaultRegistrationMessage": "Jūs gatavojaties reģistrēties šim pasākumam. Lūdzu, pārskatiet pasākuma detaļas un noklikšķiniet uz reģistrēšanās pogas zemāk, lai apstiprinātu savu dalību.",
-    "cannotRegisterAsCreator": "Jūs nevarat reģistrēties savā pasākumā"
   },
   "notifications": {
     "title": "Paziņojumi",
