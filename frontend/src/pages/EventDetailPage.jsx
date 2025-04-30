@@ -112,6 +112,19 @@ const EventDetailPage = () => {
                     setIsRegistrationOpen(now >= startDate && now <= endDate);
                 }
                 
+                // Check if user is already registered
+                if (userId) {
+                    try {
+                        const registrationResponse = await axiosInstance.get(`/event-registrations/user`);
+                        const isRegisteredForEvent = registrationResponse.data.registrations.some(
+                            reg => reg.event._id === id
+                        );
+                        setIsRegistered(isRegisteredForEvent);
+                    } catch (error) {
+                        console.error('Error checking registration status:', error);
+                    }
+                }
+                
                 setLoading(false);
             } catch (err) {
                 console.error('Error fetching event:', err);
@@ -149,16 +162,22 @@ const EventDetailPage = () => {
         }
         
         try {
-            const response = await axiosInstance.post(`/events/${id}/register`, {
+            const response = await axiosInstance.post(`/event-registrations/register/${id}`, {
                 registrationInfo: registrationInfo || null
             });
+            
             if (response.data.success) {
                 setIsRegistered(true);
                 setShowRegistrationModal(false);
                 toast.success(t('event.registrationSuccess'));
-            } else if (event.requireManualApproval) {
-                setShowRegistrationModal(false);
-                toast.info(t('event.registrationPending'));
+                
+                // Update event's current participants count
+                if (event && !event.unlimitedParticipants) {
+                    setEvent(prev => ({
+                        ...prev,
+                        currentParticipants: prev.currentParticipants + 1
+                    }));
+                }
             }
         } catch (error) {
             console.error('Error during registration:', error);
@@ -382,54 +401,69 @@ const EventDetailPage = () => {
                                 {t('event.registration')}
                             </h2>
                             
-                            {/* Registration status */}
-                            <div className={`mb-6 p-3 rounded-lg ${
-                                isRegistrationOpen ? 'bg-green-900/30 border border-green-700' : 'bg-red-900/30 border border-red-700'
-                            }`}>
-                                <div className="flex items-center gap-2">
-                                    <FontAwesomeIcon 
-                                        icon={isRegistrationOpen ? faCheckCircle : faTimesCircle} 
-                                        className={isRegistrationOpen ? 'text-green-500' : 'text-red-500'} 
-                                    />
-                                    <p className="font-medium text-white">
-                                        {isRegistrationOpen ? t('event.registrationOpen') : t('event.registrationClosed')}
+                            {/* Registration status - only show if not registered and not showing registration button */}
+                            {!isRegistered && !showRegistrationModal && (
+                                <div className={`mb-6 p-3 rounded-lg ${
+                                    isRegistrationOpen ? 'bg-green-900/30 border border-green-700' : 'bg-red-900/30 border border-red-700'
+                                }`}>
+                                    <div className="flex items-center gap-2">
+                                        <FontAwesomeIcon 
+                                            icon={isRegistrationOpen ? faCheckCircle : faTimesCircle} 
+                                            className={isRegistrationOpen ? 'text-green-500' : 'text-red-500'} 
+                                        />
+                                        <p className="font-medium text-white">
+                                            {isRegistrationOpen ? t('event.registrationOpen') : t('event.registrationClosed')}
+                                        </p>
+                                    </div>
+                                    <p className="text-sm text-gray-300 mt-1">
+                                        {isRegistrationOpen 
+                                            ? t('event.registrationCloses', { date: formatDate(registrationEndDate) })
+                                            : (now < registrationStartDate 
+                                                ? t('event.registrationOpens', { date: formatDate(registrationStartDate) })
+                                                : t('event.registrationEnded'))
+                                        }
                                     </p>
                                 </div>
-                                <p className="text-sm text-gray-300 mt-1">
-                                    {isRegistrationOpen 
-                                        ? t('event.registrationCloses', { date: formatDate(registrationEndDate) })
-                                        : (now < registrationStartDate 
-                                            ? t('event.registrationOpens', { date: formatDate(registrationStartDate) })
-                                            : t('event.registrationEnded'))
-                                    }
-                                </p>
-                            </div>
+                            )}
                             
+                            {/* Registration button or status */}
+                            {isRegistrationOpen && (
+                                <div className="mt-4">
+                                    {isRegistered ? (
+                                        <div className="bg-green-900/30 border border-green-700 p-3 rounded-lg">
+                                            <div className="flex items-center gap-2">
+                                                <FontAwesomeIcon icon={faCheckCircle} className="text-green-500" />
+                                                <p className="font-medium text-white">{t('event.registered')}</p>
+                                            </div>
+                                            <p className="text-sm text-gray-300 mt-1">{t('event.registrationConfirmed')}</p>
+                                        </div>
+                                    ) : (
+                                        <button
+                                            onClick={() => setShowRegistrationModal(true)}
+                                            disabled={!userId || event.currentParticipants >= event.maxParticipants}
+                                            className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
+                                                !userId || event.currentParticipants >= event.maxParticipants
+                                                    ? 'bg-gray-700 cursor-not-allowed opacity-60'
+                                                    : 'bg-mainRed hover:bg-red-700'
+                                            } text-white`}
+                                        >
+                                            {!userId
+                                                ? t('event.loginToRegister')
+                                                : event.currentParticipants >= event.maxParticipants
+                                                ? t('event.registrationFull')
+                                                : t('event.register')}
+                                        </button>
+                                    )}
+                                </div>
+                            )}
 
-                            
                             {/* PDF tickets info */}
                             {event.generatePdfTickets && (
-                                <div className="flex items-center gap-2 mb-6 text-gray-300">
+                                <div className="flex items-center gap-2 mt-4 text-gray-300">
                                     <FontAwesomeIcon icon={faTicketAlt} className="text-mainYellow" />
                                     <span>{t('event.pdfTicketsProvided')}</span>
                                 </div>
                             )}
-                            
-                            {/* Register button */}
-                            <button
-                                onClick={() => setShowRegistrationModal(true)}
-                                disabled={!isRegistrationOpen || isRegistered || eventStatus === 'completed'}
-                                className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                                    isRegistered ? 'bg-green-600 hover:bg-green-700 cursor-default' :
-                                    isRegistrationOpen && eventStatus !== 'completed' ? 'bg-mainRed hover:bg-red-700' : 
-                                    'bg-gray-700 cursor-not-allowed opacity-60'
-                                }`}
-                            >
-                                {isRegistered ? t('event.alreadyRegistered') :
-                                !isRegistrationOpen ? t('event.registrationClosed') :
-                                eventStatus === 'completed' ? t('event.eventCompleted') :
-                                t('event.register')}
-                            </button>
                         </div>
                         {/* Dates section */}
                         <div className="bg-accentBlue p-6 rounded-xl shadow-lg mb-8">
@@ -463,8 +497,6 @@ const EventDetailPage = () => {
                             </div>
                         </div>
 
-
-                        
                         {/* Organizer information */}
                         <div className="bg-accentBlue rounded-xl shadow-lg">
                             <UserContact created_by={event.created_by} />
