@@ -93,6 +93,7 @@ const EventDetailPage = () => {
     const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
     const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+    const [isEventCreator, setIsEventCreator] = useState(false);
 
     useEffect(() => {
         const fetchEvent = async () => {
@@ -106,6 +107,11 @@ const EventDetailPage = () => {
                     setIsLiked(response.data.event.likes.some(likeId => likeId?.toString() === userId));
                 }
                 
+                // Check if current user is the event creator
+                if (userId && response.data.event.created_by?._id) {
+                    setIsEventCreator(userId === response.data.event.created_by._id.toString());
+                }
+                
                 if (response.data.event.registrationDate) {
                     const now = new Date();
                     const startDate = new Date(response.data.event.registrationDate.startDate);
@@ -117,10 +123,16 @@ const EventDetailPage = () => {
                 if (userId) {
                     try {
                         const registrationResponse = await axiosInstance.get(`/event-registrations/user`);
-                        const isRegisteredForEvent = registrationResponse.data.registrations.some(
+                        const userRegistration = registrationResponse.data.registrations.find(
                             reg => reg.event._id === id
                         );
-                        setIsRegistered(isRegisteredForEvent);
+                        setIsRegistered(!!userRegistration);
+                        if (userRegistration) {
+                            setEvent(prev => ({
+                                ...prev,
+                                registrationStatus: userRegistration.status
+                            }));
+                        }
                     } catch (error) {
                         console.error('Error checking registration status:', error);
                     }
@@ -431,25 +443,62 @@ const EventDetailPage = () => {
                             {isRegistrationOpen && (
                                 <div className="mt-4">
                                     {isRegistered ? (
-                                        <div className="bg-green-900/30 border border-green-700 p-3 rounded-lg">
+                                        <div className={`p-3 rounded-lg ${
+                                            event.requireManualApproval 
+                                                ? (event.registrationStatus === 'pending' 
+                                                    ? 'bg-yellow-900/30 border border-yellow-700'
+                                                    : event.registrationStatus === 'rejected'
+                                                    ? 'bg-red-900/30 border border-red-700'
+                                                    : 'bg-green-900/30 border border-green-700')
+                                                : 'bg-green-900/30 border border-green-700'
+                                        }`}>
                                             <div className="flex items-center gap-2">
-                                                <FontAwesomeIcon icon={faCheckCircle} className="text-green-500" />
-                                                <p className="font-medium text-white">{t('event.registered')}</p>
+                                                <FontAwesomeIcon 
+                                                    icon={event.requireManualApproval 
+                                                        ? (event.registrationStatus === 'pending' 
+                                                            ? faClock
+                                                            : event.registrationStatus === 'rejected'
+                                                            ? faTimesCircle
+                                                            : faCheckCircle)
+                                                        : faCheckCircle} 
+                                                    className={event.requireManualApproval 
+                                                        ? (event.registrationStatus === 'pending' 
+                                                            ? 'text-yellow-500'
+                                                            : event.registrationStatus === 'rejected'
+                                                            ? 'text-red-500'
+                                                            : 'text-green-500')
+                                                        : 'text-green-500'} 
+                                                />
+                                                <p className="font-medium text-white">
+                                                    {event.requireManualApproval 
+                                                        ? (event.registrationStatus === 'pending' 
+                                                            ? t('event.registrationPending')
+                                                            : event.registrationStatus === 'rejected'
+                                                            ? t('event.registrationRejected')
+                                                            : t('event.registrationConfirmed'))
+                                                        : t('event.registrationConfirmed')}
+                                                </p>
                                             </div>
-                                            <p className="text-sm text-gray-300 mt-1">{t('event.registrationConfirmed')}</p>
+                                            {event.requireManualApproval && event.registrationStatus === 'rejected' && (
+                                                <p className="text-sm text-gray-300 mt-1">
+                                                    {t('event.registrationRejectedMessage')}
+                                                </p>
+                                            )}
                                         </div>
                                     ) : (
                                         <button
                                             onClick={() => setShowRegistrationModal(true)}
-                                            disabled={!userId || event.currentParticipants >= event.maxParticipants}
+                                            disabled={!userId || event.currentParticipants >= event.maxParticipants || isEventCreator}
                                             className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                                                !userId || event.currentParticipants >= event.maxParticipants
+                                                !userId || event.currentParticipants >= event.maxParticipants || isEventCreator
                                                     ? 'bg-gray-700 cursor-not-allowed opacity-60'
                                                     : 'bg-mainRed hover:bg-red-700'
                                             } text-white`}
                                         >
                                             {!userId
                                                 ? t('event.loginToRegister')
+                                                : isEventCreator
+                                                ? t('event.cannotRegisterAsCreator')
                                                 : event.currentParticipants >= event.maxParticipants
                                                 ? t('event.registrationFull')
                                                 : t('event.register')}

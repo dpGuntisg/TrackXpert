@@ -37,16 +37,16 @@ class EventRegistrationService {
                 throw new Error("Already registered for this event");
             }
 
-            // Create new registration
+            // Create new registration with appropriate status
             const registration = await EventRegistration.create({
                 event: eventId,
                 user: userId,
                 registrationInfo: registrationInfo,
-                status: 'approved' // Since we're not using manual approval yet
+                status: event.requireManualApproval ? 'pending' : 'approved'
             });
 
-            // Update event's current participants count
-            if (!event.unlimitedParticipants) {
+            // Only update participants count if auto-approved
+            if (!event.requireManualApproval && !event.unlimitedParticipants) {
                 event.currentParticipants += 1;
                 await event.save();
             }
@@ -108,6 +108,76 @@ class EventRegistrationService {
             return registration;
         } catch (error) {
             console.error("Error canceling registration:", error);
+            throw error;
+        }
+    }
+
+    static async getPendingRegistrations(userId) {
+        try {
+            // Find events created by the user that require manual approval
+            const events = await Event.find({
+                created_by: new mongoose.Types.ObjectId(userId),
+                requireManualApproval: true
+            }).select('_id');
+
+            if (!events || events.length === 0) {
+                return [];
+            }
+
+            const eventIds = events.map(event => event._id);
+
+            // Get all pending registrations for these events
+            return await EventRegistration.find({
+                event: { $in: eventIds },
+                status: 'pending'
+            })
+            .populate({
+                path: 'user',
+                select: 'username email profile_image',
+                populate: {
+                    path: 'profile_image',
+                    select: 'data mimeType'
+                }
+            })
+            .populate('event', 'name')
+            .sort({ registeredAt: -1 });
+        } catch (error) {
+            console.error("Error fetching pending registrations:", error);
+            throw error;
+        }
+    }
+
+    static async updateRegistrationStatus(registrationId, status, userId) {
+        try {
+            const registration = await EventRegistration.findById(registrationId)
+                .populate('event');
+
+            if (!registration) {
+                throw new Error("Registration not found");
+            }
+
+            // Verify that the user is the event creator
+            const event = await Event.findById(registration.event._id);
+            if (event.created_by.toString() !== userId) {
+                throw new Error("Unauthorized to update registration status");
+            }
+
+            if (!['pending', 'approved', 'rejected'].includes(status)) {
+                throw new Error(`Invalid status: ${status}. Valid statuses are: pending, approved, rejected`);
+            }
+
+            registration.status = status;
+            await registration.save();
+
+            // Update event's current participants count if approved
+            if (status === 'approved' && !event.unlimitedParticipants) {
+                event.currentParticipants += 1;
+                await event.save();
+            }
+
+            return registration;
+        } catch (error) {
+            console.error("Error updating registration status:", error);
             throw error;
         }
     }

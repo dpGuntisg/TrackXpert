@@ -41,7 +41,7 @@ const TrackRequest = ({ request, className = "", onStatusUpdate, showActions = f
     <div className="flex flex-wrap items-center gap-2 text-sm text-gray-300">
       {isSentByCurrentUser ? (
         <span className="text-gray-300">
-          <span className="text-mainYellow">{t('common.you')}</span> {t('notifications.youHaveSent')}
+          <span className="text-mainYellow">{t('common.you')}</span> {t('notifications.HaveSent')}
         </span>
       ) : (
         <span className="font-medium text-mainYellow">{request.sender?.username}</span>

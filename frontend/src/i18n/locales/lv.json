@@ -20,7 +20,9 @@
     "of":"no",
     "pickDate": "Izveleieties datumu",
     "backToEvents":"Atpakaļ uz pasākumiem",
-    "viewDetails":"Skatīt Detalizēti"
+    "viewDetails":"Skatīt Detalizēti",
+    "accept": "Apstiprināt",
+    "decline": "Noraidīt"
   },
   "contact": {
     "title": "Izveidoja"
@@ -486,7 +488,9 @@
     "registrationInfo": "Reģistrācijas informācija",
     "registrationInfoPlaceholder": "Ierakstiet pieprasīto informāciju",
     "registrationSuccess": "Reģistrācija veiksmīga!",
-    "registrationPending": "Jūsu reģistrācijas pieprasījums ir nosūtīts. Organizators to drīz pārskatīs.",
+    "registrationPending": "Reģistrācija gaida apstiprinājumu",
+    "registrationRejected": "Reģistrācija noraidīta",
+    "registrationRejectedMessage": "Jūsu reģistrācijas pieprasījums ir noraidīts no organizatora puses",
     "noRegistrationInstructions": "Nav norādītu specifisku reģistrācijas instrukciju. Lūdzu, sazinieties ar organizatoru, ja jums ir kādi jautājumi.",
     "liked": "Patīk",
     "unliked": "Nepatīk",
@@ -548,7 +552,10 @@
       "pdfTickets": "Sistēma ģenerēs PDF biļetes, kuras dalībnieki varēs lejupielādēt un izdrukāt vai uzrādīt ierīcē."
     },
     "dates": "Datumi",
-    "defaultRegistrationMessage": "Jūs gatavojaties reģistrēties šim pasākumam. Lūdzu, pārskatiet pasākuma detaļas un noklikšķiniet uz reģistrēšanās pogas zemāk, lai apstiprinātu savu dalību."
+    "registered": "Jūs esat reģistrējies šim pasākumam",
+    "registrationConfirmed":"Jūs esat apstiprināts un pievienots pasākumam.",
+    "defaultRegistrationMessage": "Jūs gatavojaties reģistrēties šim pasākumam. Lūdzu, pārskatiet pasākuma detaļas un noklikšķiniet uz reģistrēšanās pogas zemāk, lai apstiprinātu savu dalību.",
+    "cannotRegisterAsCreator": "Jūs nevarat reģistrēties savā pasākumā"
   },
   "notifications": {
     "title": "Paziņojumi",
@@ -557,6 +564,10 @@
     "viewAll": "Apskatīt visus paziņojumus",
     "sentRequests": "Sūtītie ziņojumi.",
     "wantsToJoin": "vēlās pievienoties uz braucienu trasē:",
-    "youHaveSent": "esat nosūtijis pieprasījumu:"
+    "HaveSent": "esat nosūtijis pieprasījumu",
+    "wantsToRegister": "vēlās reģistrēties pasākumā:",
+    "requestToRegister": "pasākumam:",
+    "registrationInfo": "Reģistrācijas informācija:",
+    "noRegistrationInfo": "Nav norādītas reģistrācijas informācijas"
   }
 } 

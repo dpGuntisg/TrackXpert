@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuth } from '../context/AuthContext';
 import TrackRequest from './TrackRequest';
+import EventRequest from './EventRequest';
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -15,7 +16,8 @@ const Navbar = () => {
   const [isNavOpen, setIsNavOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const { userId, setUserId, loading } = useAuth();
-  const [notifications, setNotifications] = useState([]);
+  const [trackRequests, setTrackRequests] = useState([]);
+  const [eventRequests, setEventRequests] = useState([]);
   const navigate = useNavigate();
   const notificationsRef = useRef(null);
   
@@ -57,10 +59,27 @@ const Navbar = () => {
 
   const getNotifications = async () => {
     try {
-      const response = await axiosInstance.get("/track-requests/notifications");
-      setNotifications(response.data);
+      const [trackRequestsRes, eventRequestsRes] = await Promise.all([
+        axiosInstance.get("/track-requests/notifications"),
+        axiosInstance.get("/event-registrations/pending")
+      ]);
+      
+      // Handle track requests
+      const pendingTrackRequests = Array.isArray(trackRequestsRes.data) 
+        ? trackRequestsRes.data.filter(request => request.status === 'pending')
+        : [];
+      
+      // Handle event requests - ensure we're getting an array
+      const pendingEventRequests = Array.isArray(eventRequestsRes.data) 
+        ? eventRequestsRes.data.filter(request => request.status === 'pending')
+        : [];
+      
+      setTrackRequests(pendingTrackRequests);
+      setEventRequests(pendingEventRequests);
     } catch (error) {
       console.error("Error fetching notifications:", error);
+      setTrackRequests([]);
+      setEventRequests([]);
     }
   };
 
@@ -82,6 +101,8 @@ const Navbar = () => {
     `relative hover:bg-mainRed text-left rounded transition-all duration-50 font-bold
      sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent sm:justify-center flex items-center gap-2
      ${isActive ? "text-mainRed" : ""}`;
+
+  const pendingRequestsCount = trackRequests.length + eventRequests.length;
 
   return (
     <nav className="sticky top-0 z-50 bg-accentBlue border-b border-accentGray">
@@ -118,7 +139,7 @@ const Navbar = () => {
 
           {/* Right side items */}
           <div className="flex items-center space-x-4">
-          <LanguageSwitcher />
+            <LanguageSwitcher />
             {isUserLoggedIn() ? (
               <>
                 {/* Notifications */}
@@ -127,28 +148,36 @@ const Navbar = () => {
                     onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                     className="relative p-2 text-mainYellow hover:text-mainRed transition-colors">
                     <FontAwesomeIcon icon={faBell} className="text-xl" />
-                    {notifications.filter(request => request.status === 'pending').length > 0 && (
+                    {pendingRequestsCount > 0 && (
                       <span className="absolute top-0 right-0 flex items-center justify-center w-4 h-4 bg-mainRed text-white text-xs font-bold rounded-full">
                         <FontAwesomeIcon icon={faExclamation} />
                       </span>
                     )}
                   </button>
                   {isNotificationsOpen && (
-  <                 div className="absolute min-w-80 left-1/2 transform -translate-x-1/2 sm:right-0 top-full mt-2 w-full sm:w-96 sm:max-w-none rounded-lg bg-accentBlue shadow-lg z-10 border border-accentGray">
+                    <div className="absolute min-w-80 left-1/2 transform -translate-x-1/2 sm:right-0 top-full mt-2 w-full sm:w-96 sm:max-w-none rounded-lg bg-accentBlue shadow-lg z-10 border border-accentGray">
                       <div className="p-4">
                         <h3 className="text-lg font-semibold text-mainYellow mb-4">{t('notifications.title')}</h3>
-                        {notifications.filter(request => request.status === 'pending').length === 0 ? (
+                        {pendingRequestsCount === 0 ? (
                           <div className="text-gray-400 text-center py-4">
                             {t('notifications.noNotifications')}
                           </div>
                         ) : (
                           <div className="max-h-96 overflow-y-auto space-y-2">
-                            {notifications
-                              .filter(request => request.status === 'pending')
-                              .map((request) => (
-                                <TrackRequest key={request._id} request={request} action={t('notifications.wantsToJoin')}
-                                 className=""
-                                 />
+                            {trackRequests.map((request) => (
+                                <TrackRequest 
+                                  key={request._id} 
+                                  request={request} 
+                                  action={t('notifications.wantsToJoin')}
+                                  showActions={false}
+                                />
+                              ))}
+                            {eventRequests.map((request) => (
+                                <EventRequest 
+                                  key={request._id} 
+                                  request={request}
+                                  showActions={false}
+                                />
                               ))}
                           </div>
                         )}
@@ -159,8 +188,6 @@ const Navbar = () => {
                     </div>
                   )}
                 </div>
-
-                
 
                 {/* Sign Out */}
                 <button 
@@ -183,7 +210,6 @@ const Navbar = () => {
                 </NavLink>
               </>
             )}
-
 
             {/* Mobile menu button */}
             <button 

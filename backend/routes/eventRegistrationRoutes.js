@@ -48,4 +48,31 @@ router.delete("/:eventId", verifyToken, async (req, res) => {
     }
 });
 
+// Get pending registrations for events created by the user
+router.get('/pending', verifyToken, async (req, res) => {
+    try {
+        const pendingRegistrations = await EventRegistrationService.getPendingRegistrations(req.userId);
+        res.json(pendingRegistrations || []);
+    } catch (error) {
+        console.error("Error fetching pending registrations:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Update registration status
+router.put('/:registrationId/status', verifyToken, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const updatedRegistration = await EventRegistrationService.updateRegistrationStatus(
+            req.params.registrationId,
+            status,
+            req.userId
+        );
+        res.json(updatedRegistration);
+    } catch (error) {
+        console.error("Error updating registration status:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
 export default router; 

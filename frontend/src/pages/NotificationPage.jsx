@@ -1,16 +1,19 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperPlane, faEnvelope } from "@fortawesome/free-solid-svg-icons";
+import { faPaperPlane, faEnvelope, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import axiosInstance from "../utils/axios";
 import { useTranslation } from 'react-i18next';
 import TrackRequest from "../components/TrackRequest";
+import EventRequest from "../components/EventRequest";
 import { useAuth } from "../context/AuthContext";
 
 export default function NotificationPage() {
     const { t } = useTranslation();
     const { user } = useAuth();
-    const [notifications, setNotifications] = useState([]);
-    const [sentRequests, setSentRequests] = useState([]);
+    const [trackRequests, setTrackRequests] = useState([]);
+    const [eventRequests, setEventRequests] = useState([]);
+    const [sentTrackRequests, setSentTrackRequests] = useState([]);
+    const [sentEventRequests, setSentEventRequests] = useState([]);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('notifications');
@@ -18,19 +21,28 @@ export default function NotificationPage() {
     const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
-            // Fetch both notifications and sent requests
-            const [notificationsRes, sentRequestsRes] = await Promise.all([
+            // Fetch all types of requests
+            const [trackRequestsRes, eventRequestsRes, sentTrackRequestsRes, sentEventRequestsRes] = await Promise.all([
                 axiosInstance.get("/track-requests/notifications"),
-                axiosInstance.get("/track-requests/sent-requests")
+                axiosInstance.get("/event-registrations/pending"),
+                axiosInstance.get("/track-requests/sent-requests"),
+                axiosInstance.get("/event-registrations/user")
             ]);
-            setNotifications(notificationsRes.data);
-            setSentRequests(sentRequestsRes.data);
+            
+            // Handle responses correctly based on their structure
+            setTrackRequests(trackRequestsRes.data || []);
+            setEventRequests(Array.isArray(eventRequestsRes.data) ? eventRequestsRes.data : []);
+            setSentTrackRequests(sentTrackRequestsRes.data || []);
+            setSentEventRequests(sentEventRequestsRes.data?.registrations || []);
+            
             setError(null);
         } catch (error) {
             console.error("Error fetching data:", error);
             setError(t('notifications.fetchError'));
-            setNotifications([]);
-            setSentRequests([]);
+            setTrackRequests([]);
+            setEventRequests([]);
+            setSentTrackRequests([]);
+            setSentEventRequests([]);
         } finally {
             setIsLoading(false);
         }
@@ -40,12 +52,22 @@ export default function NotificationPage() {
         fetchData();
     }, [fetchData]);
 
-    const updateRequestStatus = async (requestId, status) => {
+    const handleTrackRequestUpdate = async (requestId, status) => {
         try {
             await axiosInstance.put(`/track-requests/update-request/${requestId}`, { status });
             fetchData();
         } catch (error) {
-            console.error("Error updating request status:", error);
+            console.error("Error updating track request:", error);
+            setError(t('notifications.updateError'));
+        }
+    };
+
+    const handleEventRequestUpdate = async (requestId, status) => {
+        try {
+            await axiosInstance.put(`/event-registrations/${requestId}/status`, { status });
+            fetchData();
+        } catch (error) {
+            console.error("Error updating event request:", error);
             setError(t('notifications.updateError'));
         }
     };
@@ -71,7 +93,7 @@ export default function NotificationPage() {
                             ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                     >
                         <FontAwesomeIcon icon={faEnvelope} className="mr-2"/>
-                        {t('notifications.title')} ({notifications.length})
+                        {t('notifications.title')} ({trackRequests.length + eventRequests.length})
                     </button>
                     <button
                         onClick={() => setActiveTab('sent')}
@@ -79,7 +101,7 @@ export default function NotificationPage() {
                             ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                     >
                         <FontAwesomeIcon icon={faPaperPlane} className="mr-2"/>
-                        {t('notifications.sentRequests')} ({sentRequests.length})
+                        {t('notifications.sentRequests')} ({sentTrackRequests.length + sentEventRequests.length})
                     </button>
                 </div>
 
@@ -90,39 +112,58 @@ export default function NotificationPage() {
                 )}
 
                 {activeTab === 'notifications' ? (
-                    notifications.length === 0 ? (
+                    trackRequests.length === 0 && eventRequests.length === 0 ? (
                         <div className="text-gray-400 text-center py-8">
                             {t('notifications.noNotifications')}
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {notifications.map((request) => (
+                            {trackRequests.map((request) => (
                                 <TrackRequest 
                                     key={request._id} 
                                     request={request} 
-                                    onStatusUpdate={updateRequestStatus}
+                                    onStatusUpdate={handleTrackRequestUpdate}
                                     showActions={true}
                                     className="bg-accentBlue"
                                     action={t('notifications.wantsToJoin')}
                                 />
                             ))}
+                            {eventRequests.map((request) => (
+                                <EventRequest 
+                                    key={request._id} 
+                                    request={request} 
+                                    onStatusUpdate={handleEventRequestUpdate}
+                                    showActions={true}
+                                    className="bg-accentBlue"
+                                />
+                            ))}
                         </div>
                     )
                 ) : (
-                    sentRequests.length === 0 ? (
+                    sentTrackRequests.length === 0 && sentEventRequests.length === 0 ? (
                         <div className="text-gray-400 text-center py-8">
                             {t('notifications.noSentRequests')}
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {sentRequests.map((request) => (
+                            {sentTrackRequests.map((request) => (
                                 <TrackRequest 
                                     key={request._id} 
                                     request={request} 
-                                    onStatusUpdate={updateRequestStatus}
+                                    onStatusUpdate={handleTrackRequestUpdate}
                                     showActions={false}
                                     className="bg-accentBlue"
                                     isSentByCurrentUser={request.sender?.id === user?.id}
+                                />
+                            ))}
+                            {sentEventRequests.map((request) => (
+                                <EventRequest 
+                                    key={request._id} 
+                                    request={request} 
+                                    onStatusUpdate={handleEventRequestUpdate}
+                                    showActions={false}
+                                    className="bg-accentBlue"
+                                    isSentByCurrentUser={request.user?.id === user?.id}
                                 />
                             ))}
                         </div>

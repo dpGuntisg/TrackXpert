@@ -20,7 +20,11 @@
     "of":"of",
     "pickDate": "Pick a date",
     "backToEvents":"Back to Events",
-    "viewDetails": "View Details"
+    "viewDetails": "View Details",
+    "approve": "Approve",
+    "reject": "Reject",
+    "accept": "Accept",
+    "decline": "Decline"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
@@ -539,20 +543,29 @@
       "pdfTickets": "The system will generate PDF tickets that participants can download and print or show on their device."
     },
     "dates": "Dates",
+    "registered": "You have registered for this event",
+    "registrationConfirmed":"You've been approved and added to the event.",
     "registrationInfo": "Registration Information",
     "registrationInfoPlaceholder": "Write the requested information (e.g., your name, contact details, vehicle information, etc.)",
     "registrationSuccess": "Registration successful!",
-    "registrationPending": "Your registration request has been submitted. The organizer will review it shortly.",
+    "registrationPending": "Registration pending approval",
+    "registrationRejected": "Registration rejected",
+    "registrationRejectedMessage": "Your registration request has been rejected by the organizer",
     "noRegistrationInstructions": "No specific registration instructions provided. Please contact the organizer if you have any questions.",
-    "defaultRegistrationMessage": "You are about to register for this event. Please review the event details and click the register button below to confirm your participation."
+    "defaultRegistrationMessage": "You are about to register for this event. Please review the event details and click the register button below to confirm your participation.",
+    "cannotRegisterAsCreator": "You cannot register for your own event"
   },
   "notifications": {
     "title": "Notifications",
     "noNotifications": "No new notifications",
     "markAllRead": "Mark all as read",
     "viewAll": "View all notifications",
-    "sentRequests": "Sent requests.",
-    "wantsToJoin": "wants to join your track:",
-    "youHaveSent": "You have sent a request"
+    "sentRequests": "Sent requests",
+    "wantsToJoin": "wants to join the track:",
+    "HaveSent": "have sent a request",
+    "wantsToRegister": "wants to register for the event:",
+    "requestToRegister": "for event:",
+    "registrationInfo": "Registration information:",
+    "noRegistrationInfo": "No registration information provided"
   }
 } 
