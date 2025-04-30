@@ -556,7 +556,7 @@
     "registrationRejected": "Registration rejected",
     "registrationRejectedMessage": "Your registration request has been rejected by the organizer",
     "noRegistrationInstructions": "No specific registration instructions provided. Please contact the organizer if you have any questions.",
-    "defaultRegistrationMessage": "You are about to register for this event. Please review the event details and click the register button below to confirm your participation.",
+    "defaultRegistrationMessage": "You are about to register for this event. Please review the event details and click the register button below to confirm your participation."
   },
   "notifications": {
     "title": "Notifications",

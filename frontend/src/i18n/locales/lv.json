@@ -558,7 +558,7 @@
     "dates": "Datumi",
     "registered": "Jūs esat reģistrējies šim pasākumam",
     "registrationConfirmed":"Jūs esat apstiprināts un pievienots pasākumam.",
-    "defaultRegistrationMessage": "Jūs gatavojaties reģistrēties šim pasākumam. Lūdzu, pārskatiet pasākuma detaļas un noklikšķiniet uz reģistrēšanās pogas zemāk, lai apstiprinātu savu dalību.",
+    "defaultRegistrationMessage": "Jūs gatavojaties reģistrēties šim pasākumam. Lūdzu, pārskatiet pasākuma detaļas un noklikšķiniet uz reģistrēšanās pogas zemāk, lai apstiprinātu savu dalību."
   },
   "notifications": {
     "title": "Paziņojumi",

@@ -155,8 +155,8 @@ export default function TrackCard({
 
     // Handle track card click in selection mode
     const handleCardClick = (e) => {
-        e.preventDefault(); // Prevent navigation if it's a link
         if (isSelectionMode && onClick) {
+            e.preventDefault(); // Prevent navigation if it's a link
             onClick(track._id);
         }
     };
@@ -268,6 +268,14 @@ export default function TrackCard({
             )}
         </>
     );
+
+    if (isSelectionMode && !disableLink) {
+        return (
+            <Link to={`/tracks/${track._id}`} className={`${getCardStyles()} ${className}`}>
+                {cardContent}
+            </Link>
+        );
+    }
 
     if (disableLink || isSelectionMode) {
         return (
