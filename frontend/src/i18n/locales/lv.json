@@ -546,7 +546,8 @@
       "manualApproval": "Jums manuāli būs jāapstiprina katrs dalībnieks, pirms viņš varēs piedalīties pasākumā.",
       "pdfTickets": "Sistēma ģenerēs PDF biļetes, kuras dalībnieki varēs lejupielādēt un izdrukāt vai uzrādīt ierīcē."
     },
-    "dates": "Datumi"
+    "dates": "Datumi",
+    "defaultRegistrationMessage": "Jūs gatavojaties reģistrēties šim pasākumam. Lūdzu, pārskatiet pasākuma detaļas un noklikšķiniet uz reģistrēšanās pogas zemāk, lai apstiprinātu savu dalību."
   },
   "notifications": {
     "title": "Paziņojumi",

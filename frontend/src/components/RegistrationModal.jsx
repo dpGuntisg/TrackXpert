@@ -69,6 +69,23 @@ const RegistrationModal = ({
                     </div>
                 )}
 
+                {/* Default message when no instructions or approval required */}
+                {!registrationInstructions && !requireManualApproval && (
+                    <div className="mb-6 bg-gray-800/50 p-4 rounded-lg">
+                        <div className="flex items-start gap-3">
+                            <FontAwesomeIcon icon={faInfoCircle} className="text-mainYellow mt-1" />
+                            <div>
+                                <h3 className="font-semibold text-white mb-2">
+                                    {t('event.registration')}
+                                </h3>
+                                <p className="text-gray-300 text-sm">
+                                    {t('event.defaultRegistrationMessage')}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Registration info input if instructions are provided */}
                 {registrationInstructions && (
                     <div className="mb-6">
