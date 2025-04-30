@@ -24,7 +24,8 @@
     "approve": "Approve",
     "reject": "Reject",
     "accept": "Accept",
-    "decline": "Decline"
+    "decline": "Decline",
+    "finish": "Create Event"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
