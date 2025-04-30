@@ -263,7 +263,7 @@ export default function TrackCard({
 
             {!disableLink && !isSelectionMode && (
                 <div className='fixed bottom-2 left-1/2 transform -translate-x-1/2'>
-                    <span className="mt-2 text-sm font-semibold">{t('tracks.viewDetails')}</span>
+                    <span className="mt-2 text-sm font-semibold">{t('common.viewDetails')}</span>
                 </div>
             )}
         </>

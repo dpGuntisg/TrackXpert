@@ -19,7 +19,8 @@
     "step": "step",
     "of":"of",
     "pickDate": "Pick a date",
-    "backToEvents":"Back to Events"
+    "backToEvents":"Back to Events",
+    "viewDetails": "View Details"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
@@ -149,7 +150,6 @@
     "createTrack": "Create Track",
     "editTrack": "Edit Track",
     "deleteTrack": "Delete Track",
-    "viewDetails": "View Details",
     "loading": "Loading tracks...",
     "error": "Something went wrong",
     "tryAgain": "Try Again",

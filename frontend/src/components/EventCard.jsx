@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHeart, faCalendar, faTag, faFlagCheckered, faRoad, faCar, faStar, faCog, faLightbulb } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHeart, faCalendar, faTag, faFlagCheckered,faRoad, faCar, faStar, faCog, faLightbulb,} from '@fortawesome/free-solid-svg-icons';
 
 const getTagIcon = (category) => {
     switch (category) {
@@ -76,6 +76,7 @@ const EventCard = ({ event }) => {
     const [likeCount, setLikeCount] = useState(event.likes?.length || 0);
     const firstImage = event.images?.[0]?.data;
     const dateRange = formatDateRange(event.date?.startDate, event.date?.endDate);
+    
     // Track names (populated)
     const trackNames = event.tracks && Array.isArray(event.tracks) && event.tracks.length > 0
         ? event.tracks.map(track => track?.name).filter(Boolean).join(', ')
@@ -111,54 +112,115 @@ const EventCard = ({ event }) => {
         }
     };
 
-    const cardBase = 'h-[320px] w-full bg-accentBlue rounded-xl shadow-lg overflow-hidden relative flex flex-col drop-shadow-lg outline outline-12 outline-mainRed hover:outline-mainYellow hover:scale-105 transition-all ease-in-out duration-300';
+    // Get the primary tag (for header background color)
+    const primaryTag = event.tags && event.tags.length > 0 
+        ? getTagInfoUniversal(event.tags[0], t) 
+        : null;
+
+    // Filter tags to show only the most important ones
+    const limitedTags = event.tags ? event.tags.slice(0, 3) : [];
+    const hasMoreTags = event.tags && event.tags.length > 3;
 
     return (
-        <div className={cardBase + ' group'}>
-            {/* Image */}
-            {firstImage && (
-                <img src={firstImage} alt={event.name} className="h-1/2 w-full object-cover" loading="lazy" />
-            )}
-            {/* Date badge */}
-            <div className="absolute top-3 left-3 bg-mainYellow text-mainBlue rounded px-3 py-1 text-base font-bold shadow">
-                {dateRange}
+        <div className="group relative h-full w-full overflow-hidden rounded-xl bg-accentBlue shadow-xl border-2 border-transparent transition-all duration-300 transform-gpu hover:shadow-2xl hover:border-mainYellow will-change-transform">            
+            {/* Image Section*/}
+            <div className="relative h-64 w-full overflow-hidden sm:h-72">
+                {firstImage ? (
+                    <div className="h-full w-full overflow-hidden">
+                        <img 
+                            src={firstImage} 
+                            alt={event.name} 
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 group-hover:brightness-110" 
+                            loading="lazy" 
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-accentBlue to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-20"></div>
+                    </div>
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-mainBlue">
+                        <FontAwesomeIcon icon={faFlagCheckered} className="text-6xl text-gray-600 transition-colors duration-300 group-hover:text-mainYellow" />
+                    </div>
+                )}
+                
+                {/* Date badge */}
+                <div className="absolute left-0 top-6 bg-mainYellow px-4 py-2 font-bold text-mainBlue shadow-lg transform transition-transform duration-300 group-hover:translate-x-2">
+                    <div className="flex items-center gap-2">
+                        <FontAwesomeIcon icon={faCalendar} />
+                        <span>{dateRange}</span>
+                    </div>
+                </div>
             </div>
+            
+            {/* Content Section*/}
+            <div className="flex flex-col gap-3 p-5">
+                {/* Title */}
+                <h3 className="text-2xl font-bold text-white transition-colors duration-300 group-hover:text-mainYellow">{event.name}</h3>
+                
+                {/* Track info if available */}
+                {trackNames && (
+                    <div className="flex items-center gap-2 text-gray-300">
+                        <FontAwesomeIcon icon={faRoad} className="text-mainYellow" />
+                        <span className="line-clamp-1">{trackNames}</span>
+                    </div>
+                )}
+                
+                {/* Tags*/}
+                {limitedTags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                        {limitedTags.map((tag, idx) => {
+                            const tagInfo = getTagInfoUniversal(tag, t);
+                            if (!tagInfo) return null;
+                            return (
+                                <span 
+                                    key={idx} 
+                                    className="flex items-center gap-1.5 rounded-full bg-gray-800 px-3 py-1.5 text-sm font-medium text-white transition-transform duration-200 hover:scale-105 hover:text-mainRed"
+                                >
+                                    <FontAwesomeIcon icon={getTagIcon(tagInfo.category)} className="text-mainYellow" />
+                                    <span>{tagInfo.label}</span>
+                                </span>
+                            );
+                        })}
+                        {hasMoreTags && (
+                            <span className="flex items-center rounded-full bg-gray-800 px-3 py-1.5 text-sm font-medium text-gray-400">
+                                +{event.tags.length - 3}
+                            </span>
+                        )}
+                    </div>
+                )}
+                
+                {/* Description*/}
+                <div className="line-clamp-2 text-sm text-gray-300 transition-colors duration-300">
+                    {event.description}
+                </div>
+                
+                {/* Footer */}
+                <div className="mt-2 flex items-center justify-between pt-2">
+                    <span></span> {/* Empty span to maintain the justify-between spacing */}
+                    <span className="rounded-lg bg-mainRed px-4 py-2 text-sm font-medium text-white transition-all duration-300 group-hover:bg-mainYellow group-hover:text-mainBlue group-hover:shadow-md">
+                        {t('common.viewDetails')}
+                    </span>
+                </div>
+            </div>
+            
             {/* Like button */}
             {userId && userId !== event.created_by?._id && (
                 <button
                     onClick={handleLikeClick}
-                    className={`absolute top-3 right-3 text-2xl z-10 ${isLiked ? 'text-mainRed' : 'text-gray-400'} hover:text-mainRed transition-colors duration-200`}
+                    className={`absolute bottom-4 left-4 text-2xl ${
+                        isLiked ? 'text-mainRed' : 'text-gray-400'
+                    } hover:text-mainRed transition-colors duration-200 z-10`}
+                    aria-label={isLiked ? t('event.unlike') : t('event.like')}
                 >
                     <FontAwesomeIcon icon={faHeart} />
-                    <span className="ml-1 text-base align-middle">{likeCount}</span>
                 </button>
             )}
-            {/* Content */}
-            <div className="flex flex-col flex-grow p-5">
-                <h3 className="text-xl font-bold text-white mb-2 line-clamp-1">{event.name}</h3>
-                {trackNames && (
-                    <div className="text-sm text-gray-300 mb-2 line-clamp-1">
-                        <span className="font-semibold text-mainYellow">{t('event.tracks')}: </span>{trackNames}
-                    </div>
-                )}
-                <div className="flex flex-wrap gap-2 mb-2">
-                    {event.tags && event.tags.length > 0 && event.tags.map((tag, idx) => {
-                        const tagInfo = getTagInfoUniversal(tag, t);
-                        if (!tagInfo) return null;
-                        return (
-                            <span key={idx} className="flex items-center gap-1.5 px-2 py-1 rounded text-xs bg-gray-800 text-white font-medium border border-gray-700">
-                                <FontAwesomeIcon icon={getTagIcon(tagInfo.category)} className="text-mainYellow" />
-                                <span>{tagInfo.label}</span>
-                            </span>
-                        );
-                    })}
-                </div>
-                <div className="text-xs text-gray-400 line-clamp-2">
-                    {event.description}
-                </div>
-            </div>
-            {/* Link overlay */}
-            <Link to={`/events/${event._id}`} className="absolute inset-0 z-0" tabIndex={-1} aria-label={event.name}></Link>
+            
+            {/* Link overlay for the entire card */}
+            <Link 
+                to={`/events/${event._id}`} 
+                className="absolute inset-0 z-0" 
+                tabIndex={-1} 
+                aria-label={event.name}
+            ></Link>
         </div>
     );
 };

@@ -19,7 +19,8 @@
     "step": "solis",
     "of":"no",
     "pickDate": "Izveleieties datumu",
-    "backToEvents":"Atpakaļ uz pasākumiem"
+    "backToEvents":"Atpakaļ uz pasākumiem",
+    "viewDetails":"Skatīt Detalizēti"
   },
   "contact": {
     "title": "Izveidoja"
@@ -156,7 +157,6 @@
     "createTrack": "Izveidot Trasi",
     "editTrack": "Rediģēt Trasi",
     "deleteTrack": "Dzēst Trasi",
-    "viewDetails": "Skatīt Detalizēti",
     "openRequestForm": "Book a track session",
     "loading": "Ielādē trases...",
     "error": "Kaut kas nogāja greizi",
