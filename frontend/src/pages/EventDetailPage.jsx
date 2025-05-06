@@ -3,11 +3,10 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faHeart, faCalendarAlt, faMapMarkerAlt, faUsers, faTicketAlt, 
+  faHeart, faCalendarAlt,faTicketAlt, 
   faTag, faFlagCheckered, faRoad, faCar, faStar, faCog, faLightbulb,
-  faChevronLeft, faChevronRight, faArrowLeft, faClock, faIdCard,
-  faCheckCircle, faTimesCircle, faInfoCircle, faSpinner, faExclamationCircle,
-  faPencil, faTrash
+  faChevronLeft, faChevronRight, faArrowLeft, faClock,
+  faCheckCircle, faTimesCircle, faPencil, faTrash
 } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
@@ -82,7 +81,7 @@ const EventDetailPage = () => {
     const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
-    const { userId, isAuthenticated } = useAuth();
+    const { userId} = useAuth();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -217,6 +216,41 @@ const EventDetailPage = () => {
         }
     };
 
+    const handleTicketDownload = async (eventId) => {
+        try{
+            const response = await axiosInstance.get(`/tickets/event-ticket/${id}`,{
+                responseType: 'blob',
+            });
+                        // Create a URL for the blob
+            const blob = new Blob([response.data], { type: 'application/pdf' });
+            const url = window.URL.createObjectURL(blob);
+
+            // Create a temporary anchor and click it
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', `Event_Ticket_${id}.pdf`);
+            document.body.appendChild(link);
+            link.click();
+
+            // Clean up
+            link.remove();
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Error downloading ticket:', error);
+            toast.error('Failed to download ticket');
+        }
+    };
+
+    if (!event) return null;
+
+    const eventStartDate = new Date(event.date?.startDate);
+    const eventEndDate = new Date(event.date?.endDate);
+    const registrationStartDate = new Date(event.registrationDate?.startDate);
+    const registrationEndDate = new Date(event.registrationDate?.endDate);
+    
+    const now = new Date();
+    const eventStatus = now > eventEndDate ? 'completed' : (now >= eventStartDate ? 'active' : 'upcoming');
+
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -238,16 +272,6 @@ const EventDetailPage = () => {
             </div>
         );
     }
-
-    if (!event) return null;
-
-    const eventStartDate = new Date(event.date?.startDate);
-    const eventEndDate = new Date(event.date?.endDate);
-    const registrationStartDate = new Date(event.registrationDate?.startDate);
-    const registrationEndDate = new Date(event.registrationDate?.endDate);
-    
-    const now = new Date();
-    const eventStatus = now > eventEndDate ? 'completed' : (now >= eventStartDate ? 'active' : 'upcoming');
 
     return (
         <div className="min-h-screen bg-mainBlue text-white p-4 sm:p-6 md:p-8">
@@ -482,6 +506,7 @@ const EventDetailPage = () => {
                                                     {t('event.registrationRejectedMessage')}
                                                 </p>
                                             )}
+                                            
                                         </div>
                                     ) : (
                                         <button
@@ -501,6 +526,12 @@ const EventDetailPage = () => {
                                                 ? t('event.registrationFull')
                                                 : t('event.register')}
                                         </button>
+                                    )}
+                                    {isRegistered && (
+                                    <button onClick={handleTicketDownload} className="w-full py-3 px-4 rounded-lg mt-4 font-medium transition-colors bg-mainRed hover:bg-red-700">
+                                        <FontAwesomeIcon icon={faTicketAlt} className="mr-2" />
+                                        {t('event.downloadTicket')}
+                                    </button>
                                     )}
                                 </div>
                             )}
