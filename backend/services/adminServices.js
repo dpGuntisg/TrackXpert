@@ -1,6 +1,8 @@
 import User from "../models/User";
 
 class AdminService {
+
+    
     static async getAllUsers() {
         try{
             return await User.find().select("-password");

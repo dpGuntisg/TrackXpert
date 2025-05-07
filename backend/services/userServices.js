@@ -4,6 +4,7 @@ import Token from "../models/Token.js";
 import Image from "../models/Images.js";
 import Track from "../models/Track.js";
 import { createImage } from "./helpers/imageHelper.js";
+import { logActivity } from "./helpers/logHelper.js";
 const JWT_SECRET = "process.env.JWT_SECRET";
 
 class UserService {
@@ -46,6 +47,12 @@ class UserService {
         await user.save();
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "7d" });
         await Token.create({ userId: user._id, token });
+        await logActivity(user._id, 'created_account', {
+            username: user.username, 
+            name,
+            surname,
+            email
+        });
         return { user, token };
     }
     
