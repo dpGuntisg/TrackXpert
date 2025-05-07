@@ -94,10 +94,6 @@ class UserService {
         return { message: "User logged out successfully" };
     }
     
-    static async getAllUsers() {
-        return await User.find().select("-password");
-    }
-    
     static async updateUser(userIdToUpdate, loggedInUserId, updates) {
         if (userIdToUpdate !== loggedInUserId) {
             throw new Error("Unauthorized");

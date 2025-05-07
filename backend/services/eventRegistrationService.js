@@ -1,6 +1,5 @@
 import EventRegistration from "../models/EventRegistration.js";
 import Event from "../models/Event.js";
-import mongoose from "mongoose";
 
 class EventRegistrationService {
     static async registerForEvent(eventId, userId, registrationInfo = null) {

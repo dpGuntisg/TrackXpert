@@ -4,7 +4,6 @@ import Image from "../models/Images.js";
 import User from "../models/User.js";
 import { createImage } from "./helpers/imageHelper.js";
 import { validateEventTags } from './helpers/tagHelper.js';
-import mongoose from 'mongoose';
 
 class EventService {
     static async createEvent(userId, { name, description, location, date, tracks, participants, unlimitedParticipants, status, registrationDate, images, tags, registrationInstructions, requireManualApproval, generatePdfTickets }) {

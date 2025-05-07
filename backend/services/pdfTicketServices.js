@@ -1,4 +1,3 @@
-import mongoose from "mongoose";
 import User from "../models/User.js";
 import Event from "../models/Event.js";
 import PDFkit from "pdfkit";
