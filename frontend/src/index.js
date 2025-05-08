@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import './i18n/i18n';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import RequireAdmin from './components/RequireAdmin';
 
 import NotFoundPage from './pages/NotFoundPage';
 import SignInPage from './pages/SignInPage';
@@ -16,6 +17,7 @@ import CreateEventPage from './pages/CreateEventPage';
 import EventDetailPage from './pages/EventDetailPage';
 import ProfilePage from './pages/ProfilePage';
 import NotificationPage from './pages/NotificationPage';
+import AdminPage from './pages/AdminPage';
 import Layout from './components/Layout';
 import App from './App';
 
@@ -82,6 +84,17 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <NotificationPage />
+          </ProtectedRoute>
+        ),
+        errorElement: <NotFoundPage />,
+      },
+      {
+        path: "/admin",
+        element: (
+          <ProtectedRoute>
+            <RequireAdmin>
+              <AdminPage />
+            </RequireAdmin>
           </ProtectedRoute>
         ),
         errorElement: <NotFoundPage />,

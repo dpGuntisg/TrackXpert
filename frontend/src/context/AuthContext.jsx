@@ -6,12 +6,14 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
     const [userId, setUserId] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [role, setRole] = useState(null);
 
     const checkAuthStatus = async () => {
         try {
             const response = await axiosInstance.get("/users/profile");
             if (response.status === 200 && response.data.user) {
                 setUserId(response.data.user._id);
+                setRole(response.data.user.role);
             } else {
                 setUserId(null);
             }
@@ -29,6 +31,7 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         userId,
+        role,
         loading,
         setUserId,
         checkAuthStatus
