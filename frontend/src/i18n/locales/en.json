@@ -25,7 +25,8 @@
     "reject": "Reject",
     "accept": "Accept",
     "decline": "Decline",
-    "finish": "Create Event"
+    "finish": "Create Event",
+    "user": "User"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
@@ -571,5 +572,11 @@
     "requestToRegister": "for event:",
     "registrationInfo": "Registration information:",
     "noRegistrationInfo": "No registration information provided"
+  },
+  "admin":{
+    "action": "Action",
+    "details": "Details",
+    "date": "Date & Time"
+
   }
 } 

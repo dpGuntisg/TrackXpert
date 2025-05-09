@@ -1,5 +1,5 @@
-import User from "../models/User";
-import UserActionLog from "../models/UserActionLog";
+import User from "../models/User.js";
+import UserActionLog from "../models/UserActionLog.js";
 import mongoose from "mongoose";
 
 class AdminService {
@@ -31,6 +31,7 @@ class AdminService {
                 .find(logQuery)
                 .sort({createdAt: sortDir})
                 .skip(skip)
+                .populate("userId", "username email")
                 .limit(limit)
 
             const total = await UserActionLog.countDocuments(logQuery);

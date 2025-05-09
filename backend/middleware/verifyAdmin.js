@@ -10,3 +10,5 @@ export const verifyAdmin = async (req, res, next) => {
     
     next();
 };
+
+export default verifyAdmin;

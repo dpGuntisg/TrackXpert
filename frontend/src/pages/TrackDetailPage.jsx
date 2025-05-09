@@ -103,7 +103,7 @@ export default function TrackDetailPage() {
         distance: null
     });
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [activeTab, setActiveTab] = useState('details'); // 'details', 'map', or 'availability'
+    const [activeTab, setActiveTab] = useState('map'); // 'details', 'map', or 'availability'
     const [registerForm, setRegisterForm] = useState(false);
     const [content, setContent] = useState('');
     const [requests, setRequests] = useState([]);

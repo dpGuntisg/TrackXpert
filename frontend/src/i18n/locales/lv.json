@@ -23,7 +23,8 @@
     "viewDetails":"Skatīt Detalizēti",
     "accept": "Apstiprināt",
     "decline": "Noraidīt",
-    "finish": "Izveidot Pasākumu"
+    "finish": "Izveidot Pasākumu",
+    "user": "Lietotājs"
   },
   "contact": {
     "title": "Izveidoja"
@@ -573,5 +574,11 @@
     "requestToRegister": "pasākumam:",
     "registrationInfo": "Reģistrācijas informācija:",
     "noRegistrationInfo": "Nav norādītas reģistrācijas informācijas"
+  },
+  "admin":{
+    "action": "Darbība",
+    "details": "Detaļas",
+    "date": "Datums & Laiks"
+
   }
 } 

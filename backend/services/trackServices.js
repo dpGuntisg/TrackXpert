@@ -3,6 +3,7 @@ import Image from "../models/Images.js";
 import { createImage } from "./helpers/imageHelper.js";
 import { validateTrackTags, getValidTags } from './helpers/tagHelper.js';
 import { buildTrackQuery } from './helpers/filterHelper.js';
+import { logActivity } from "./helpers/logHelper.js";
 
 class TrackService {
     static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline, tags, joining_enabled, joining_requirements }) {
@@ -68,8 +69,16 @@ class TrackService {
         if (!hasGeometry) {
           throw new Error("At least one geometry type (point or polyline) is required");
         }
-      
-        return await Track.create(trackData);
+        const createdTrack = await Track.create(trackData);
+
+        await logActivity(userId, 'created_track', {
+          name: createdTrack.name,
+          description: createdTrack.description,
+          location: createdTrack.location
+        });
+        
+        return createdTrack;
+
     }
 
     static async updateTrack(trackId, userId, updates) {
