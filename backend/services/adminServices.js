@@ -1,4 +1,5 @@
 import User from "../models/User.js";
+import Track from "../models/Track.js";
 import UserActionLog from "../models/UserActionLog.js";
 import mongoose from "mongoose";
 
@@ -46,6 +47,43 @@ class AdminService {
         } catch (error) {
             console.error("Error in getLogs:", error);
             throw new Error("Unable to fetch logs right now");
+        }
+    }
+
+    //Statistics
+    static async getTracksPerCountry() {
+        try {
+            const result = await Track.aggregate([
+                {
+                  $project: {
+                    country: {
+                      $trim: {
+                        input: { $arrayElemAt: [{ $split: ["$location", ","] }, 0] }
+                      }
+                    }
+                  }
+                },
+                {
+                  $group: {
+                    _id: "$country",
+                    count: { $sum: 1 }
+                  }
+                },
+                {
+                  $sort: { count: -1 }
+                },
+                {
+                  $project: {
+                    country: "$_id",
+                    count: 1,
+                    _id: 0
+                  }
+                }
+            ]);
+            return result;
+        } catch (error) {
+            console.error("Error in getTracksPerCountry:", error);
+            throw new Error("Failed to get track statistics");
         }
     }
 }

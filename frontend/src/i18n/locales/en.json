@@ -574,9 +574,11 @@
     "noRegistrationInfo": "No registration information provided"
   },
   "admin":{
+    "title": "Admin Panel",
     "action": "Action",
     "details": "Details",
-    "date": "Date & Time"
-
+    "date": "Date & Time",
+    "logs": "Logs",
+    "stats": "Statistics"
   }
 } 

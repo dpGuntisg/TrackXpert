@@ -5,8 +5,8 @@ import verifyAdmin from "../middleware/verifyAdmin.js";
 
 const router = express.Router();
 
-router.get("/logs",verifyToken, verifyAdmin,  
-  async (req, res) => {
+//admin actions
+router.get("/logs",verifyToken, verifyAdmin, async (req, res) => {
     try {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
@@ -27,4 +27,15 @@ router.get("/logs",verifyToken, verifyAdmin,
   }
 );
 
+//statistics
+router.get("/stats/tracks-per-country", verifyToken, verifyAdmin, async (req, res) => {
+    try {
+      const tracksperCountry = await AdminService.getTracksPerCountry();
+      res.json(tracksperCountry);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+}
+
+)
 export default router;

@@ -576,9 +576,11 @@
     "noRegistrationInfo": "Nav norādītas reģistrācijas informācijas"
   },
   "admin":{
+    "title": "Administratora panelis",
     "action": "Darbība",
     "details": "Detaļas",
-    "date": "Datums & Laiks"
-
+    "date": "Datums & Laiks",
+    "logs": "Reģistris",
+    "stats": "Statistika"
   }
 } 

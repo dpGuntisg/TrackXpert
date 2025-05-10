@@ -56,13 +56,13 @@ const AdminPage = () => {
         switch(tab){
             case 'statistics':
                 return(
-                    <div>
+                    <div className="bg-accentBlue p-6 rounded-xl shadow-lg">
 
                     </div>
                 );
             case 'logs':
                 return(
-                    <div className="overflow-x-auto">
+                    <div className="overflow-x-auto bg-accentBlue p-6 rounded-xl shadow-lg">
                         {loading ? (
                             <div className="flex justify-center items-center py-12">
                                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainYellow"></div>
@@ -152,7 +152,7 @@ const AdminPage = () => {
                 <h1 className='text-2xl sm:text-3xl font-bold'>{t('admin.title')}</h1>
             </header>
             {/* Tabs Navigation */}
-            <div className='flex flex-row'>
+            <div className='flex flex-row justify-center sm:justify-start gap-4'>
                 <button 
                     className={`px-6 py-3 font-medium flex items-center ${tab === 'statistics' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                     onClick={() => setTab('statistics')}
