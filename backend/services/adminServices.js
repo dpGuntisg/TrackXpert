@@ -100,6 +100,47 @@ class AdminService {
             throw new Error("Failed to get track statistics");
         }
     }
+    static async getMonthlyUserGrowth() {
+      try {
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+    
+        const growth = await User.aggregate([
+          {
+            $match: {
+              createdAt: {
+                $gte: startOfMonth,
+                $lte: endOfMonth
+              }
+            }
+          },
+          {
+            $group: {
+              _id: { $dayOfMonth: "$createdAt" },
+              count: { $sum: 1 }
+            }
+          },
+          { $sort: { _id: 1 } }
+        ]);
+    
+        const daysInMonth = endOfMonth.getDate();
+        const fullMonthData = Array.from({ length: daysInMonth }, (_, i) => {
+          const day = i + 1;
+          const entry = growth.find(g => g._id === day);
+          return {
+            day,
+            count: entry ? entry.count : 0
+          };
+        });
+    
+        return fullMonthData;
+      } catch (error) {
+        console.error("Error in getMonthlyUserGrowth:", error);
+        throw new Error("Failed to fetch monthly user growth");
+      }
+    }
+    
 }
 
 export default AdminService;

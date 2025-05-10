@@ -18,8 +18,8 @@ const TracksPerCountryChart = ({ data }) => {
   const yAxisTicks = Array.from({ length: maxY + 1 }, (_, i) => i);
 
   return (
-    <div className="flex flex-col items-center">
-      <p className="text-xl font-semibold text-mainYellow mb-4">{t('admin.trackCountryStats')}</p>
+    <div className="w-full"> 
+      <p className="text-xl font-semibold text-mainYellow mb-4 text-center">{t('admin.trackCountryStats')}</p>
       <VictoryChart
         domainPadding={{ x: 40 }}
         padding={{ top: 20, bottom: 70, left: 50, right: 20 }}
@@ -32,6 +32,7 @@ const TracksPerCountryChart = ({ data }) => {
           },
           bar: {
             style: {
+              data: { fill: "#F04642" },
               labels: { fill: 'white', fontSize: 12 }
             }
           },
@@ -44,9 +45,9 @@ const TracksPerCountryChart = ({ data }) => {
           dependentAxis
           tickValues={yAxisTicks} // Set explicit integer tick values
           style={{
-            axis: { stroke: "#F7FEBE" },
+            axis: { stroke: "#374151" }, 
             grid: {
-              stroke: "#6B7280",
+              stroke: "#273a3f",
               strokeWidth: 0.5
             },
             ticks: { stroke: "transparent" },
@@ -55,17 +56,17 @@ const TracksPerCountryChart = ({ data }) => {
         />
         <VictoryAxis
           style={{
-            axis: { stroke: "#F7FEBE" },
+            axis: { stroke: "#374151" },
             grid: { stroke: "transparent" },
             ticks: { stroke: "transparent" },
-            tickLabels: { angle: -45, fontSize: 10, padding: 15, fill: 'white' } 
+            tickLabels: { angle: -45, fontSize: 10, padding: 15, fill: 'white' }
           }}
         />
         <VictoryBar
           data={formattedData}
           style={{
             data: { fill: "#F04642", width: 20 },
-            labels: { fill: "#F7FEBE", fontSize: 12 }
+            labels: { fill: 'white', fontSize: 12 }
           }}
         />
       </VictoryChart>

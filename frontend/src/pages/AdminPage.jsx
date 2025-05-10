@@ -2,12 +2,12 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faSquarePollVertical } from '@fortawesome/free-solid-svg-icons';
+import { faFileAlt, faSquarePollVertical, faUsers, faUserCheck, faRoute, faCalendarAlt, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
 import TracksPerCountryChart from '../components/AdminPanelComponents/TracksPerCountryChart';
 
 const AdminPage = () => {
-    //logs
+    // logs state 
     const [logs, setLogs] = useState([]);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -17,8 +17,8 @@ const AdminPage = () => {
     const [endDate, setEndDate] = useState('');
     const [sortOrder, setSortOrder] = useState('desc');
     const [totalPages, setTotalPages] = useState(1);
-    //stats
-    const [tracksPerCountry, setTracksPerCountry] = useState(null); // Initialize to null
+    // stats state 
+    const [tracksPerCountry, setTracksPerCountry] = useState(null);
     const [userCount, setUserCount] = useState(null);
     const [activeUserCount, setActiveUserCount] = useState(null);
     const [trackCount, setTrackCount] = useState(null);
@@ -30,7 +30,7 @@ const AdminPage = () => {
 
     const { t } = useTranslation();
 
-    // Fetch logs
+    // Fetch logs 
     const fetchLogs = useCallback(async (currentPage = page) => {
         setLoading(true);
         try {
@@ -39,12 +39,10 @@ const AdminPage = () => {
                 limit: limit.toString(),
                 sortOrder: sortOrder
             });
-
             if (action) params.append('action', action);
             if (userId) params.append('userId', userId);
             if (startDate) params.append('startDate', startDate);
             if (endDate) params.append('endDate', endDate);
-
             const response = await axiosInstance.get(`/admin/logs?${params.toString()}`);
             setLogs(response.data.logs);
             setPage(response.data.currentPage);
@@ -61,6 +59,7 @@ const AdminPage = () => {
         fetchLogs();
     }, [fetchLogs]);
 
+    // Fetch tracks per country
     useEffect(() => {
         const fetchTracksPerCountry = async () => {
             setLoading(true);
@@ -69,7 +68,6 @@ const AdminPage = () => {
                 setTracksPerCountry(response.data);
             } catch (error) {
                 console.error(error);
-                // Optionally set an error state for statistics as well
             } finally {
                 setLoading(false);
             }
@@ -77,6 +75,7 @@ const AdminPage = () => {
         fetchTracksPerCountry();
     }, []);
 
+    // Fetch summary stats
     useEffect(() =>{
         const fetchSummary = async () => {
             setLoading(true);
@@ -88,6 +87,8 @@ const AdminPage = () => {
                 setEventCount(res.data.eventCount);
             } catch (error) {
                 console.error('Failed to fetch admin summary stats', error);
+            } finally {
+                setLoading(false);
             }
         }
         fetchSummary();
@@ -98,54 +99,81 @@ const AdminPage = () => {
         switch (tab) {
             case 'statistics':
                 return (
-                    <div className="bg-accentBlue p-6 rounded-xl shadow-lg">
+                    <div className="rounded-xl space-y-6">
                         {loading ? (
                             <div className="flex justify-center items-center py-12">
                                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainYellow"></div>
                             </div>
                         ) : tracksPerCountry && tracksPerCountry.length > 0 ? (
-                            <div>
-                                {/* Summary Counts */}
-                                <div className="flex flex-wrap justify-center gap-4 mb-6">
-                                    {userCount !== null && (
-                                        <div className="bg-gray-800 rounded-md border border-accentGray p-4 text-center">
-                                            <p className="text-sm font-semibold text-mainYellow mb-1">{t('admin.userCount')}</p>
-                                            <p className="text-xl text-white">{userCount}</p>
-                                        </div>
-                                    )}
-                                    {activeUserCount !== null && (
-                                        <div className="bg-gray-800 rounded-md border border-accentGray p-4 text-center">
-                                            <p className="text-sm font-semibold text-mainYellow mb-1">{t('admin.activeUsers')}</p>
-                                            <p className="text-xl text-white">{activeUserCount}</p>
-                                        </div>
-                                    )}
-                                    {trackCount !== null && (
-                                        <div className="bg-gray-800 rounded-md border border-accentGray p-4 text-center">
-                                            <p className="text-sm font-semibold text-mainYellow mb-1">{t('admin.trackCount')}</p>
-                                            <p className="text-xl text-white">{trackCount}</p>
-                                        </div>
-                                    )}
-                                    {eventCount !== null && (
-                                        <div className="bg-gray-800 rounded-md border border-accentGray p-4 text-center">
-                                            <p className="text-sm font-semibold text-mainYellow mb-1">{t('admin.eventCount')}</p>
-                                            <p className="text-xl text-white">{eventCount}</p>
-                                        </div>
-                                    )}
+                            <>
+                                {/* Summary Statistics Section */}
+                                <div className="bg-accentBlue rounded-xl shadow-md p-6">
+                                    <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center text-white">
+                                        <FontAwesomeIcon icon={faSquarePollVertical} className="mr-2 text-mainYellow" />
+                                        {t('admin.summaryStatistics')}
+                                    </h2>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        {userCount !== null && (
+                                            <div className="bg-mainBlue rounded-lg shadow-sm p-4 flex items-center border border-accentGray">
+                                                <FontAwesomeIcon icon={faUsers} className="text-mainYellow text-3xl mr-4" />
+                                                <div>
+                                                    <p className="text-sm text-mainYellow font-semibold">{t('admin.userCount')}</p>
+                                                    <p className="text-xl text-white">{userCount}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {activeUserCount !== null && (
+                                            <div className="bg-mainBlue rounded-lg shadow-sm p-4 flex items-center border border-accentGray">
+                                                <FontAwesomeIcon icon={faUserCheck} className="text-mainYellow text-3xl mr-4" />
+                                                <div>
+                                                    <p className="text-sm text-mainYellow font-semibold">{t('admin.activeUsers')}</p>
+                                                    <p className="text-xl text-white">{activeUserCount}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {trackCount !== null && (
+                                            <div className="bg-mainBlue rounded-lg shadow-sm p-4 flex items-center border border-accentGray">
+                                                <FontAwesomeIcon icon={faRoute} className="text-mainYellow text-3xl mr-4" />
+                                                <div>
+                                                    <p className="text-sm text-mainYellow font-semibold">{t('admin.trackCount')}</p>
+                                                    <p className="text-xl text-white">{trackCount}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {eventCount !== null && (
+                                            <div className="bg-mainBlue rounded-lg shadow-sm p-4 flex items-center border border-accentGray">
+                                                <FontAwesomeIcon icon={faCalendarAlt} className="text-mainYellow text-3xl mr-4" />
+                                                <div>
+                                                    <p className="text-sm text-mainYellow font-semibold">{t('admin.eventCount')}</p>
+                                                    <p className="text-xl text-white">{eventCount}</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
-                                {/*Charts */}
-                                <div className="w-full md:w-1/2 bg-gray-800 rounded-md border border-accentGray p-4">
-                                    <TracksPerCountryChart data={tracksPerCountry} />
+                                {/* Charts */}
+                                <div className="w-full md:w-1/2 bg-accentBlue rounded-xl shadow-md p-4">                                    <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center text-white">
+                                        <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-mainYellow" />
+                                        {t('admin.tracksPerCountry')}
+                                    </h2>
+                                    <div className="">
+                                        <TracksPerCountryChart data={tracksPerCountry} />
+                                    </div>
                                 </div>
-                            </div>
+                            </>
                         ) : (
-                            <p>{t('admin.noStatsAvailable')}</p>
+                            <div className="text-white">{t('admin.noStatsAvailable')}</div>
                         )}
                     </div>
                 );
             case 'logs':
-                return(
-                    <div className="overflow-x-auto bg-accentBlue p-6 rounded-xl shadow-lg">
+                return (
+                    <div className="bg-accentBlue p-6 rounded-xl shadow-lg text-white space-y-4">
+                        <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
+                            <FontAwesomeIcon icon={faFileAlt} className="mr-2 text-mainYellow" />
+                            {t('admin.activityLogs')}
+                        </h2>
                         {loading ? (
                             <div className="flex justify-center items-center py-12">
                                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainYellow"></div>
@@ -157,19 +185,19 @@ const AdminPage = () => {
                         ) : (
                             <>
                                 {/* Table Header */}
-                                <div className="grid grid-cols-4 gap-4 bg-accentBlue rounded-t-lg p-4 border-b border-accentGray font-semibold text-mainYellow">
+                                <div className="grid grid-cols-4 gap-4 bg-mainBlue rounded-t-lg p-4 border-b border-accentGray font-semibold text-mainYellow">
                                     <div>{t('common.user')}</div>
                                     <div>{t('admin.action')}</div>
                                     <div>{t('admin.details')}</div>
                                     <div>{t('admin.date')}</div>
                                 </div>
 
-                                {/* Table Body */}
+                                {/* Table Body*/}
                                 <div className="divide-y divide-accentGray">
                                     {logs.map((log) => (
                                         <div key={log._id} className="grid grid-cols-4 gap-4 p-4 hover:bg-mainBlue/20 transition duration-150">
                                             <div className="flex flex-col">
-                                                <span className="font-medium">{log.userId?.username}</span>
+                                                <span className="font-medium text-white">{log.userId?.username}</span>
                                                 <span className="text-xs text-gray-400">({log.userId?._id})</span>
                                             </div>
                                             <div className="flex items-center">
@@ -208,7 +236,7 @@ const AdminPage = () => {
                                         >
                                             {t('tracks.previous')}
                                         </button>
-                                        <div className="flex items-center px-3 py-1 bg-accentBlue border border-accentGray rounded">
+                                        <div className="flex items-center px-3 py-1 bg-mainBlue border border-accentGray rounded">
                                             <span>{page} / {totalPages}</span>
                                         </div>
                                         <button
@@ -223,18 +251,18 @@ const AdminPage = () => {
                             </>
                         )}
                     </div>
-                )
+                );
             default:
                 return null;
         }
-    }
+    };
 
     return (
-        <div className="p-5 sm:p-10 min-h-screen">
+        <div className="min-h-screen bg-mainBlue p-5 sm:p-10">
             <header className='mb-8 text-center'>
-                <h1 className='text-2xl sm:text-3xl font-bold'>{t('admin.title')}</h1>
+                <h1 className='text-2xl sm:text-3xl font-bold text-mainYellow'>{t('admin.title')}</h1>
             </header>
-            {/* Tabs Navigation */}
+            {/* Tabs Navigation*/}
             <div className='flex flex-row justify-center sm:justify-start gap-4'>
                 <button
                     className={`px-6 py-3 font-medium flex items-center ${tab === 'statistics' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
@@ -251,7 +279,9 @@ const AdminPage = () => {
                     {t('admin.logs')}
                 </button>
             </div>
-            {renderTab()}
+            <div className="container mx-auto">
+                {renderTab()}
+            </div>
         </div>
     );
 };

@@ -48,5 +48,15 @@ router.get("/stats/summary", verifyToken, verifyAdmin, async (req, res) => {
   }
 );
 
+router.get("/stats/monthly-growth", verifyToken, verifyAdmin, async (req, res) => {
+    try {
+      const growth = await AdminService.getMonthlyUserGrowth();
+      res.json(growth);
+    } catch (error) {
+      res.status(500).json({ message: error.message })
+    }
+  }
+);
+
 
 export default router;
