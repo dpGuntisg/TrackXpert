@@ -4,8 +4,10 @@ import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileAlt, faSquarePollVertical } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
+import TracksPerCountryChart from '../components/AdminPanelComponents/TracksPerCountryChart';
 
 const AdminPage = () => {
+    //logs
     const [logs, setLogs] = useState([]);
     const [page, setPage] = useState(1);
     const [limit, setLimit] = useState(10);
@@ -15,6 +17,13 @@ const AdminPage = () => {
     const [endDate, setEndDate] = useState('');
     const [sortOrder, setSortOrder] = useState('desc');
     const [totalPages, setTotalPages] = useState(1);
+    //stats
+    const [tracksPerCountry, setTracksPerCountry] = useState(null); // Initialize to null
+    const [userCount, setUserCount] = useState(null);
+    const [activeUserCount, setActiveUserCount] = useState(null);
+    const [trackCount, setTrackCount] = useState(null);
+    const [eventCount, setEventCount] = useState(null);
+
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [tab, setTab] = useState('statistics');
@@ -30,12 +39,12 @@ const AdminPage = () => {
                 limit: limit.toString(),
                 sortOrder: sortOrder
             });
-    
+
             if (action) params.append('action', action);
             if (userId) params.append('userId', userId);
             if (startDate) params.append('startDate', startDate);
             if (endDate) params.append('endDate', endDate);
-    
+
             const response = await axiosInstance.get(`/admin/logs?${params.toString()}`);
             setLogs(response.data.logs);
             setPage(response.data.currentPage);
@@ -52,12 +61,86 @@ const AdminPage = () => {
         fetchLogs();
     }, [fetchLogs]);
 
-    const renderTab = () => {
-        switch(tab){
-            case 'statistics':
-                return(
-                    <div className="bg-accentBlue p-6 rounded-xl shadow-lg">
+    useEffect(() => {
+        const fetchTracksPerCountry = async () => {
+            setLoading(true);
+            try {
+                const response = await axiosInstance.get('/admin/stats/tracks-per-country');
+                setTracksPerCountry(response.data);
+            } catch (error) {
+                console.error(error);
+                // Optionally set an error state for statistics as well
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchTracksPerCountry();
+    }, []);
 
+    useEffect(() =>{
+        const fetchSummary = async () => {
+            setLoading(true);
+            try {
+                const res = await axiosInstance.get('/admin/stats/summary');
+                setUserCount(res.data.userCount);
+                setActiveUserCount(res.data.activeUserCount);
+                setTrackCount(res.data.trackCount);
+                setEventCount(res.data.eventCount);
+            } catch (error) {
+                console.error('Failed to fetch admin summary stats', error);
+            }
+        }
+        fetchSummary();
+    }, [])
+
+      
+    const renderTab = () => {
+        switch (tab) {
+            case 'statistics':
+                return (
+                    <div className="bg-accentBlue p-6 rounded-xl shadow-lg">
+                        {loading ? (
+                            <div className="flex justify-center items-center py-12">
+                                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainYellow"></div>
+                            </div>
+                        ) : tracksPerCountry && tracksPerCountry.length > 0 ? (
+                            <div>
+                                {/* Summary Counts */}
+                                <div className="flex flex-wrap justify-center gap-4 mb-6">
+                                    {userCount !== null && (
+                                        <div className="bg-gray-800 rounded-md border border-accentGray p-4 text-center">
+                                            <p className="text-sm font-semibold text-mainYellow mb-1">{t('admin.userCount')}</p>
+                                            <p className="text-xl text-white">{userCount}</p>
+                                        </div>
+                                    )}
+                                    {activeUserCount !== null && (
+                                        <div className="bg-gray-800 rounded-md border border-accentGray p-4 text-center">
+                                            <p className="text-sm font-semibold text-mainYellow mb-1">{t('admin.activeUsers')}</p>
+                                            <p className="text-xl text-white">{activeUserCount}</p>
+                                        </div>
+                                    )}
+                                    {trackCount !== null && (
+                                        <div className="bg-gray-800 rounded-md border border-accentGray p-4 text-center">
+                                            <p className="text-sm font-semibold text-mainYellow mb-1">{t('admin.trackCount')}</p>
+                                            <p className="text-xl text-white">{trackCount}</p>
+                                        </div>
+                                    )}
+                                    {eventCount !== null && (
+                                        <div className="bg-gray-800 rounded-md border border-accentGray p-4 text-center">
+                                            <p className="text-sm font-semibold text-mainYellow mb-1">{t('admin.eventCount')}</p>
+                                            <p className="text-xl text-white">{eventCount}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/*Charts */}
+                                <div className="w-full md:w-1/2 bg-gray-800 rounded-md border border-accentGray p-4">
+                                    <TracksPerCountryChart data={tracksPerCountry} />
+                                </div>
+                            </div>
+                        ) : (
+                            <p>{t('admin.noStatsAvailable')}</p>
+                        )}
                     </div>
                 );
             case 'logs':
@@ -80,7 +163,7 @@ const AdminPage = () => {
                                     <div>{t('admin.details')}</div>
                                     <div>{t('admin.date')}</div>
                                 </div>
-                                
+
                                 {/* Table Body */}
                                 <div className="divide-y divide-accentGray">
                                     {logs.map((log) => (
@@ -114,12 +197,12 @@ const AdminPage = () => {
                                         </div>
                                     ))}
                                 </div>
-                                
+
                                 {/* Pagination */}
                                 <div className="flex justify-between items-center mt-6 px-2">
                                     <div className="flex space-x-2">
-                                        <button 
-                                            onClick={() => fetchLogs(page - 1)} 
+                                        <button
+                                            onClick={() => fetchLogs(page - 1)}
                                             disabled={page === 1}
                                             className={`px-3 py-1 rounded border ${page === 1 ? 'border-gray-600 text-gray-600 cursor-not-allowed' : 'border-mainYellow text-mainYellow hover:bg-mainYellow hover:text-mainBlue'}`}
                                         >
@@ -128,8 +211,8 @@ const AdminPage = () => {
                                         <div className="flex items-center px-3 py-1 bg-accentBlue border border-accentGray rounded">
                                             <span>{page} / {totalPages}</span>
                                         </div>
-                                        <button 
-                                            onClick={() => fetchLogs(page + 1)} 
+                                        <button
+                                            onClick={() => fetchLogs(page + 1)}
                                             disabled={page === totalPages}
                                             className={`px-3 py-1 rounded border ${page === totalPages ? 'border-gray-600 text-gray-600 cursor-not-allowed' : 'border-mainYellow text-mainYellow hover:bg-mainYellow hover:text-mainBlue'}`}
                                         >
@@ -153,7 +236,7 @@ const AdminPage = () => {
             </header>
             {/* Tabs Navigation */}
             <div className='flex flex-row justify-center sm:justify-start gap-4'>
-                <button 
+                <button
                     className={`px-6 py-3 font-medium flex items-center ${tab === 'statistics' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
                     onClick={() => setTab('statistics')}
                 >
@@ -162,7 +245,7 @@ const AdminPage = () => {
                 </button>
                 <button
                     className={`px-6 py-3 font-medium flex items-center ${tab === 'logs' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
-                    onClick={() => setTab('logs')}                    
+                    onClick={() => setTab('logs')}
                 >
                     <FontAwesomeIcon icon={faFileAlt} className='mr-2' />
                     {t('admin.logs')}

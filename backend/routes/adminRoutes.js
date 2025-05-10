@@ -35,7 +35,18 @@ router.get("/stats/tracks-per-country", verifyToken, verifyAdmin, async (req, re
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
-}
+  }
+);
 
-)
+router.get("/stats/summary", verifyToken, verifyAdmin, async (req, res) => {
+    try {
+      const summary = await AdminService.getSummaryCount();
+      res.json(summary);
+    } catch (error) {
+      res.status(500).json({ message: error.message })
+    }
+  }
+);
+
+
 export default router;

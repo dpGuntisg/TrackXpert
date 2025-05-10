@@ -1,5 +1,7 @@
 import User from "../models/User.js";
 import Track from "../models/Track.js";
+import Event from "../models/Event.js";
+import Token from "../models/Token.js";
 import UserActionLog from "../models/UserActionLog.js";
 import mongoose from "mongoose";
 
@@ -51,7 +53,16 @@ class AdminService {
     }
 
     //Statistics
-    static async getTracksPerCountry() {
+    static async  getSummaryCount() {
+        const [userCount, activeUserCount, trackCount, eventCount] = await Promise.all([
+            User.countDocuments(),
+            Token.countDocuments(),
+            Track.countDocuments(),
+            Event.countDocuments()
+        ]);
+        return { userCount, activeUserCount, trackCount, eventCount };
+    }
+    static async getTracksPerCountry(limit = 10) {
         try {
             const result = await Track.aggregate([
                 {
@@ -68,6 +79,9 @@ class AdminService {
                     _id: "$country",
                     count: { $sum: 1 }
                   }
+                },
+                {
+                    $limit: limit
                 },
                 {
                   $sort: { count: -1 }
