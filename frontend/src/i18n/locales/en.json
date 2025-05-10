@@ -26,7 +26,19 @@
     "accept": "Accept",
     "decline": "Decline",
     "finish": "Create Event",
-    "user": "User"
+    "user": "User",
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
@@ -573,12 +585,19 @@
     "registrationInfo": "Registration information:",
     "noRegistrationInfo": "No registration information provided"
   },
-  "admin":{
+  "admin": {
     "title": "Admin Panel",
     "action": "Action",
     "details": "Details",
     "date": "Date & Time",
     "logs": "Logs",
-    "stats": "Statistics"
+    "stats": "Statistics",
+    "summaryStatistics": "Summary Statistics",
+    "userCount": "User Count",
+    "activeUsers": "Active Users",
+    "trackCount": "Total Tracks",
+    "eventCount": "Event Count",
+    "tracksPerCountry": "Tracks by Country",
+    "trackCountryStats": "Country Statistics"
   }
 } 

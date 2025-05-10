@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileAlt, faSquarePollVertical, faUsers, faUserCheck, faRoute, faCalendarAlt, faMapMarkerAlt } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
 import TracksPerCountryChart from '../components/AdminPanelComponents/TracksPerCountryChart';
-
+import UserGrowthChart from '../components/AdminPanelComponents/UserGrowthChart';
 const AdminPage = () => {
     // logs state 
     const [logs, setLogs] = useState([]);
@@ -23,6 +23,8 @@ const AdminPage = () => {
     const [activeUserCount, setActiveUserCount] = useState(null);
     const [trackCount, setTrackCount] = useState(null);
     const [eventCount, setEventCount] = useState(null);
+    const [growthDates, setGrowthDates] = useState([]); 
+    const [growthCounts, setGrowthCounts] = useState([]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -94,6 +96,24 @@ const AdminPage = () => {
         fetchSummary();
     }, [])
 
+    useEffect(() => {
+        const fetchGrowth = async () => {
+            setLoading(true);
+            try {
+                const res = await axiosInstance.get('/admin/stats/monthly-growth');
+                const data = res.data;
+                setGrowthDates(data.map(entry => entry.day));
+                setGrowthCounts(data.map(entry => entry.count));
+            } catch (error) {
+                console.error('Failed to fetch admin growth stats', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchGrowth();
+    }, []);
+    
+
       
     const renderTab = () => {
         switch (tab) {
@@ -153,12 +173,24 @@ const AdminPage = () => {
                                 </div>
 
                                 {/* Charts */}
-                                <div className="w-full md:w-1/2 bg-accentBlue rounded-xl shadow-md p-4">                                    <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center text-white">
-                                        <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-mainYellow" />
-                                        {t('admin.tracksPerCountry')}
-                                    </h2>
-                                    <div className="">
-                                        <TracksPerCountryChart data={tracksPerCountry} />
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="bg-accentBlue rounded-xl shadow-md p-6">
+                                        <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center text-white">
+                                            <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-mainYellow" />
+                                            {t('admin.tracksPerCountry')}
+                                        </h2>
+                                        <div className="">
+                                            <TracksPerCountryChart data={tracksPerCountry} />
+                                        </div>
+                                    </div>
+                                    <div className="bg-accentBlue rounded-xl shadow-md p-6">
+                                        <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center text-white">
+                                            <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-mainYellow" />
+                                            {t('admin.tracksPerCountry')}
+                                        </h2>
+                                        <div>
+                                            <UserGrowthChart data={growthCounts.map((count, index) => ({ day: growthDates[index], count }))} />
+                                        </div>
                                     </div>
                                 </div>
                             </>

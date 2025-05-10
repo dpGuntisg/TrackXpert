@@ -24,7 +24,20 @@
     "accept": "Apstiprināt",
     "decline": "Noraidīt",
     "finish": "Izveidot Pasākumu",
-    "user": "Lietotājs"
+    "user": "Lietotājs",
+    "january": "Janvāris",
+    "february": "Februaris",
+    "march": "Marts",
+    "april": "Aprīlis",
+    "may": "Maijs",
+    "june": "Jūnijs",
+    "july": "Jūlijs",
+    "august": "Augusts",
+    "september": "Septembris",
+    "october": "Oktobris",
+    "november": "Novembris",
+    "december": "Decembris"
+
   },
   "contact": {
     "title": "Izveidoja"
@@ -575,12 +588,19 @@
     "registrationInfo": "Reģistrācijas informācija:",
     "noRegistrationInfo": "Nav norādītas reģistrācijas informācijas"
   },
-  "admin":{
+  "admin": {
     "title": "Administratora panelis",
     "action": "Darbība",
     "details": "Detaļas",
     "date": "Datums & Laiks",
-    "logs": "Reģistris",
-    "stats": "Statistika"
+    "logs": "Reģistrs",
+    "stats": "Statistika",
+    "summaryStatistics": "Pamata statistika",
+    "userCount": "Lietotāju skaits",
+    "activeUsers": "Aktīvie lietotāji",
+    "trackCount": "Trases kopskaits",
+    "eventCount": "Pasākumu skaits",
+    "tracksPerCountry": "Trases pēc valstīm",
+    "trackCountryStats": "Valstu statistika"
   }
 } 

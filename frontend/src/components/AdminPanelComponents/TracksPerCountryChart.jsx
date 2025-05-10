@@ -18,8 +18,7 @@ const TracksPerCountryChart = ({ data }) => {
   const yAxisTicks = Array.from({ length: maxY + 1 }, (_, i) => i);
 
   return (
-    <div className="w-full"> 
-      <p className="text-xl font-semibold text-mainYellow mb-4 text-center">{t('admin.trackCountryStats')}</p>
+    <div className="w-full mt-20"> 
       <VictoryChart
         domainPadding={{ x: 40 }}
         padding={{ top: 20, bottom: 70, left: 50, right: 20 }}
