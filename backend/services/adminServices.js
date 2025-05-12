@@ -15,7 +15,7 @@ class AdminService {
         }
     }
 
-    static async getLogs({page = 1, limit = 10, action, userId, startDate, endDate, sortOrder}) {
+    static async getLogs({page = 1, limit = 10, action, userId, startDate, endDate, sortOrder, search}) {
         try {
             const skip = (page - 1) * limit;
             const logQuery = {};
@@ -27,6 +27,9 @@ class AdminService {
                 if (startDate) logQuery.createdAt.$gte = new Date(startDate);
                 if (endDate)   logQuery.createdAt.$lte = new Date(endDate);
             }
+            if (search) {
+              logQuery.userId = mongoose.Types.ObjectId.isValid(search) ? search : undefined;
+            }        
             if (sortOrder !== "asc" && sortOrder !== "desc") {sortOrder = "desc";}
             const sortDir = sortOrder === "asc" ? 1 : -1;
 

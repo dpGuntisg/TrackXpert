@@ -69,7 +69,7 @@ const Navbar = () => {
         ? trackRequestsRes.data.filter(request => request.status === 'pending')
         : [];
       
-      // Handle event requests - ensure we're getting an array
+      // Handle event requests
       const pendingEventRequests = Array.isArray(eventRequestsRes.data) 
         ? eventRequestsRes.data.filter(request => request.status === 'pending')
         : [];

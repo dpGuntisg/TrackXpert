@@ -6,6 +6,7 @@ import { faFileAlt, faSquarePollVertical, faUsers, faUserCheck, faRoute, faCalen
 import { format } from 'date-fns';
 import TracksPerCountryChart from '../components/AdminPanelComponents/TracksPerCountryChart';
 import UserGrowthChart from '../components/AdminPanelComponents/UserGrowthChart';
+import SearchBar from '../components/SearchBar';
 const AdminPage = () => {
     // logs state 
     const [logs, setLogs] = useState([]);
@@ -17,6 +18,7 @@ const AdminPage = () => {
     const [endDate, setEndDate] = useState('');
     const [sortOrder, setSortOrder] = useState('desc');
     const [totalPages, setTotalPages] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
     // stats state 
     const [tracksPerCountry, setTracksPerCountry] = useState(null);
     const [userCount, setUserCount] = useState(null);
@@ -45,6 +47,7 @@ const AdminPage = () => {
             if (userId) params.append('userId', userId);
             if (startDate) params.append('startDate', startDate);
             if (endDate) params.append('endDate', endDate);
+            if (searchQuery) params.append('search', searchQuery);
             const response = await axiosInstance.get(`/admin/logs?${params.toString()}`);
             setLogs(response.data.logs);
             setPage(response.data.currentPage);
@@ -55,7 +58,7 @@ const AdminPage = () => {
         } finally {
             setLoading(false);
         }
-    }, [action, userId, startDate, endDate, sortOrder, limit, page]);
+    }, [action, userId, startDate, endDate, sortOrder, limit, page, searchQuery]);
 
     useEffect(() => {
         fetchLogs();
@@ -112,6 +115,11 @@ const AdminPage = () => {
         }
         fetchGrowth();
     }, []);
+
+    const handleSearch = useCallback((query) => {
+        setSearchQuery(query);
+        setPage(1); // Reset page on new search
+    }, [setSearchQuery, setPage]);
     
 
       
@@ -186,7 +194,7 @@ const AdminPage = () => {
                                     <div className="bg-accentBlue rounded-xl shadow-md p-6">
                                         <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center text-white">
                                             <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-mainYellow" />
-                                            {t('admin.tracksPerCountry')}
+                                            {t('admin.userGrowth')}
                                         </h2>
                                         <div>
                                             <UserGrowthChart data={growthCounts.map((count, index) => ({ day: growthDates[index], count }))} />
@@ -206,13 +214,16 @@ const AdminPage = () => {
                             <FontAwesomeIcon icon={faFileAlt} className="mr-2 text-mainYellow" />
                             {t('admin.activityLogs')}
                         </h2>
+                        <SearchBar onSearch={handleSearch} placeholder={t('admin.searchLogs')} className="mb-4" /> {/* Render SearchBar */}
                         {loading ? (
                             <div className="flex justify-center items-center py-12">
                                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainYellow"></div>
                             </div>
                         ) : logs.length === 0 ? (
                             <div className='text-center py-16'>
-                                <p className="text-2xl mb-4">{t('admin.noLogs')}</p>
+                            <p className="text-2xl mb-4">
+                                {searchQuery ? t('admin.noSearchResults') : t('admin.noLogs')}
+                            </p>
                             </div>
                         ) : (
                             <>
@@ -259,7 +270,7 @@ const AdminPage = () => {
                                 </div>
 
                                 {/* Pagination */}
-                                <div className="flex justify-between items-center mt-6 px-2">
+                                <div className="flex justify-center items-center mt-6 px-2">
                                     <div className="flex space-x-2">
                                         <button
                                             onClick={() => fetchLogs(page - 1)}
@@ -276,7 +287,7 @@ const AdminPage = () => {
                                             disabled={page === totalPages}
                                             className={`px-3 py-1 rounded border ${page === totalPages ? 'border-gray-600 text-gray-600 cursor-not-allowed' : 'border-mainYellow text-mainYellow hover:bg-mainYellow hover:text-mainBlue'}`}
                                         >
-                                            {t('admin.next')}
+                                            {t('tracks.next')}
                                         </button>
                                     </div>
                                 </div>

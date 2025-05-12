@@ -46,8 +46,8 @@ const LanguageSwitcher = () => {
               i18n.language === 'en' ? 'font-bold text-mainRed' : 'text-mainYellow'
             }`}
           >
+          {i18n.language === 'en' && <FontAwesomeIcon icon={faCheck} className="mr-2" />}
             EN
-            {i18n.language === 'en' && <FontAwesomeIcon icon={faCheck} className="ml-2" />}
           </button>
           <button
             onClick={() => changeLanguage('lv')}

@@ -601,6 +601,8 @@
     "trackCount": "Trases kopskaits",
     "eventCount": "Pasākumu skaits",
     "tracksPerCountry": "Trases pēc valstīm",
-    "trackCountryStats": "Valstu statistika"
+    "trackCountryStats": "Valstu statistika",
+    "userGrowth": "Lietotāju pieaugums",
+    "activityLogs": "Audita Žurnāls"
   }
 } 

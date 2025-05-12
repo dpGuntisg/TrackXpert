@@ -598,6 +598,8 @@
     "trackCount": "Total Tracks",
     "eventCount": "Event Count",
     "tracksPerCountry": "Tracks by Country",
-    "trackCountryStats": "Country Statistics"
+    "trackCountryStats": "Country Statistics",
+    "userGrowth": "User Growth",
+    "activityLogs": "Audit Log"
   }
 } 
