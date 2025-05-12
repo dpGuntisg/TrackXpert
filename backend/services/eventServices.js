@@ -216,10 +216,19 @@ class EventService {
                     }
                 });
 
+            if (!event) {
+                const error = new Error("Event not found");
+                error.status = 404;
+                throw error;
+            }
+
             return event;
         } catch (error) {
-            console.log(error);
-            throw new Error("Event not found");
+            if (error.name === 'CastError') {
+                error.status = 404;
+                error.message = "Event not found";
+            }
+            throw error;
         }
     }
 

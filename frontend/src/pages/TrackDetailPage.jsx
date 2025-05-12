@@ -154,11 +154,15 @@ export default function TrackDetailPage() {
             
             setDrawings(initialDrawings);
         } catch (error) {
-            setServerError(error.response?.data?.message || t('tracks.error'));
+            if (error.response?.status === 404 || error.response?.data?.message?.includes('Cast to ObjectId failed')) {
+                navigate('/404');
+            } else {
+                setServerError(error.response?.data?.message || t('tracks.error'));
+            }
         } finally {
             setLoading(false);
         }
-    }, [trackId, t]);
+    }, [trackId, t, navigate]);
 
     // Load track data on component
     useEffect(() => {

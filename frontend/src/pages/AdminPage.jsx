@@ -328,6 +328,8 @@ const AdminPage = () => {
             <header className='mb-8 text-center'>
                 <h1 className='text-2xl sm:text-3xl font-bold text-mainYellow'>{t('admin.title')}</h1>
             </header>
+
+            <div className="container mx-auto">
             {/* Tabs Navigation*/}
             <div className='flex flex-row justify-center sm:justify-start gap-4'>
                 <button
@@ -344,8 +346,8 @@ const AdminPage = () => {
                     <FontAwesomeIcon icon={faFileAlt} className='mr-2' />
                     {t('admin.logs')}
                 </button>
+            {/* Tabs Render*/}
             </div>
-            <div className="container mx-auto">
                 {renderTab()}
             </div>
         </div>

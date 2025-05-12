@@ -150,14 +150,18 @@ const EventDetailPage = () => {
         setLoading(false);
       } catch (err) {
         console.error('Error fetching event:', err);
-        setError(err.response?.data?.message || 'Failed to load event');
+        if (err.response?.status === 404 || err.response?.data?.message?.includes('Cast to ObjectId failed')) {
+          navigate('/404');
+        } else {
+          setError(err.response?.data?.message || 'Failed to load event');
+          toast.error(t('common.error'));
+        }
         setLoading(false);
-        toast.error(t('common.error'));
       }
     };
 
     fetchEvent();
-  }, [id, userId, t]);
+  }, [id, userId, t, navigate]);
 
 // Handles like/unlike button click
   const handleLikeClick = async () => {
