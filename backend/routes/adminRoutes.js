@@ -15,9 +15,10 @@ router.get("/logs",verifyToken, verifyAdmin, async (req, res) => {
       const startDate = req.query.startDate || undefined;
       const endDate = req.query.endDate   || undefined;
       const sortOrder = req.query.sortOrder || "desc";
+      const search = req.query.search || undefined;
 
       const { logs, totalPages, currentPage, sortDir } = 
-      await AdminService.getLogs({page,limit,action,userId,startDate,endDate,sortOrder,});
+      await AdminService.getLogs({page, limit, action, userId, startDate, endDate, sortOrder, search});
 
       res.status(200).json({message: "Logs fetched successfully", logs, totalPages, currentPage, sortDir,});
     } catch (error) {

@@ -47,7 +47,7 @@ const AdminPage = () => {
             if (userId) params.append('userId', userId);
             if (startDate) params.append('startDate', startDate);
             if (endDate) params.append('endDate', endDate);
-            if (searchQuery) params.append('search', searchQuery);
+            if (searchQuery) params.append('search', searchQuery.trim());
             const response = await axiosInstance.get(`/admin/logs?${params.toString()}`);
             setLogs(response.data.logs);
             setPage(response.data.currentPage);
@@ -214,7 +214,7 @@ const AdminPage = () => {
                             <FontAwesomeIcon icon={faFileAlt} className="mr-2 text-mainYellow" />
                             {t('admin.activityLogs')}
                         </h2>
-                        <SearchBar onSearch={handleSearch} placeholder={t('admin.searchLogs')} className="mb-4" /> {/* Render SearchBar */}
+                        <SearchBar onSearch={handleSearch} placeholder={t('admin.searchLogs')} className="mb-4" />
                         {loading ? (
                             <div className="flex justify-center items-center py-12">
                                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainYellow"></div>

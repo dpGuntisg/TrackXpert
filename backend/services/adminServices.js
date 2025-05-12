@@ -27,8 +27,30 @@ class AdminService {
                 if (startDate) logQuery.createdAt.$gte = new Date(startDate);
                 if (endDate)   logQuery.createdAt.$lte = new Date(endDate);
             }
-            if (search) {
-              logQuery.userId = mongoose.Types.ObjectId.isValid(search) ? search : undefined;
+            if (search && search.trim()) {
+                const searchTerm = search.trim();
+                try {
+                    const searchObjectId = new mongoose.Types.ObjectId(searchTerm);
+                    logQuery.userId = searchObjectId;
+                } catch {
+                    const users = await User.find({
+                        $or: [
+                            { username: { $regex: searchTerm, $options: 'i' } },
+                            { email: { $regex: searchTerm, $options: 'i' } }
+                        ]
+                    }).select('_id');
+                    
+                    if (users.length > 0) {
+                        logQuery.userId = { $in: users.map(user => user._id) };
+                    } else {
+                        return {
+                            logs: [],
+                            totalPages: 0,
+                            currentPage: page,
+                            sortDir: sortOrder === "asc" ? 1 : -1
+                        };
+                    }
+                }
             }        
             if (sortOrder !== "asc" && sortOrder !== "desc") {sortOrder = "desc";}
             const sortDir = sortOrder === "asc" ? 1 : -1;

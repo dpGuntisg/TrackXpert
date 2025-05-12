@@ -600,6 +600,7 @@
     "tracksPerCountry": "Tracks by Country",
     "trackCountryStats": "Country Statistics",
     "userGrowth": "User Growth",
-    "activityLogs": "Audit Log"
+    "activityLogs": "Audit Log",
+    "searchLogs":"Search by User ID or Username"
   }
 } 

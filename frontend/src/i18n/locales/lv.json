@@ -603,6 +603,7 @@
     "tracksPerCountry": "Trases pēc valstīm",
     "trackCountryStats": "Valstu statistika",
     "userGrowth": "Lietotāju pieaugums",
-    "activityLogs": "Audita Žurnāls"
+    "activityLogs": "Audita Žurnāls",
+    "searchLogs":"Meklēt pēc User ID vai Username"
   }
 } 
