@@ -601,6 +601,20 @@
     "trackCountryStats": "Country Statistics",
     "userGrowth": "User Growth",
     "activityLogs": "Audit Log",
-    "searchLogs":"Search by User ID or Username"
+    "searchLogs":"Search by User ID or Username",
+    "actions":{
+      "created_account": "Created an account",
+      "created_track": "Created a track",
+      "edited_track": "Edited a track",
+      "deleted_track": "Deleted a track",
+      "created_event": "Created an event",
+      "edited_event": "Edited an event"
+    },
+    "actionTypes": {
+      "created": "Created",
+      "edited": "Edited",
+      "deleted": "Deleted",
+      "joined": "Joined"
+    }
   }
 } 

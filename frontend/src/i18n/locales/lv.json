@@ -604,6 +604,20 @@
     "trackCountryStats": "Valstu statistika",
     "userGrowth": "Lietotāju pieaugums",
     "activityLogs": "Audita Žurnāls",
-    "searchLogs":"Meklēt pēc User ID vai Username"
+    "searchLogs":"Meklēt pēc User ID vai Username",
+    "actions":{
+      "created_account": "Izveidoja profilu",
+      "created_track": "Izveidoja trasi",
+      "edited_track": "Rediģēja trasi",
+      "deleted_track": "Dzēsa trasi",
+      "created_event": "Izveidoja pasākumu",
+      "edited_event": "Rediģēja pasākumu"
+    },
+    "actionTypes": {
+      "created": "Izveidoja",
+      "edited": "Rediģēja",
+      "deleted": "Dzēsa",
+      "joined": "Pievienojās"
+    }
   }
 } 

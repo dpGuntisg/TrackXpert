@@ -20,7 +20,9 @@ class AdminService {
             const skip = (page - 1) * limit;
             const logQuery = {};
 
-            if(action) logQuery.action = action; 
+            if(action) {
+                logQuery.action = { $regex: `^${action}_`, $options: 'i' };
+            }
             if(userId) logQuery.userId = userId; 
             if (startDate || endDate) {
                 logQuery.createdAt = {};
