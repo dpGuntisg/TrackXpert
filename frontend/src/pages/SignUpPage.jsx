@@ -23,7 +23,7 @@ export default function SignUpPage() {
     confirmPassword: false 
   });
   const navigate = useNavigate();
-  const { setUserId } = useAuth();
+  const { setUserId, setRole } = useAuth();
 
   const handleBlur = (field) => {
     setTouched(prev => ({ ...prev, [field]: true }));
@@ -48,6 +48,7 @@ export default function SignUpPage() {
       
       if (response.status === 201 && response.data.user) {
         setUserId(response.data.user._id);
+        setRole(response.data.user.role);
         setSuccess(t('auth.signUpSuccess'));
         navigate("/");
       } else {

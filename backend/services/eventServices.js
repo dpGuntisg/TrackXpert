@@ -5,6 +5,7 @@ import User from "../models/User.js";
 import { createImage } from "./helpers/imageHelper.js";
 import { validateEventTags } from './helpers/tagHelper.js';
 import mongoose from "mongoose";
+import { hasModificationPermission } from "./helpers/permissionHelper.js";
 
 class EventService {
     static async createEvent(userId, { name, description, location, date, tracks, participants, unlimitedParticipants, status, registrationDate, images, tags, registrationInstructions, requireManualApproval, generatePdfTickets }) {
@@ -103,7 +104,9 @@ class EventService {
         try {
             const event = await Event.findById(eventId);
             if (!event) throw new Error("Event not found");
-            if (event.created_by.toString() !== userId) throw new Error("Unauthorized");
+            
+            const hasPermission = await hasModificationPermission(userId, event.created_by.toString());
+            if (!hasPermission) throw new Error("Unauthorized");
 
             // Validate tags if provided
             if (updated.tags !== undefined) {
@@ -250,7 +253,9 @@ class EventService {
         try {
             const event = await Event.findById(eventId);
             if (!event) throw new Error("Event not found");
-            if (event.created_by.toString() !== userId) throw new Error("Unauthorized");
+            
+            const hasPermission = await hasModificationPermission(userId, event.created_by.toString());
+            if (!hasPermission) throw new Error("Unauthorized");
 
             await Event.findByIdAndDelete(eventId);
             return { message: "Event deleted successfully" };

@@ -16,10 +16,12 @@ export const AuthProvider = ({ children }) => {
                 setRole(response.data.user.role);
             } else {
                 setUserId(null);
+                setRole(null);
             }
         } catch (error) {
             console.error("Error checking auth status:", error);
             setUserId(null);
+            setRole(null);
         } finally {
             setLoading(false);
         }
@@ -34,6 +36,7 @@ export const AuthProvider = ({ children }) => {
         role,
         loading,
         setUserId,
+        setRole,
         checkAuthStatus
     };
 

@@ -87,7 +87,7 @@ const EventDetailPage = () => {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { userId } = useAuth();
+  const { userId, role } = useAuth();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -384,7 +384,7 @@ const EventDetailPage = () => {
                   )}
                   
                   {/* Edit and Delete buttons for event owner */}
-                  {userId === event.created_by?._id && (
+                  {(userId === event.created_by?._id || role === "admin") && (
                     <>
                       <button
                         onClick={() => navigate(`/events/edit/${id}`)}

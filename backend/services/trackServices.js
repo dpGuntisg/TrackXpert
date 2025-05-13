@@ -4,6 +4,7 @@ import { createImage } from "./helpers/imageHelper.js";
 import { validateTrackTags, getValidTags } from './helpers/tagHelper.js';
 import { buildTrackQuery } from './helpers/filterHelper.js';
 import { logActivity } from "./helpers/logHelper.js";
+import { hasModificationPermission } from "./helpers/permissionHelper.js";
 
 class TrackService {
     static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline, tags, joining_enabled, joining_requirements }) {
@@ -84,7 +85,9 @@ class TrackService {
     static async updateTrack(trackId, userId, updates) {
         const track = await Track.findById(trackId);
         if (!track) throw new Error("Track not found");
-        if (track.created_by.toString() !== userId) throw new Error("Unauthorized");
+        
+        const hasPermission = await hasModificationPermission(userId, track.created_by.toString());
+        if (!hasPermission) throw new Error("Unauthorized");
       
         // Track the IDs of images to be deleted
         const imagesToDelete = [];
@@ -195,7 +198,10 @@ class TrackService {
     static async deleteTrack(trackId, userId) {
         const track = await Track.findById(trackId);
         if (!track) throw new Error("Track not found");
-        if (track.created_by.toString() !== userId) throw new Error("Unauthorized");
+        
+        const hasPermission = await hasModificationPermission(userId, track.created_by.toString());
+        if (!hasPermission) throw new Error("Unauthorized");
+        
         await Image.deleteMany({ _id: { $in: track.images } });
         await Track.findByIdAndDelete(trackId);
         return { message: "Track deleted successfully" };

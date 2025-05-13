@@ -14,7 +14,7 @@ import { useAuth } from '../context/AuthContext';
 function CreateEventPage({ mode = 'create' }) {
     const { eventId } = useParams();
     const navigate = useNavigate();
-    const { userId } = useAuth();
+    const { userId, role } = useAuth();
     const [values, setValues] = useState({
         name: '',
         description: '',
@@ -52,8 +52,8 @@ function CreateEventPage({ mode = 'create' }) {
                     const response = await axiosInstance.get(`/events/${eventId}`);
                     const eventData = response.data.event;
                     
-                    // Check if the current user is the event owner
-                    if (eventData.created_by?._id !== userId) {
+                    // Check if the current user is the event owner or admin
+                    if (eventData.created_by?._id !== userId && role !== "admin") {
                         setIsAuthorized(false);
                         toast.error(t('event.unauthorizedEdit'));
                         setTimeout(() => {
@@ -94,7 +94,7 @@ function CreateEventPage({ mode = 'create' }) {
             
             fetchEvent();
         }
-    }, [mode, eventId, t, userId, navigate]);
+    }, [mode, eventId, t, userId, navigate, role]);
 
     // Use useCallback to prevent function recreation on every render
     const setValuesCallback = useCallback((valuesUpdater) => {

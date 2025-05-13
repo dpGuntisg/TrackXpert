@@ -68,7 +68,7 @@ export default function TrackDetailPage() {
     const { t } = useTranslation();
     const { id: trackId } = useParams();
     const navigate = useNavigate();
-    const { userId } = useAuth();
+    const { userId, role } = useAuth();
     const [loading, setLoading] = useState(true);
     const [track, setTrack] = useState({ 
         name: "", 
@@ -573,7 +573,7 @@ export default function TrackDetailPage() {
 
                 {/* Action buttons for track owner */}
                 <div className="flex space-x-4 justify-end mt-8">
-                    {userId === track.created_by?._id && (
+                    {(userId === track.created_by?._id || role === "admin") && (
                         <>
                         <button
                             onClick={() => setEditMode(true)}

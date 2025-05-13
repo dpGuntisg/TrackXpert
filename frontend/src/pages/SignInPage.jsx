@@ -14,7 +14,7 @@ export default function SignInPage() {
   const [success, setSuccess] = useState("");
   const [touched, setTouched] = useState({ email: false, password: false });
   const navigate = useNavigate();
-  const { setUserId } = useAuth();
+  const { setUserId, setRole } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,6 +28,7 @@ export default function SignInPage() {
       
       if (response.status === 200 && response.data.user) {
         setUserId(response.data.user._id);
+        setRole(response.data.user.role);
         setSuccess(t('auth.signInSuccess'));
         navigate("/");
       } else {
