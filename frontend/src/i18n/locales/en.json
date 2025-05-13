@@ -526,6 +526,7 @@
     "registrationFull": "Event is full",
     "loginToRegister": "Login to register",
     "cannotRegisterAsCreator": "You cannot register for your own event",
+    "downloadTicket": "Download Ticket",
     "status": {
       "completed": "Completed",
       "active": "Active",
@@ -606,10 +607,11 @@
     "actions":{
       "created_account": "Created an account",
       "created_track": "Created a track",
-      "edited_track": "Edited a track",
+      "updated_track": "Edited a track",
       "deleted_track": "Deleted a track",
       "created_event": "Created an event",
-      "edited_event": "Edited an event"
+      "updated_event": "Edited an event",
+      "deleted_event": "Deleted an event"
     },
     "actionTypes": {
       "created": "Created",

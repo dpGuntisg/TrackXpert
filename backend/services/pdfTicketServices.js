@@ -1,5 +1,6 @@
 import User from "../models/User.js";
 import Event from "../models/Event.js";
+import EventRegistration from "../models/EventRegistration.js";
 import PDFkit from "pdfkit";
 import fs from "fs";
 import path from "path";
@@ -16,6 +17,17 @@ class PdfTicketService {
         const event = await Event.findById(eventId);
         if (!user || !event) {
             throw new Error("User or event not found");
+        }
+
+        // Check if user is registered and approved for the event
+        const registration = await EventRegistration.findOne({
+            event: eventId,
+            user: userId,
+            status: 'approved'
+        });
+
+        if (!registration) {
+            throw new Error("You must be an approved participant to download a ticket");
         }
 
         const doc = new PDFkit({ size: "A4", margin: 50 });

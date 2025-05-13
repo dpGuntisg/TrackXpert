@@ -73,6 +73,7 @@ class TrackService {
         const createdTrack = await Track.create(trackData);
 
         await logActivity(userId, 'created_track', {
+          id: createdTrack._id,
           name: createdTrack.name,
           description: createdTrack.description,
           location: createdTrack.location
@@ -156,7 +157,16 @@ class TrackService {
           }
         }
       
-        return await track.save();
+        const updatedTrack = await track.save();
+
+        await logActivity(userId, 'updated_track', {
+            id: updatedTrack._id,
+            name: updatedTrack.name,
+            description: updatedTrack.description,
+            location: updatedTrack.location,
+        });
+      
+        return updatedTrack;
     }
 
     static async getAllTracks({ page = 1, limit = 6, filters = {} }) {
@@ -204,6 +214,12 @@ class TrackService {
         
         await Image.deleteMany({ _id: { $in: track.images } });
         await Track.findByIdAndDelete(trackId);
+
+        await logActivity(userId, 'deleted_track', {
+            id: track._id,
+            name: track.name,
+        });
+
         return { message: "Track deleted successfully" };
     }
 

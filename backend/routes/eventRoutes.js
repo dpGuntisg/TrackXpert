@@ -50,7 +50,7 @@ router.patch("/:id", verifyToken, async (req, res) => {
 
 router.delete("/:id", verifyToken, async (req, res) => {
     try {
-        const event = await EventService.deleteEvents(req.params.id, req.userId);
+        const event = await EventService.deleteEvent(req.params.id, req.userId);
         res.status(200).json({ message: "Event deleted successfully", event });
     } catch (error) {
         res.status(error.status || 500).json({ message: error.message });

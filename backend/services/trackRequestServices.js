@@ -1,5 +1,6 @@
 import TrackRequest from "../models/trackRequest.js";
 import Track from "../models/Track.js";
+import { logActivity } from "./helpers/logHelper.js";
 
 class TrackRequestService {
     static async createJoinRequest(userId, trackId, content) {
@@ -71,11 +72,23 @@ class TrackRequestService {
             throw new Error("Invalid status");
         }
 
-        const request = await TrackRequest.findById(requestId);
+        const request = await TrackRequest.findById(requestId)
+            .populate("track", "name")
+            .populate("sender", "username")
+            .populate("receiver", "username");
+            
         if (!request) throw new Error("Request not found");
 
         request.status = status;
         await request.save();
+
+        await logActivity(request.receiver._id, 'updated_track_request', {
+            requestId: request._id,
+            trackName: request.track.name,
+            sender: request.sender.username,
+            receiver: request.receiver.username,
+            newStatus: status
+        });
 
         return request;
     }

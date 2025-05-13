@@ -6,6 +6,7 @@ import { createImage } from "./helpers/imageHelper.js";
 import { validateEventTags } from './helpers/tagHelper.js';
 import mongoose from "mongoose";
 import { hasModificationPermission } from "./helpers/permissionHelper.js";
+import { logActivity } from "./helpers/logHelper.js";
 
 class EventService {
     static async createEvent(userId, { name, description, location, date, tracks, participants, unlimitedParticipants, status, registrationDate, images, tags, registrationInstructions, requireManualApproval, generatePdfTickets }) {
@@ -92,7 +93,14 @@ class EventService {
                     throw new Error("Maximum number of participants is 100");
                 }
             }
-
+            await logActivity(userId, 'created_event', {
+                id: eventData._id,
+                name: eventData.name,
+                description: eventData.description,
+                location: eventData.location,
+                date: eventData.date,
+                tracks: eventData.tracks
+              });      
             return await Event.create(eventData);
         } catch (error) {
             console.error("Error creating event:", error);
@@ -100,54 +108,55 @@ class EventService {
         }
     }
 
-    static async updateEvent(eventId, userId, updated) {
-        try {
-            const event = await Event.findById(eventId);
-            if (!event) throw new Error("Event not found");
-            
-            const hasPermission = await hasModificationPermission(userId, event.created_by.toString());
-            if (!hasPermission) throw new Error("Unauthorized");
+    static async updateEvent(eventId, userId, updates) {
+        const event = await Event.findById(eventId);
+        if (!event) throw new Error("Event not found");
 
-            // Validate tags if provided
-            if (updated.tags !== undefined) {
-                validateEventTags(updated.tags || []);
-            }
+        const hasPermission = await hasModificationPermission(userId, event.created_by.toString());
+        if (!hasPermission) throw new Error("Unauthorized");
 
-            const imagesToDelete = [];
-      
-            if (updated.images && Array.isArray(updated.images)) {
-                const imageIds = [];
-                for (let image of updated.images) {
-                    if (!image._id) {
-                        const imageData = await createImage(image.data, image.mimeType);
-                        imageIds.push(imageData._id);
-                    } else {
-                        imageIds.push(image._id);
-                    }
+        // Handle images update
+        if (updates.images && Array.isArray(updates.images)) {
+            const imageIds = [];
+            for (let image of updates.images) {
+                if (!image._id) {
+                    const imageData = await createImage(image.data, image.mimeType);
+                    imageIds.push(imageData._id);
+                } else {
+                    imageIds.push(image._id);
                 }
-                const existingImageIds = event.images.map(img => img.toString());
-                imagesToDelete.push(...existingImageIds.filter(id => !imageIds.includes(id)));
-
-                updated.images = imageIds;
             }
-
-            // Handle participants update
-            if (updated.unlimitedParticipants !== undefined) {
-                updated.maxParticipants = updated.unlimitedParticipants ? null : updated.participants;
-            } else if (updated.participants !== undefined) {
-                updated.maxParticipants = event.unlimitedParticipants ? null : updated.participants;
-            }
-
-            if (imagesToDelete.length > 0) {
-                await Image.deleteMany({ _id: { $in: imagesToDelete } });
-            }
-
-            Object.assign(event, updated);
-            return await event.save();
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to update event");
+            updates.images = imageIds;
         }
+
+        // Handle dates
+        if (updates.date) {
+            updates.date = {
+                startDate: updates.date.startDate ? new Date(updates.date.startDate) : event.date.startDate,
+                endDate: updates.date.endDate ? new Date(updates.date.endDate) : event.date.endDate
+            };
+        }
+
+        if (updates.registrationDate) {
+            updates.registrationDate = {
+                startDate: updates.registrationDate.startDate ? new Date(updates.registrationDate.startDate) : event.registrationDate.startDate,
+                endDate: updates.registrationDate.endDate ? new Date(updates.registrationDate.endDate) : event.registrationDate.endDate
+            };
+        }
+
+        // Update event
+        Object.assign(event, updates);
+        const updatedEvent = await event.save();
+
+        await logActivity(userId, 'updated_event', {
+            id: updatedEvent._id,
+            name: updatedEvent.name,
+            description: updatedEvent.description,
+            location: updatedEvent.location,
+            date: updatedEvent.date,
+        });
+
+        return updatedEvent;
     }
 
     static async getAllEvents({ page = 1, limit = 6, filters = {} }) {
@@ -249,20 +258,22 @@ class EventService {
         }
     }
 
-    static async deleteEvents(eventId, userId) {
-        try {
-            const event = await Event.findById(eventId);
-            if (!event) throw new Error("Event not found");
-            
-            const hasPermission = await hasModificationPermission(userId, event.created_by.toString());
-            if (!hasPermission) throw new Error("Unauthorized");
+    static async deleteEvent(eventId, userId) {
+        const event = await Event.findById(eventId);
+        if (!event) throw new Error("Event not found");
 
-            await Event.findByIdAndDelete(eventId);
-            return { message: "Event deleted successfully" };
-        } catch (error) {
-            console.log(error);
-            throw new Error("Failed to delete event");
-        }
+        const hasPermission = await hasModificationPermission(userId, event.created_by.toString());
+        if (!hasPermission) throw new Error("Unauthorized");
+
+        await Image.deleteMany({ _id: { $in: event.images } });
+        await Event.findByIdAndDelete(eventId);
+
+        await logActivity(userId, 'deleted_event', {
+            id: event._id,
+            name: event.name,
+        });
+
+        return { message: "Event deleted successfully" };
     }
 
     static async likeEvent(eventId, userId) {

@@ -1,6 +1,7 @@
 import EventRegistration from "../models/EventRegistration.js";
 import Event from "../models/Event.js";
 import mongoose from "mongoose";
+import { logActivity } from "./helpers/logHelper.js";
 
 class EventRegistrationService {
     static async registerForEvent(eventId, userId, registrationInfo = null) {
@@ -155,15 +156,15 @@ class EventRegistrationService {
     static async updateRegistrationStatus(registrationId, status, userId) {
         try {
             const registration = await EventRegistration.findById(registrationId)
-                .populate('event');
+                .populate("event", "name created_by")
+                .populate("user", "username");
 
             if (!registration) {
                 throw new Error("Registration not found");
             }
 
-            // Verify that the user is the event creator
-            const event = await Event.findById(registration.event._id);
-            if (event.created_by.toString() !== userId) {
+            // Check if the user is the event creator
+            if (registration.event.created_by.toString() !== userId) {
                 throw new Error("Unauthorized to update registration status");
             }
 
@@ -174,10 +175,17 @@ class EventRegistrationService {
             registration.status = status;
             await registration.save();
 
+            await logActivity(userId, 'updated_registration_status', {
+                registrationId: registration._id,
+                eventName: registration.event.name,
+                participant: registration.user.username,
+                newStatus: status
+            });
+
             // Update event's current participants count if approved
-            if (status === 'approved' && !event.unlimitedParticipants) {
-                event.currentParticipants += 1;
-                await event.save();
+            if (status === 'approved' && !registration.event.unlimitedParticipants) {
+                registration.event.currentParticipants += 1;
+                await registration.event.save();
             }
 
             return registration;

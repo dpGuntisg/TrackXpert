@@ -535,6 +535,7 @@
     "registrationFull": "Pasākums ir pilns",
     "loginToRegister": "Ielogoties, lai reģistrētos",
     "cannotRegisterAsCreator": "Jūs nevarat reģistrēties savā pasākumā",
+    "downloadTicket": "Lejupielādēt Biļeti",
     "status": {
       "completed": "Pabeigts",
       "active": "Aktīvs",
@@ -609,10 +610,11 @@
     "actions":{
       "created_account": "Izveidoja profilu",
       "created_track": "Izveidoja trasi",
-      "edited_track": "Rediģēja trasi",
+      "updated_track": "Rediģēja trasi",
       "deleted_track": "Dzēsa trasi",
       "created_event": "Izveidoja pasākumu",
-      "edited_event": "Rediģēja pasākumu"
+      "updated_event": "Rediģēja pasākumu",
+      "deleted_event": "Dzēsa pasākumu"
     },
     "actionTypes": {
       "created": "Izveidoja",

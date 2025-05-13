@@ -550,7 +550,7 @@ const EventDetailPage = () => {
                         : t('event.register')}
                     </button>
                   )}
-                  {isRegistered && (
+                  {isRegistered && event.registrationStatus === 'approved' && (
                     <button 
                       onClick={handleTicketDownload} 
                       className="w-full py-3 px-4 rounded-lg mt-4 font-medium transition-colors bg-mainRed hover:bg-red-700"
