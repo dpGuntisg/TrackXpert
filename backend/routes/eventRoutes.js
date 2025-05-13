@@ -1,10 +1,11 @@
 import express from "express";
 import EventService from "../services/eventServices.js";
 import verifyToken from "../middleware/verifyToken.js";
+import { eventCreationLimiter, updateLimiter } from "../middleware/rateLimit.js";
 
 const router = express.Router();
 
-router.post("/createevent", verifyToken, async (req, res) =>{
+router.post("/createevent", verifyToken, eventCreationLimiter, async (req, res) =>{
     try{
         const event = await EventService.createEvent(req.userId, req.body);
         res.status(201).json({ message: "Event created successfully", event});
@@ -39,7 +40,7 @@ router.get("/:id", async (req, res) =>{
     }
 });
 
-router.patch("/:id", verifyToken, async (req, res) => {
+router.patch("/:id", verifyToken, updateLimiter, async (req, res) => {
     try {
         const event = await EventService.updateEvent(req.params.id, req.userId, req.body);
         res.status(200).json({ message: "Event updated successfully", event });

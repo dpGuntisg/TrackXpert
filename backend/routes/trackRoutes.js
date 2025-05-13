@@ -1,10 +1,11 @@
 import express from "express";
 import TrackService from "../services/trackServices.js";
 import verifyToken from "../middleware/verifyToken.js";
+import { trackCreationLimiter, updateLimiter } from "../middleware/rateLimit.js";
 
 const router = express.Router();
 
-router.post("/createtrack", verifyToken, async (req, res) => {
+router.post("/createtrack", verifyToken, trackCreationLimiter, async (req, res) => {
   try {
     const track = await TrackService.createTrack(req.userId, req.body);
     res.status(201).json({ message: "Track created successfully", track });
@@ -40,7 +41,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.patch("/:id", verifyToken, async (req, res) => {
+router.patch("/:id", verifyToken, updateLimiter, async (req, res) => {
   try {
     const updatedTrack = await TrackService.updateTrack(req.params.id, req.userId, req.body);
     res.status(200).json({ message: "Track updated successfully", updatedTrack });

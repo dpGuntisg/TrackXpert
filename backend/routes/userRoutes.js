@@ -1,10 +1,11 @@
 import express from "express";
 import UserService from "../services/userServices.js";
 import verifyToken from "../middleware/verifyToken.js";
+import { createAccountLimiter, signInLimiter } from "../middleware/rateLimit.js";
 
 const router = express.Router();
 
-router.post("/signup", async (req, res) => {
+router.post("/signup", createAccountLimiter, async (req, res) => {
   try {
     const { user, token } = await UserService.createUser(req.body);
     res.cookie('token', token, {
@@ -19,7 +20,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-router.post("/signin", async (req, res) => {
+router.post("/signin", signInLimiter, async (req, res) => {
   try {
     const { user, token } = await UserService.signInUser(req.body);
     res.cookie('token', token, {

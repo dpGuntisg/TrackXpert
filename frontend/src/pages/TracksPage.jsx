@@ -398,7 +398,7 @@ export default function TracksPage() {
                     <button 
                         onClick={() => {
                             setServerError('');
-                            getTracks(currentPage);
+                            getTracks(1);
                         }}
                         className="text-mainYellow hover:text-yellow-400 text-sm mt-2 font-medium"
                     >
@@ -537,41 +537,55 @@ export default function TracksPage() {
                     <p className="text-gray-400">{t('tracks.beFirst')}</p>
                 </div>
             ) : (
-                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12 lg:gap-16 max-w-[1400px] mx-auto px-4 justify-items-center'>
-                    {tracks.map((track) => (
-                        <TrackCard 
-                            key={track._id} 
-                            track={track} 
-                            onLikeChange={(isLiked) => handleLikeChange(track._id, isLiked, track.likes)}
-                        />
-                    ))}
+                <div className='relative'>
+                    {loading && (
+                        <div className="absolute inset-0 bg-mainBlue/50 backdrop-blur-sm flex items-center justify-center z-10">
+                            <div className="flex flex-col items-center">
+                                <div className="loader ease-linear rounded-full border-4 border-t-4 border-mainRed h-12 w-12 mb-4"></div>
+                                <p className="text-lg">{t('tracks.loading')}</p>
+                            </div>
+                        </div>
+                    )}
+                    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-12 lg:gap-16 max-w-[1400px] mx-auto px-4 justify-items-center'>
+                        {tracks.map((track) => (
+                            <TrackCard 
+                                key={track._id} 
+                                track={track} 
+                                onLikeChange={(isLiked) => handleLikeChange(track._id, isLiked, track.likes)}
+                            />
+                        ))}
+                    </div>
                 </div>
             )}
 
             {totalPages > 1 && (
                 <div className="flex justify-center mt-8">
                     <div className="inline-flex rounded-md shadow-sm">
-                        {currentPage > 1 && (
-                            <button
-                                className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-l-lg"
-                                onClick={() => handlePageChange(currentPage - 1)}
-                                disabled={loading}
-                            >
-                                {t('tracks.previous')}
-                            </button>
-                        )}
-                        <span className="px-4 py-2 text-sm font-medium bg-gray-800">
+                        <button
+                            onClick={() => handlePageChange(currentPage - 1)}
+                            disabled={currentPage === 1 || loading}
+                            className={`px-4 py-2 text-sm font-medium ${
+                                currentPage === 1 || loading
+                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
+                                    : 'bg-gray-700 hover:bg-gray-600 text-white'
+                            } rounded-l-lg`}
+                        >
+                            {t('tracks.previous')}
+                        </button>
+                        <span className="px-4 py-2 text-sm font-medium bg-gray-800 text-white">
                             {currentPage} {t('tracks.of')} {totalPages}
                         </span>
-                        {currentPage < totalPages && (
-                            <button
-                                className="px-4 py-2 text-sm font-medium bg-gray-700 hover:bg-gray-600 rounded-r-lg"
-                                onClick={() => handlePageChange(currentPage + 1)}
-                                disabled={loading}
-                            >
-                                {t('tracks.next')}
-                            </button>
-                        )}
+                        <button
+                            onClick={() => handlePageChange(currentPage + 1)}
+                            disabled={currentPage === totalPages || loading}
+                            className={`px-4 py-2 text-sm font-medium ${
+                                currentPage === totalPages || loading
+                                    ? 'bg-gray-700 text-gray-400 cursor-not-allowed' 
+                                    : 'bg-gray-700 hover:bg-gray-600 text-white'
+                            } rounded-r-lg`}
+                        >
+                            {t('tracks.next')}
+                        </button>
                     </div>
                 </div>
             )}
