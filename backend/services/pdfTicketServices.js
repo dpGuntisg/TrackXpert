@@ -86,13 +86,13 @@ class PdfTicketService {
         doc.fontSize(14).fillColor(valueColor).text(eventLocation, leftPad, y, { align: "left" });
         y += sectionGap;
 
-        // Date and Time
-        doc.fontSize(10).fillColor(labelColor).text("DATE AND TIME", leftPad, y, { align: "left" });
+        // Date
+        doc.fontSize(10).fillColor(labelColor).text("DATE", leftPad, y, { align: "left" });
         y += 14;
         let dateText = "-";
         if (startDate && endDate) {
-            const opts = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-            dateText = `${startDate.toLocaleString('en-US', opts)} to\n${endDate.toLocaleString('en-US', opts)}`;
+            const opts = { year: 'numeric', month: 'short', day: 'numeric' };
+            dateText = `${startDate.toLocaleString('en-US', opts)} to ${endDate.toLocaleString('en-US', opts)}`;
         }
         doc.fontSize(12).fillColor(valueColor).text(dateText, leftPad, y, { align: "left" });
 
