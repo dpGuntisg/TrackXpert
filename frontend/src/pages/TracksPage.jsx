@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axiosInstance from '../utils/axios';
 import TrackCard from '../components/TrackCard.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
@@ -87,7 +87,7 @@ export default function TracksPage() {
         }
     };    
 
-    const getTracks = async (page = 1) => {
+    const getTracks = useCallback(async (page = currentPage) => {
         setLoading(true);
         try {
             // Build query parameters
@@ -95,12 +95,10 @@ export default function TracksPage() {
                 page: page.toString(),
                 limit: '6'
             });
-
             // Add search query if exists
             if (searchQuery) {
                 params.append('search', searchQuery);
             }
-
             // Add filters if they exist
             if (filters.tags?.length > 0) {
                 params.append('tags', JSON.stringify(filters.tags));
@@ -122,6 +120,7 @@ export default function TracksPage() {
             setTracks(response.data.tracks);
             setOriginalTracks(response.data.tracks);
             setTotalPages(response.data.totalPages);
+            setCurrentPage(page);
             setServerError('');
         } catch (error) {
             const errorMessage = error.response?.data?.message || `Error fetching tracks: ${error.message}`;
@@ -132,11 +131,11 @@ export default function TracksPage() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [currentPage, searchQuery, filters]);
 
     useEffect(() => {
-        getTracks(currentPage);
-    }, [currentPage, searchQuery, filters]);
+        getTracks();
+    }, [getTracks]);
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -308,15 +307,15 @@ export default function TracksPage() {
         }
     };
 
-    const handleSearch = (query) => {
+    const handleSearch = useCallback((query) => {
         setSearchQuery(query);
         setCurrentPage(1); // Reset to first page when searching
-    };
+    }, []);
 
-    const handleFilterChange = (newFilters) => {
+    const handleFilterChange = useCallback((newFilters) => {
         setFilters(newFilters);
-        setCurrentPage(1); // Reset to first page when filtering
-    };
+        setCurrentPage(1);
+    }, []);
 
     const handleLikeChange = (trackId, isLiked, updatedLikes) => {
         setTracks(prevTracks => 

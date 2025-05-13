@@ -21,6 +21,16 @@ const AdminPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const actionTypes = ["created", "edited", "deleted", "joined"];
     const [selectedActionType, setSelectedActionType] = useState("");
+
+    const actionColors = {
+        created_account: "bg-green-900/30 border border-green-700 text-green-400",
+        created_track: "bg-green-900/30 border border-green-700 text-green-400",
+        updated_track: "bg-yellow-900/30 border border-yellow-700 text-yellow-400",
+        deleted_track: "bg-red-900/30 border border-red-700 text-red-400",
+        created_event: "bg-green-900/30 border border-green-700 text-green-400",
+        updated_event: "bg-yellow-900/30 border border-yellow-700 text-yellow-400",
+        deleted_event: "bg-red-900/30 border border-red-700 text-red-400"
+      };
     // stats state 
     const [tracksPerCountry, setTracksPerCountry] = useState(null);
     const [userCount, setUserCount] = useState(null);
@@ -263,8 +273,8 @@ const AdminPage = () => {
                                                         <span className="text-xs text-gray-400">({log.userId?._id})</span>
                                                     </div>
                                                     <div className="flex items-center">
-                                                        <span className="py-1 px-2 bg-mainBlue/30 text-mainYellow rounded text-sm">
-                                                            {t(`admin.actions.${log.action}`)}
+                                                        <span className={`px-2 py-1 rounded text-sm ${actionColors[log.action] || "bg-gray-100 text-gray-800"}`}>
+                                                        {t(`admin.actions.${log.action}`)}
                                                         </span>
                                                     </div>
                                                     <div>
