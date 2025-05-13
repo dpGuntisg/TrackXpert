@@ -143,6 +143,7 @@
     "createdTracks": "Created Tracks",
     "likedTracks": "Liked",
     "noTracks": "No tracks created yet.",
+    "noLiked": "No tracks liked yet.",
     "noData": "No profile data found.",
     "notAuthenticated": "User is not authenticated",
     "loginPrompt": "Please log in or try again later.",

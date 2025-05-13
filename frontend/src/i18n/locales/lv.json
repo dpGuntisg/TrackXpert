@@ -143,6 +143,7 @@
     "createdTracks": "Izveidotās Trases",
     "likedTracks": "Patīk",
     "noTracks": "Vēl nav izveidotu trašu.",
+    "noLiked": "Vēl nav nevienas iecienītās trases.",
     "noData": "Nav atrasti profila dati.",
     "notAuthenticated": "Lietotājs nav autentificēts",
     "loginPrompt": "Lūdzu, ielogojieties vai mēģiniet vēlāk.",

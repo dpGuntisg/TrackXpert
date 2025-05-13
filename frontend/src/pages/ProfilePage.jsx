@@ -180,7 +180,7 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className='sm:p-10 min-h-screen'>
+        <div className='min-h-screen p-4 sm:p-6 md:p-8'>
             {profile ? (
                 <div className='bg-accentBlue rounded-lg p-6 shadow-lg'>
                     <div className="flex justify-end">
@@ -349,57 +349,80 @@ export default function ProfilePage() {
             )}
 
             <div className='mt-10'>
-                <div className="flex border-gray-700">
+                {/* Tabs */}
+                <div className="flex">
                     <button 
                         onClick={() => setActiveTab('liked')}
-                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'liked' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
+                        className={`px-8 py-4 font-medium flex items-center transition-all duration-200 text-lg ${
+                            activeTab === 'liked' 
+                                ? 'border-b-2 border-mainYellow text-mainYellow' 
+                                : 'text-gray-400 hover:text-white'
+                        }`}
                     >
-                        <FontAwesomeIcon icon={faHeart} className="mr-2" />
+                        <FontAwesomeIcon icon={faHeart} className="mr-3" />
                         {t('profile.likedTracks')}
                     </button>
                     <button 
                         onClick={() => setActiveTab('created')}
-                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'created' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
+                        className={`px-8 py-4 font-medium flex items-center transition-all duration-200 text-lg ${
+                            activeTab === 'created' 
+                                ? 'border-b-2 border-mainYellow text-mainYellow' 
+                                : 'text-gray-400 hover:text-white'
+                        }`}
                     >
-                        <FontAwesomeIcon icon={faRoute} className="mr-2" />
+                        <FontAwesomeIcon icon={faRoute} className="mr-3" />
                         {t('profile.createdTracks')}
                     </button>
                 </div>
-                <ul className="justify-items-center grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 bg-accentBlue rounded-lg p-6 shadow-lg">
+                
+                {/* Tracks grid */}
+                <div className="bg-accentBlue rounded-2xl p-6 md:p-8 shadow-xl">
                     {tracksLoading ? (
-                        <div className="col-span-full flex justify-center items-center">
-                            <div className="loader ease-linear rounded-full border-4 border-t-4 border-mainRed h-12 w-12"></div>
+                        <div className="flex justify-center items-center py-16">
+                            <div className="loader h-14 w-14 border-t-mainYellow border-4 border-white/30 rounded-full animate-spin"></div>
                         </div>
                     ) : tracks && tracks.length > 0 ? (
-                        tracks.map(track => (
-                            <TrackCard
-                                key={track._id}
-                                track={track}
-                                onLikeChange={(trackId, isLiked, updatedLikes) => {
-                                    if (activeTab === 'liked' && !isLiked) {
-                                        setTracks(prevTracks => 
-                                            prevTracks.filter(t => t._id !== trackId)
-                                        );
-                                    } else {
-                                        setTracks(prevTracks => 
-                                            prevTracks.map(t => {
-                                                if (t._id === trackId) {
-                                                    return {
-                                                        ...t,
-                                                        likes: updatedLikes || t.likes
-                                                    };
-                                                }
-                                                return t;
-                                            })
-                                        );
-                                    }
-                                }}
-                            />
-                        ))
+                        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {tracks.map(track => (
+                                <li key={track._id} className="transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                                    <TrackCard
+                                        track={track}
+                                        onLikeChange={(trackId, isLiked, updatedLikes) => {
+                                            if (activeTab === 'liked' && !isLiked) {
+                                                setTracks(prevTracks => 
+                                                    prevTracks.filter(t => t._id !== trackId)
+                                                );
+                                            } else {
+                                                setTracks(prevTracks => 
+                                                    prevTracks.map(t => {
+                                                        if (t._id === trackId) {
+                                                            return {
+                                                                ...t,
+                                                                likes: updatedLikes || t.likes
+                                                            };
+                                                        }
+                                                        return t;
+                                                    })
+                                                );
+                                            }
+                                        }}
+                                    />
+                                </li>
+                            ))}
+                        </ul>
                     ) : (
-                        <p>{t('profile.noTracks')}</p>
+                        <div className="flex flex-col items-center justify-center py-16 text-center">
+                            <FontAwesomeIcon 
+                                icon={activeTab === 'liked' ? faHeart : faRoute} 
+                                className="text-4xl text-gray-500 mb-4" 
+                            />
+                            {activeTab === 'liked' ?
+                                <p className="text-xl text-gray-400">{t('profile.noLiked')}</p> :
+                                <p className="text-xl text-gray-400">{t('profile.noTracks')}</p>
+                            }
+                        </div>
                     )}
-                </ul>
+                </div>
             </div>
 
             {/* Delete Confirmation Modal */}
