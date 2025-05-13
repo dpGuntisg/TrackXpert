@@ -8,6 +8,8 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuth } from '../context/AuthContext';
 import TrackRequest from './TrackRequest';
 import EventRequest from './EventRequest';
+import logo from '../assets/logo.png';
+
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -110,9 +112,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <NavLink to="/" className="flex items-center">
-            <h1 className="text-2xl font-black text-mainRed italic">
-              TrackXpert
-            </h1>
+            <img src={logo} alt="Logo" className="w-12 h-12 mt-2" />
           </NavLink>
 
           {/* Desktop Navigation */}

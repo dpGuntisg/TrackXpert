@@ -316,13 +316,14 @@ const EventDetailPage = () => {
             <div className="relative group">
               <div className="relative bg-gray-800 rounded-xl overflow-hidden mb-6 aspect-[16/9]">
                 {event.images && event.images.length > 0 ? (
-                  <>
+                  <div className="relative w-full h-full">
                     <img 
                       src={event.images[currentImageIndex]?.data || '/placeholder-event.jpg'} 
                       alt={event.name}
                       className="w-full h-full object-cover"
                     />
-                    
+
+                    {/* Navigation Buttons */}
                     {event.images.length > 1 && (
                       <>
                         <button 
@@ -339,20 +340,27 @@ const EventDetailPage = () => {
                         >
                           <FontAwesomeIcon icon={faChevronRight} />
                         </button>
-                        
-                        {/* Image counter */}
-                        <div className="absolute bottom-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm">
-                          {currentImageIndex + 1} / {event.images.length}
+
+                        {/* Pagination Dots */}
+                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                          {event.images.map((_, idx) => (
+                            <button 
+                              key={idx}
+                              onClick={() => setCurrentImageIndex(idx)}
+                              className={`w-2 h-2 rounded-full ${currentImageIndex === idx ? 'bg-mainYellow' : 'bg-white/50'}`}
+                              aria-label={t('events.goToImage', { number: idx + 1 })}
+                            />
+                          ))}
                         </div>
                       </>
                     )}
-                  </>
+                  </div>
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-800">
                     <p className="text-gray-400">{t('common.noImagesAvailable')}</p>
                   </div>
                 )}
-                
+
                 {/* Event status badge */}
                 <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-sm font-medium ${
                   eventStatus === 'completed' ? 'bg-gray-800 text-gray-300' : 

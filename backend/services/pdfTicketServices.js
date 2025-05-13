@@ -10,6 +10,7 @@ import { sanitizeName } from "./helpers/sanitizeHelper.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const logoPath = path.resolve(__dirname, "../utils/logo.png");
 
 class PdfTicketService {
     static async generateEventPdfTicket(userId, eventId, res) {
@@ -59,6 +60,13 @@ class PdfTicketService {
         const sectionGap = 28;
         const labelColor = "#888";
         const valueColor = "#111";
+
+        // Draw logo on right side
+        const logoWidth = 100;
+        const logoHeight = 100;
+        const logoX = boxX + boxWidth - logoWidth - 20;
+        const logoY = boxY + 20;
+        doc.image(logoPath, logoX, logoY, { width: logoWidth, height: logoHeight });
 
         // Event Name
         doc.fontSize(10).fillColor(labelColor).text("EVENT", leftPad, y, { align: "left" });

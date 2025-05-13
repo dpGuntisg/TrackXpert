@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
+import logo from '../assets/logo.png';
+
 
 export default function SignInPage() {
   const { t } = useTranslation();
@@ -50,43 +52,106 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden md:flex-row">
-      {/* Left side with logo and animation */}
-      <div className="flex flex-col w-full md:w-1/2 justify-center">
-        <h1 className="text-7xl font-black text-main-red italic text-mainRed">TrackXpert</h1>
-        <div className="hidden md:block md:relative w-3/4 h-full">
-          <svg
-            viewBox="0 0 400 100"
-            className="w-full h-full"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M20,50 Q100,10 200,50 T380,50"
-              stroke="#ccc"
-              fill="none"
-              strokeWidth="5"
-            />
-            <circle r="5" fill="#e63946">
-              <animateMotion
-                dur="3s"
-                repeatCount="indefinite"
-                path="M20,50 Q100,10 200,50 T380,50"
+<div className="flex flex-col h-screen bg-mainBlue overflow-hidden md:flex-row">
+  {/* Left side with logo and animation*/}
+  <div className="hidden md:flex w-1/2 bg-accentBlue flex-col justify-center items-center overflow-hidden">
+    <div className="relative z-10 flex flex-col items-center justify-center px-6 py-8 w-full">
+      <div className="mb-8 flex flex-col items-center">
+        <h1 className="text-7xl font-black text-mainRed italic">TrackXpert</h1>
+        <p className="mt-2 text-xl text-center">{t('auth.signInDescription')}</p>
+      </div>
+          
+          {/* Enhanced SVG Animation */}
+          <div className="w-full h-64 relative mt-6 mb-12">
+            {/* Main Track */}
+            <svg viewBox="0 0 400 100" className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+              {/* Main paths */}
+              <path
+                d="M10,50 Q100,10 200,60 T390,40"
+                stroke="#444"
+                fill="none"
+                strokeWidth="1"
               />
-            </circle>
-            <circle r="5" fill="#1d3557">
-              <animateMotion
-                dur="4s"
-                repeatCount="indefinite"
-                path="M20,50 Q100,10 200,50 T380,50"
-                begin="1s"
+              <path
+                d="M10,50 Q100,10 200,60 T390,40"
+                stroke="#666"
+                fill="none"
+                strokeWidth="0.5"
+                strokeDasharray="4,2"
               />
-            </circle>
-          </svg>
+              
+              {/* Main path with glow */}
+              <path
+                d="M10,50 Q100,10 200,60 T390,40"
+                stroke="url(#gradient)"
+                fill="none"
+                strokeWidth="2"
+                strokeLinecap="round"
+              >
+                <animate 
+                  attributeName="stroke-dashoffset" 
+                  from="500" 
+                  to="0" 
+                  dur="10s" 
+                  repeatCount="indefinite" 
+                />
+              </path>
+              
+              {/* Gradient for glowing effect */}
+              <defs>
+                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#e63946" />
+                  <stop offset="50%" stopColor="#f1faee" />
+                  <stop offset="100%" stopColor="#1d3557" />
+                </linearGradient>
+              </defs>
+              
+              {/* Multiple moving circles of different sizes */}
+              <circle r="6" fill="#e63946">
+                <animateMotion
+                  dur="8s"
+                  repeatCount="indefinite"
+                  path="M10,50 Q100,10 200,60 T390,40"
+                />
+              </circle>
+              
+              <circle r="4" fill="#f1faee">
+                <animateMotion
+                  dur="5s"
+                  repeatCount="indefinite"
+                  path="M10,50 Q100,10 200,60 T390,40"
+                  begin="1s"
+                />
+              </circle>
+              
+              <circle r="8" fill="#1d3557">
+                <animateMotion
+                  dur="12s"
+                  repeatCount="indefinite"
+                  path="M10,50 Q100,10 200,60 T390,40"
+                  begin="2s"
+                />
+              </circle>
+              
+              <circle r="3" fill="#f1faee">
+                <animateMotion
+                  dur="7s"
+                  repeatCount="indefinite"
+                  path="M10,50 Q100,10 200,60 T390,40"
+                  begin="3s"
+                />
+              </circle>
+            </svg>
+          </div>
         </div>
       </div>
 
       <div className="flex flex-col items-center justify-center w-full md:w-1/2 mt-24 md:mt-0 md:h-screen">
         <div className="w-96 max-w-[90%]">
+          {/* Mobile-only TrackXpert title */}
+          <div className="mb-4 md:hidden text-center">
+            <h1 className="text-4xl font-black text-mainRed italic">TrackXpert</h1>
+          </div>
           <h1 className="text-3xl font-bold mb-8 text-center">{t('auth.welcomeBack')}</h1>
           
           {/* Global error message */}
