@@ -4,6 +4,7 @@ import Token from "../models/Token.js";
 import Image from "../models/Images.js";
 import Track from "../models/Track.js";
 import Event from "../models/Event.js";
+import Report from "../models/Report.js";
 import { createImage } from "./helpers/imageHelper.js";
 import { logActivity } from "./helpers/logHelper.js";
 const JWT_SECRET = "process.env.JWT_SECRET";
@@ -195,7 +196,19 @@ class UserService {
             throw new Error(error.message);
         }
     }
-    
+
+    static async report({ reportedBy, targetType, targetId, reason }) {
+        const existingReport = await Report.findOne({
+          reportedBy,
+          targetType,
+          targetId,
+        });
+      
+        if (existingReport) {throw { status: 400, message: "You have already reported this item"};}
+        const report = new Report({ reportedBy, targetType, targetId, reason });
+        await report.save();
+        return report;
+    }
 }
 
 export default UserService;
