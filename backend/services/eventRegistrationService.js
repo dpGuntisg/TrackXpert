@@ -1,7 +1,6 @@
 import EventRegistration from "../models/EventRegistration.js";
 import Event from "../models/Event.js";
 import mongoose from "mongoose";
-import { logActivity } from "./helpers/logHelper.js";
 
 class EventRegistrationService {
     static async registerForEvent(eventId, userId, registrationInfo = null) {
@@ -174,13 +173,6 @@ class EventRegistrationService {
 
             registration.status = status;
             await registration.save();
-
-            await logActivity(userId, 'updated_registration_status', {
-                registrationId: registration._id,
-                eventName: registration.event.name,
-                participant: registration.user.username,
-                newStatus: status
-            });
 
             // Update event's current participants count if approved
             if (status === 'approved' && !registration.event.unlimitedParticipants) {

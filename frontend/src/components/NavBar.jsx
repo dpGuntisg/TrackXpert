@@ -110,13 +110,15 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 bg-accentBlue border-b border-accentGray">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <NavLink to="/" className="flex items-center">
-            <img src={logo} alt="Logo" className="w-12 h-12 mt-2" />
-          </NavLink>
+          {/* Left Section - Logo */}
+          <div className="w-1/4 flex justify-start">
+            <NavLink to="/" className="flex items-center">
+              <img src={logo} alt="Logo" className="w-12 h-12 mt-2" />
+            </NavLink>
+          </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-5">
+          <div className="w-2/4 hidden md:flex items-center justify-center space-x-5">
             <NavLink to="/" className={navLinkClass}>
               <FontAwesomeIcon icon={faHome} />
               <span>{t('navbar.home')}</span>
@@ -138,7 +140,7 @@ const Navbar = () => {
           </div>
 
           {/* Right side items */}
-          <div className="flex items-center space-x-4">
+          <div className=" md:w-1/4 flex items-center space-x-4">
             <LanguageSwitcher />
             {isUserLoggedIn() ? (
               <>
