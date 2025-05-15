@@ -244,6 +244,7 @@ function CreateEventPage({ mode = 'create' }) {
                         values={values}
                         setValues={setValuesCallback}
                         errors={errors}
+                        setErrors={setErrors}
                     />
                 );
             default:

@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImagePortrait, faPencil, faExclamationCircle, faUpload, faRoute, faHeart } from '@fortawesome/free-solid-svg-icons';
+import { faImagePortrait, faPencil, faExclamationCircle, faUpload, faRoute, faHeart, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
 import PhoneInput from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import '../styles/PhoneInput.css';
 import TrackCard from '../components/TrackCard.jsx';
+import EventCard from '../components/EventCard.jsx';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'react-toastify';
@@ -20,9 +21,11 @@ export default function ProfilePage() {
         profile_image: null,
         email: "",
     });
-    const [tracks, setTracks] = useState();
+    const [tracks, setTracks] = useState([]);
+    const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [tracksLoading, setTracksLoading] = useState(false);
+    const [eventsLoading, setEventsLoading] = useState(false);
     const [error, setError] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [newUsername, setNewUsername] = useState('');
@@ -32,7 +35,7 @@ export default function ProfilePage() {
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-    const [activeTab, setActiveTab] = useState('created');
+    const [activeTab, setActiveTab] = useState('tracks'); // 'tracks' or 'events'
     const navigate = useNavigate();
     
     useEffect(() => {
@@ -55,13 +58,8 @@ export default function ProfilePage() {
         const fetchTracks = async () => {
             if (profile?._id) {
                 setTracksLoading(true);
-                setTracks([]); // Clear tracks when switching tabs
                 try {
-                    const endpoint = activeTab === 'created'
-                        ? `/tracks/profile/${profile._id}/tracks`
-                        : `/tracks/profile/${profile._id}/liked`;
-
-                    const tracksResponse = await axiosInstance.get(endpoint);
+                    const tracksResponse = await axiosInstance.get(`/tracks/profile/${profile._id}/tracks`);
                     setTracks(tracksResponse.data.tracks || []);
                 } catch (tracksError) {
                     console.error(t('profile.tracksError'), tracksError);
@@ -71,8 +69,23 @@ export default function ProfilePage() {
             }
         };
 
+        const fetchEvents = async () => {
+            if (profile?._id) {
+                setEventsLoading(true);
+                try {
+                    const eventsResponse = await axiosInstance.get(`/events/profile/${profile._id}/events`);
+                    setEvents(eventsResponse.data.events || []);
+                } catch (eventsError) {
+                    console.error(t('profile.eventsError'), eventsError);
+                } finally {
+                    setEventsLoading(false);
+                }
+            }
+        };
+
         fetchTracks();
-    }, [profile?._id, activeTab, t]);
+        fetchEvents();
+    }, [profile?._id, t]);
 
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
@@ -166,6 +179,90 @@ export default function ProfilePage() {
             setImage(null);
             setPreviewImage(null);
         }
+    };
+
+    const renderTracks = () => {
+        if (tracksLoading) {
+            return (
+                <div className="flex justify-center items-center py-16">
+                    <div className="loader h-10 w-10 sm:h-14 sm:w-14 border-t-mainYellow border-4 border-white/30 rounded-full animate-spin"></div>
+                </div>
+            );
+        }
+
+        if (!tracks || tracks.length === 0) {
+            return (
+                <div className="flex flex-col items-center justify-center py-10 sm:py-16 text-center">
+                    <FontAwesomeIcon icon={faRoute} className="text-3xl sm:text-4xl text-gray-500 mb-4" />
+                    <p className="text-lg sm:text-xl text-gray-400">{t('profile.noTracks')}</p>
+                </div>
+            );
+        }
+
+        return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                {tracks.map(track => (
+                    <div key={track._id} className="flex justify-center sm:justify-start">
+                        <TrackCard
+                            track={track}
+                            className="w-full max-w-xs sm:max-w-none"
+                            onLikeChange={(trackId, isLiked, updatedLikes) => {
+                                setTracks(prevTracks => 
+                                    prevTracks.map(t => {
+                                        if (t._id === trackId) {
+                                            return { ...t, likes: updatedLikes || t.likes };
+                                        }
+                                        return t;
+                                    })
+                                );
+                            }}
+                        />
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    const renderEvents = () => {
+        if (eventsLoading) {
+            return (
+                <div className="flex justify-center items-center py-16">
+                    <div className="loader h-10 w-10 sm:h-14 sm:w-14 border-t-mainYellow border-4 border-white/30 rounded-full animate-spin"></div>
+                </div>
+            );
+        }
+
+        if (!events || events.length === 0) {
+            return (
+                <div className="flex flex-col items-center justify-center py-10 sm:py-16 text-center">
+                    <FontAwesomeIcon icon={faCalendarAlt} className="text-3xl sm:text-4xl text-gray-500 mb-4" />
+                    <p className="text-lg sm:text-xl text-gray-400">{t('profile.noEvents')}</p>
+                </div>
+            );
+        }
+
+        return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                {events.map(event => (
+                    <div key={event._id} className="flex justify-center sm:justify-start">
+                        <EventCard
+                            event={event}
+                            className="w-full max-w-xs sm:max-w-none"
+                            onLikeChange={(eventId, isLiked, updatedLikes) => {
+                                setEvents(prevEvents => 
+                                    prevEvents.map(e => {
+                                        if (e._id === eventId) {
+                                            return { ...e, likes: updatedLikes || e.likes };
+                                        }
+                                        return e;
+                                    })
+                                );
+                            }}
+                        />
+                    </div>
+                ))}
+            </div>
+        );
     };
 
     if (loading) {
@@ -352,20 +449,9 @@ export default function ProfilePage() {
                 {/* Tabs */}
                 <div className="flex">
                     <button 
-                        onClick={() => setActiveTab('liked')}
+                        onClick={() => setActiveTab('tracks')}
                         className={`flex-1 sm:flex-none px-4 sm:px-8 py-3 sm:py-4 font-medium flex justify-center sm:justify-start items-center transition-all duration-200 text-base sm:text-lg ${
-                            activeTab === 'liked' 
-                                ? 'border-b-2 border-mainYellow text-mainYellow' 
-                                : 'text-gray-400 hover:text-white'
-                        }`}
-                    >
-                        <FontAwesomeIcon icon={faHeart} className="mr-2 sm:mr-3" />
-                        {t('profile.likedTracks')}
-                    </button>
-                    <button 
-                        onClick={() => setActiveTab('created')}
-                        className={`flex-1 sm:flex-none px-4 sm:px-8 py-3 sm:py-4 font-medium flex justify-center sm:justify-start items-center transition-all duration-200 text-base sm:text-lg ${
-                            activeTab === 'created' 
+                            activeTab === 'tracks' 
                                 ? 'border-b-2 border-mainYellow text-mainYellow' 
                                 : 'text-gray-400 hover:text-white'
                         }`}
@@ -373,56 +459,22 @@ export default function ProfilePage() {
                         <FontAwesomeIcon icon={faRoute} className="mr-2 sm:mr-3" />
                         {t('profile.createdTracks')}
                     </button>
+                    <button 
+                        onClick={() => setActiveTab('events')}
+                        className={`flex-1 sm:flex-none px-4 sm:px-8 py-3 sm:py-4 font-medium flex justify-center sm:justify-start items-center transition-all duration-200 text-base sm:text-lg ${
+                            activeTab === 'events' 
+                                ? 'border-b-2 border-mainYellow text-mainYellow' 
+                                : 'text-gray-400 hover:text-white'
+                        }`}
+                    >
+                        <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 sm:mr-3" />
+                        {t('profile.createdEvents')}
+                    </button>
                 </div>
                 
-                {/* Tracks grid - improved responsive layout */}
-                <div className="bg-accentBlue rounded-2xl p-4 sm:p-6 shadow-xl">
-                    {tracksLoading ? (
-                        <div className="flex justify-center items-center py-16">
-                            <div className="loader h-10 w-10 sm:h-14 sm:w-14 border-t-mainYellow border-4 border-white/30 rounded-full animate-spin"></div>
-                        </div>
-                    ) : tracks && tracks.length > 0 ? (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-                            {tracks.map(track => (
-                                <div key={track._id} className="flex justify-center sm:justify-start">
-                                    <TrackCard
-                                        track={track}
-                                        className="w-full max-w-xs sm:max-w-none" 
-                                        onLikeChange={(trackId, isLiked, updatedLikes) => {
-                                            if (activeTab === 'liked' && !isLiked) {
-                                                setTracks(prevTracks => 
-                                                    prevTracks.filter(t => t._id !== trackId)
-                                                );
-                                            } else {
-                                                setTracks(prevTracks => 
-                                                    prevTracks.map(t => {
-                                                        if (t._id === trackId) {
-                                                            return {
-                                                                ...t,
-                                                                likes: updatedLikes || t.likes
-                                                            };
-                                                        }
-                                                        return t;
-                                                    })
-                                                );
-                                            }
-                                        }}
-                                    />
-                                </div>
-                            ))}
-                        </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center py-10 sm:py-16 text-center">
-                            <FontAwesomeIcon 
-                                icon={activeTab === 'liked' ? faHeart : faRoute} 
-                                className="text-3xl sm:text-4xl text-gray-500 mb-4" 
-                            />
-                            {activeTab === 'liked' ?
-                                <p className="text-lg sm:text-xl text-gray-400">{t('profile.noLiked')}</p> :
-                                <p className="text-lg sm:text-xl text-gray-400">{t('profile.noTracks')}</p>
-                            }
-                        </div>
-                    )}
+                {/* Content Grid */}
+                <div className="bg-accentBlue rounded-2xl p-4 sm:p-6 shadow-xl mt-4">
+                    {activeTab === 'tracks' ? renderTracks() : renderEvents()}
                 </div>
             </div>
 
