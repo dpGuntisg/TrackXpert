@@ -197,7 +197,7 @@ class TrackService {
                 path: 'created_by',
                 select: 'name surname username email phonenumber profile_image',
                 populate: {
-                    path: 'images',
+                    path: 'profile_image',
                     select: 'data mimeType'
                 }
             })

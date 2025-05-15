@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFileAlt, faSquarePollVertical, faUsers, faUserCheck, faRoute, faCalendarAlt, faMapMarkerAlt, faAngleDown, faAngleUp, faFilter } from '@fortawesome/free-solid-svg-icons';
@@ -29,7 +30,8 @@ const AdminPage = () => {
         deleted_track: "bg-red-900/30 border border-red-700 text-red-400",
         created_event: "bg-green-900/30 border border-green-700 text-green-400",
         updated_event: "bg-yellow-900/30 border border-yellow-700 text-yellow-400",
-        deleted_event: "bg-red-900/30 border border-red-700 text-red-400"
+        deleted_event: "bg-red-900/30 border border-red-700 text-red-400",
+        updated_account: "bg-yellow-900/30 border border-yellow-700 text-yellow-400"
       };
     // stats state 
     const [tracksPerCountry, setTracksPerCountry] = useState(null);
@@ -284,7 +286,7 @@ const AdminPage = () => {
                                                                     <div key={key} className="mb-1">
                                                                         <span className="text-mainYellow">{key}:</span>{" "}
                                                                         <span className="text-gray-400">
-                                                                            {typeof value === "object" ? JSON.stringify(value) : value.toString()}
+                                                                            {renderMetadataValue(key, value)}
                                                                         </span>
                                                                     </div>
                                                                 ))}
@@ -331,6 +333,46 @@ const AdminPage = () => {
             default:
                 return null;
         }
+    };
+
+    const renderMetadataValue = (key, value) => {
+        // If the value is an object, stringify it
+        if (typeof value === 'object') {
+            return JSON.stringify(value);
+        }
+
+        // If it's an ID and the action is related to tracks or events, make it a link
+        if (key === 'id' && value) {
+            const log = logs.find(log => log.metadata?.id === value);
+            const action = log?.action;
+            
+            // Don't show links for deleted items
+            if (action === 'deleted_track' || action === 'deleted_event') {
+                return value.toString();
+            }
+            
+            if (action?.includes('track')) {
+                return (
+                    <Link 
+                        to={`/tracks/${value}`}
+                        className="text-mainYellow hover:text-yellow-400 underline"
+                    >
+                        {value}
+                    </Link>
+                );
+            } else if (action?.includes('event')) {
+                return (
+                    <Link 
+                        to={`/events/${value}`}
+                        className="text-mainYellow hover:text-yellow-400 underline"
+                    >
+                        {value}
+                    </Link>
+                );
+            }
+        }
+
+        return value.toString();
     };
 
     return (

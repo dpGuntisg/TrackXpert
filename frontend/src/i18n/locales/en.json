@@ -606,15 +606,15 @@
     "activityLogs": "Audit Log",
     "searchLogs":"Search by User ID or Username",
     "actions":{
-      "created_account": "Created an account",
-      "updated_account": "Edited an account",
-      "deleted_account": "Deleted an account",
-      "created_track": "Created a track",
-      "updated_track": "Edited a track",
-      "deleted_track": "Deleted a track",
-      "created_event": "Created an event",
-      "updated_event": "Edited an event",
-      "deleted_event": "Deleted an event"
+      "created_account": "Created account",
+      "updated_account": "Edited account",
+      "deleted_account": "Deleted account",
+      "created_track": "Created track",
+      "updated_track": "Edited track",
+      "deleted_track": "Deleted track",
+      "created_event": "Created event",
+      "updated_event": "Edited event",
+      "deleted_event": "Deleted event"
     },
     "actionTypes": {
       "created": "Created",

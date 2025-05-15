@@ -224,7 +224,7 @@ class EventService {
                     path: "tracks",
                     select: "name length availability description images location",
                     populate: {
-                        path: "images",
+                        path: "thumbnailImage",
                         select: "data mimeType"
                     }
                 });
