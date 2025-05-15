@@ -180,9 +180,9 @@ export default function ProfilePage() {
     }
 
     return (
-        <div className='min-h-screen p-4 sm:p-6 md:p-8'>
+        <div className='min-h-screen p-4 max-w-screen-2xl mx-auto'>
             {profile ? (
-                <div className='bg-accentBlue rounded-lg p-6 shadow-lg'>
+                <div className='bg-accentBlue rounded-lg p-4 sm:p-6 shadow-lg'>
                     <div className="flex justify-end">
                         <button 
                             className='font-semibold px-4 py-2 rounded-lg hover:text-mainRed transition-all duration-200'
@@ -194,23 +194,23 @@ export default function ProfilePage() {
                     </div>
                     
                     {/* Profile information section */}
-                    <div className="flex flex-col md:flex-row gap-8">
+                    <div className="flex flex-col md:flex-row gap-6">
                         {/* Left column - Profile picture */}
-                        <div className="flex flex-col items-center">
+                        <div className="flex flex-col items-center mb-6 md:mb-0">
                             {previewImage ? (
                                 <img
                                     src={previewImage}
                                     alt={t('profile.profilePicture')}
-                                    className="w-40 h-40 rounded-full object-cover"
+                                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover"
                                 />
                             ) : profile.profile_image ? (
                                 <img
                                     src={profile.profile_image.data}
                                     alt={t('profile.profilePicture')}
-                                    className="w-40 h-40 rounded-full object-cover"
+                                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover"
                                 />
                             ) : (
-                                <FontAwesomeIcon icon={faImagePortrait} size="6x" className="w-40 h-40 p-8 rounded-full" />
+                                <FontAwesomeIcon icon={faImagePortrait} size="6x" className="w-32 h-32 sm:w-40 sm:h-40 p-6 sm:p-8 rounded-full" />
                             )}
 
                             {editMode && (
@@ -231,19 +231,19 @@ export default function ProfilePage() {
                         </div>
 
                         <div className="flex-1">
-                            <div className="mb-6">
-                                <div className='flex flex-row space-x-2 mb-2'>
-                                    <p className='text-2xl font-semibold'>{profile.name}</p>
-                                    <p className='text-2xl font-semibold'>{profile.surname}</p>
+                            <div className="mb-6 flex flex-col items-center md:items-start">
+                                <div className='flex flex-row flex-wrap space-x-2 mb-2'>
+                                    <p className='text-xl sm:text-2xl font-semibold'>{profile.name}</p>
+                                    <p className='text-xl sm:text-2xl font-semibold'>{profile.surname}</p>
                                 </div>
-                                <p className='text-xl font-semibold text-white mb-2'>{profile.username}</p>
-                                <p className='text-gray-400'>{profile.email}</p>
-                                {profile.phonenumber && <p className='text-gray-400'>+{profile.phonenumber}</p>}
+                                <p className='text-lg sm:text-xl font-semibold text-white mb-2'>{profile.username}</p>
+                                <p className='text-sm sm:text-base text-gray-400'>{profile.email}</p>
+                                {profile.phonenumber && <p className='text-sm sm:text-base text-gray-400'>+{profile.phonenumber}</p>}
                             </div>
 
                             {editMode && (
                                 <div className="border-t border-gray-700 pt-6 mt-4">
-                                    <h3 className="text-xl font-semibold mb-4">{t('profile.editProfile')}</h3>
+                                    <h3 className="text-lg sm:text-xl font-semibold mb-4">{t('profile.editProfile')}</h3>
                                     
                                     {error && (
                                         <div className="mb-6 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
@@ -295,7 +295,7 @@ export default function ProfilePage() {
                                                 placeholder={t('profile.usernamePlaceholder')}
                                                 onChange={(e) => setNewUsername(e.target.value)}
                                             />
-                                            <label htmlFor="phonenumber" className="block text-sm font-medium text-gray-300 mb-1">
+                                            <label htmlFor="phonenumber" className="block text-sm font-medium text-gray-300 mb-1 mt-4">
                                                 {t('profile.phonenumber')}
                                             </label>
                                             <PhoneInput
@@ -324,7 +324,7 @@ export default function ProfilePage() {
                                         </div>
                                     </div>
                                     
-                                    <div className="flex space-x-4">
+                                    <div className="flex flex-wrap gap-4">
                                         <button 
                                             className="bg-mainYellow text-mainBlue px-6 py-3 rounded-lg font-medium hover:bg-yellow-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-gray-800"
                                             onClick={handleProfileEdit}
@@ -348,45 +348,46 @@ export default function ProfilePage() {
                 <p>{t('profile.noData')}</p>
             )}
 
-            <div className='mt-10'>
+            <div className='mt-8'>
                 {/* Tabs */}
                 <div className="flex">
                     <button 
                         onClick={() => setActiveTab('liked')}
-                        className={`px-8 py-4 font-medium flex items-center transition-all duration-200 text-lg ${
+                        className={`flex-1 sm:flex-none px-4 sm:px-8 py-3 sm:py-4 font-medium flex justify-center sm:justify-start items-center transition-all duration-200 text-base sm:text-lg ${
                             activeTab === 'liked' 
                                 ? 'border-b-2 border-mainYellow text-mainYellow' 
                                 : 'text-gray-400 hover:text-white'
                         }`}
                     >
-                        <FontAwesomeIcon icon={faHeart} className="mr-3" />
+                        <FontAwesomeIcon icon={faHeart} className="mr-2 sm:mr-3" />
                         {t('profile.likedTracks')}
                     </button>
                     <button 
                         onClick={() => setActiveTab('created')}
-                        className={`px-8 py-4 font-medium flex items-center transition-all duration-200 text-lg ${
+                        className={`flex-1 sm:flex-none px-4 sm:px-8 py-3 sm:py-4 font-medium flex justify-center sm:justify-start items-center transition-all duration-200 text-base sm:text-lg ${
                             activeTab === 'created' 
                                 ? 'border-b-2 border-mainYellow text-mainYellow' 
                                 : 'text-gray-400 hover:text-white'
                         }`}
                     >
-                        <FontAwesomeIcon icon={faRoute} className="mr-3" />
+                        <FontAwesomeIcon icon={faRoute} className="mr-2 sm:mr-3" />
                         {t('profile.createdTracks')}
                     </button>
                 </div>
                 
-                {/* Tracks grid */}
-                <div className="bg-accentBlue rounded-2xl p-6 md:p-8 shadow-xl">
+                {/* Tracks grid - improved responsive layout */}
+                <div className="bg-accentBlue rounded-2xl p-4 sm:p-6 shadow-xl">
                     {tracksLoading ? (
                         <div className="flex justify-center items-center py-16">
-                            <div className="loader h-14 w-14 border-t-mainYellow border-4 border-white/30 rounded-full animate-spin"></div>
+                            <div className="loader h-10 w-10 sm:h-14 sm:w-14 border-t-mainYellow border-4 border-white/30 rounded-full animate-spin"></div>
                         </div>
                     ) : tracks && tracks.length > 0 ? (
-                        <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
                             {tracks.map(track => (
-                                <li key={track._id} className="transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+                                <div key={track._id} className="flex justify-center sm:justify-start">
                                     <TrackCard
                                         track={track}
+                                        className="w-full max-w-xs sm:max-w-none" 
                                         onLikeChange={(trackId, isLiked, updatedLikes) => {
                                             if (activeTab === 'liked' && !isLiked) {
                                                 setTracks(prevTracks => 
@@ -407,18 +408,18 @@ export default function ProfilePage() {
                                             }
                                         }}
                                     />
-                                </li>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-16 text-center">
+                        <div className="flex flex-col items-center justify-center py-10 sm:py-16 text-center">
                             <FontAwesomeIcon 
                                 icon={activeTab === 'liked' ? faHeart : faRoute} 
-                                className="text-4xl text-gray-500 mb-4" 
+                                className="text-3xl sm:text-4xl text-gray-500 mb-4" 
                             />
                             {activeTab === 'liked' ?
-                                <p className="text-xl text-gray-400">{t('profile.noLiked')}</p> :
-                                <p className="text-xl text-gray-400">{t('profile.noTracks')}</p>
+                                <p className="text-lg sm:text-xl text-gray-400">{t('profile.noLiked')}</p> :
+                                <p className="text-lg sm:text-xl text-gray-400">{t('profile.noTracks')}</p>
                             }
                         </div>
                     )}
