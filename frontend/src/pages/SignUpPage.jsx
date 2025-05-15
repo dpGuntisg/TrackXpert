@@ -32,6 +32,7 @@ export default function SignUpPage() {
   const handleSignUp = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
     if (password !== confirmPassword) {
       setError(t('auth.passwordMismatch'));

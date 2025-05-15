@@ -45,7 +45,7 @@ export default function ProfilePage() {
                 const user = profileResponse.data.user;
                 setProfile(user);
             } catch (error) {
-                setError(t('profile.fetchError'));
+                setError(error.response?.data?.message || t('profile.fetchError'));
             } finally {
                 setLoading(false); 
             }
@@ -62,7 +62,7 @@ export default function ProfilePage() {
                     const tracksResponse = await axiosInstance.get(`/tracks/profile/${profile._id}/tracks`);
                     setTracks(tracksResponse.data.tracks || []);
                 } catch (tracksError) {
-                    console.error(t('profile.tracksError'), tracksError);
+                    setError(tracksError.response?.data?.message || t('profile.tracksError'));
                 } finally {
                     setTracksLoading(false);
                 }
@@ -76,7 +76,7 @@ export default function ProfilePage() {
                     const eventsResponse = await axiosInstance.get(`/events/profile/${profile._id}/events`);
                     setEvents(eventsResponse.data.events || []);
                 } catch (eventsError) {
-                    console.error(t('profile.eventsError'), eventsError);
+                    setError(eventsError.response?.data?.message || t('profile.eventsError'));
                 } finally {
                     setEventsLoading(false);
                 }

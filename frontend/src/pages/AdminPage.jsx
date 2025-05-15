@@ -86,7 +86,7 @@ const AdminPage = () => {
                 const response = await axiosInstance.get('/admin/stats/tracks-per-country');
                 setTracksPerCountry(response.data);
             } catch (error) {
-                console.error(error);
+                setError(error.response?.data?.message || 'Error fetching tracks per country');
             } finally {
                 setLoading(false);
             }

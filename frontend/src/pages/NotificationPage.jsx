@@ -38,7 +38,7 @@ export default function NotificationPage() {
             setError(null);
         } catch (error) {
             console.error("Error fetching data:", error);
-            setError(t('notifications.fetchError'));
+            setError(error.response?.data?.message || t('notifications.fetchError'));
             setTrackRequests([]);
             setEventRequests([]);
             setSentTrackRequests([]);
@@ -58,7 +58,7 @@ export default function NotificationPage() {
             fetchData();
         } catch (error) {
             console.error("Error updating track request:", error);
-            setError(t('notifications.updateError'));
+            setError(error.response?.data?.message || t('notifications.updateError'));
         }
     };
 
@@ -68,7 +68,7 @@ export default function NotificationPage() {
             fetchData();
         } catch (error) {
             console.error("Error updating event request:", error);
-            setError(t('notifications.updateError'));
+            setError(error.response?.data?.message || t('notifications.updateError'));
         }
     };
 

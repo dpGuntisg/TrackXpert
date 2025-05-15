@@ -51,11 +51,6 @@ function App() {
       icon: faMapMarkedAlt,
       title: t('home.features.discover.title'),
       description: t('home.features.discover.description')
-    },
-    {
-      icon: faChartLine,
-      title: t('home.features.progress.title'),
-      description: t('home.features.progress.description')
     }
   ];
 
@@ -87,15 +82,29 @@ function App() {
 
       {/* Features Grid */}
       <div className="container mx-auto px-4 pb-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <FeatureCard
-              key={index}
-              icon={feature.icon}
-              title={feature.title}
-              description={feature.description}
-            />
-          ))}
+        <div className="grid grid-cols-1 gap-8">
+          {/* First row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {features.slice(0, 3).map((feature, index) => (
+              <FeatureCard
+                key={index}
+                icon={feature.icon}
+                title={feature.title}
+                description={feature.description}
+              />
+            ))}
+          </div>
+          {/* Second row  */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            {features.slice(3, 5).map((feature, index) => (
+              <FeatureCard
+                key={index + 3}
+                icon={feature.icon}
+                title={feature.title}
+                description={feature.description}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </div>

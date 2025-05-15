@@ -36,13 +36,8 @@ export default function TrackCard({
         }
     }, [track, userId]);
 
-    const handleLikeClick = async (e) => {
-        e.preventDefault(); // Prevent navigation
-        if (!userId) {
-            navigate('/signin');
-            return;
-        }
-
+    const handleLike = async (e) => {
+        e.preventDefault();
         try {
             const endpoint = isLiked 
                 ? `/tracks/${track._id}/unlike` 
@@ -71,27 +66,7 @@ export default function TrackCard({
                 onLikeChange(track._id, !isLiked, updatedTrack.likes);
             }
         } catch (error) {
-            console.error('Error updating like status:', error);
-            // If we get a 500 error about already liked/unliked, don't show it to the user
-            if (error.response?.status === 500) {
-                // Update the local state to match reality
-                const newIsLiked = !isLiked;
-                setIsLiked(newIsLiked);
-                
-                // Update the track's likes array
-                if (newIsLiked) {
-                    track.likes = [...track.likes, userId];
-                } else {
-                    track.likes = track.likes.filter(id => 
-                        typeof id === 'string' ? id !== userId : id.toString() !== userId
-                    );
-                }
-                
-                // Notify parent component
-                if (onLikeChange) {
-                    onLikeChange(track._id, newIsLiked, track.likes);
-                }
-            }
+            toast.error(error.response?.data?.message || 'Error updating like status');
         }
     };
 
@@ -186,7 +161,7 @@ export default function TrackCard({
 
             {userId && userId !== track.created_by?._id && !isSelectionMode && (
                 <button 
-                    onClick={handleLikeClick}
+                    onClick={handleLike}
                     className={`absolute bottom-4 left-4 text-2xl ${isLiked ? 'text-mainRed' : 'text-gray-400'} hover:text-mainRed transition-colors duration-200`}
                 >
                     <FontAwesomeIcon icon={faHeart} />
