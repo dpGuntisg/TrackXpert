@@ -69,6 +69,10 @@ const EventSchema = new mongoose.Schema({
         ref: 'Image',
         required: true
     }],
+    thumbnailImage: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Image"
+    },
     status: { 
         type: String, 
         enum: ['soon', 'active', 'completed'],
@@ -117,6 +121,14 @@ const EventSchema = new mongoose.Schema({
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 }, {
     timestamps: true
+});
+
+EventSchema.pre("save", function (next) {
+  // Set thumbnailImage if not already set and images exist
+  if (!this.thumbnailImage && this.images?.length > 0) {
+    this.thumbnailImage = this.images[0];
+  }
+  next();
 });
 
 // Pre-save middleware for date validation

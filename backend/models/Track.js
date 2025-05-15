@@ -16,6 +16,7 @@ const TrackSchema = new mongoose.Schema({
     required: [true, 'Track location is required']
   },
   images: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Image' }],
+  thumbnailImage: { type: mongoose.Schema.Types.ObjectId, ref: "Image" },
   // Track tags with validation
   tags: {
     type: [String],
@@ -82,7 +83,13 @@ const TrackSchema = new mongoose.Schema({
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }]
 },{timestamps:true});
 
-
+TrackSchema.pre("save", function (next) {
+  // Set thumbnailImage if not already set and images exist
+  if (!this.thumbnailImage && this.images?.length > 0) {
+    this.thumbnailImage = this.images[0];
+  }
+  next();
+});
 
 // Pre-save middleware for availability validation
 TrackSchema.pre("save", function (next) {

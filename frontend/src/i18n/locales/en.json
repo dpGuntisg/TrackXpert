@@ -607,6 +607,8 @@
     "searchLogs":"Search by User ID or Username",
     "actions":{
       "created_account": "Created an account",
+      "updated_account": "Edited an account",
+      "deleted_account": "Deleted an account",
       "created_track": "Created a track",
       "updated_track": "Edited a track",
       "deleted_track": "Deleted a track",

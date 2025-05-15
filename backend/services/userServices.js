@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import Token from "../models/Token.js";
 import Image from "../models/Images.js";
 import Track from "../models/Track.js";
+import Event from "../models/Event.js";
+import Report from "../models/Report.js";
 import { createImage } from "./helpers/imageHelper.js";
 import { logActivity } from "./helpers/logHelper.js";
 const JWT_SECRET = "process.env.JWT_SECRET";
@@ -152,6 +154,12 @@ class UserService {
         }
 
         const updatedUser = await user.save();
+        await logActivity(user._id, 'updated_account', {
+            username: updatedUser.username, 
+            name: updatedUser.name,
+            surname: updatedUser.surname,
+            email: updatedUser.email
+        });
         return updatedUser;
     }
 
@@ -172,6 +180,14 @@ class UserService {
             }
 
             await Track.deleteMany({ created_by: profileIdToDelete });
+            await Event.deleteMany({ created_by: profileIdToDelete });
+
+            await logActivity(profileIdToDelete, 'deleted_account', {
+                username: user.username, 
+                name: user.name,
+                surname: user.surname,
+                email: user.email
+            });
     
             await User.findByIdAndDelete(profileIdToDelete);
     
@@ -180,7 +196,19 @@ class UserService {
             throw new Error(error.message);
         }
     }
-    
+
+    static async report({ reportedBy, targetType, targetId, reason }) {
+        const existingReport = await Report.findOne({
+          reportedBy,
+          targetType,
+          targetId,
+        });
+      
+        if (existingReport) {throw { status: 400, message: "You have already reported this item"};}
+        const report = new Report({ reportedBy, targetType, targetId, reason });
+        await report.save();
+        return report;
+    }
 }
 
 export default UserService;

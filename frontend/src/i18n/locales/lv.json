@@ -610,6 +610,8 @@
     "searchLogs":"Meklēt pēc User ID vai Username",
     "actions":{
       "created_account": "Izveidoja profilu",
+      "updated_account": "Rediģēja profilu",
+      "deleted_account": "Dzēsa profilu",
       "created_track": "Izveidoja trasi",
       "updated_track": "Rediģēja trasi",
       "deleted_track": "Dzēsa trasi",

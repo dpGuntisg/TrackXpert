@@ -74,7 +74,7 @@ const EventCard = ({ event }) => {
     const { userId } = useAuth();
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(event.likes?.length || 0);
-    const firstImage = event.images?.[0]?.data;
+    const firstImage = event.thumbnailImage?.data;
     const dateRange = formatDateRange(event.date?.startDate, event.date?.endDate);
     
     // Track names (populated)

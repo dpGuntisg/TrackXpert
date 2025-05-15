@@ -23,7 +23,7 @@ export default function TrackCard({
         ? track.description.substring(0, 150) + "..."
         : track.description;
     const FormatedDistance = `${parseFloat(track.distance).toFixed(2).replace('.', ',')} km`;
-    const firstImage = track.images?.[0]?.data;
+    const firstImage = track.thumbnailImage?.data || track.images[0];
     const [isLiked, setIsLiked] = useState(false);
     const [likeCount, setLikeCount] = useState(track.likes?.length || 0);
 

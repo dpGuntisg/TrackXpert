@@ -5,8 +5,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationCircle, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
-import logo from '../assets/logo.png';
-
 
 export default function SignInPage() {
   const { t } = useTranslation();

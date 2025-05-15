@@ -85,4 +85,14 @@ router.delete("/delete", verifyToken, async (req, res) => {
   }
 });
 
+router.post("/report", verifyToken, async (req, res) => {
+  req.body.reportedBy = req.userId;
+  try {
+    const report = await UserService.report(req.body);
+    res.status(200).json({ message: "Report submitted successfully", report });
+  } catch (error) {
+    res.status(error.status || 500).json({ message: error.message });
+  }
+});
+
 export default router;
