@@ -197,7 +197,7 @@ class TrackService {
                 path: 'created_by',
                 select: 'name surname username email phonenumber profile_image',
                 populate: {
-                    path: 'profile_image',
+                    path: 'images',
                     select: 'data mimeType'
                 }
             })
@@ -229,7 +229,7 @@ class TrackService {
         
         const tracks = await Track.find({ created_by: userId })
         .populate("created_by", "username email phonenumber")
-        .populate("images", "data mimeType");
+        .populate("thumbnailImage", "data mimeType");
         
         return tracks || [];
     }
@@ -271,7 +271,7 @@ class TrackService {
         
         const tracks = await Track.find({ likes: userId })
           .populate("created_by", "username email phonenumber")
-          .populate("images", "data mimeType");
+          .populate("thumbnailImage", "data mimeType");
         
         return tracks;
     }

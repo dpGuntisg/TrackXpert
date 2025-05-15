@@ -197,8 +197,9 @@ class EventService {
                 .skip(skip)
                 .limit(limit)
                 .populate("created_by", "username _id email")
-                .populate("images", "data mimeType")
-                .populate("tracks", "name length availability");
+                .populate("thumbnailImage", "data mimeType")
+                .populate("tracks", "name length availability")
+                .lean();
             
             const totalEvents = await Event.countDocuments(query);
 
@@ -248,7 +249,7 @@ class EventService {
         try {
             const events = await Event.find({ created_by: userId })
                 .populate("created_by", "username email") 
-                .populate("images", "data mimeType");
+                .populate("thumbnailImage", "data mimeType");
 
             if (!events.length) throw new Error("No events found for this user");
             return events;
