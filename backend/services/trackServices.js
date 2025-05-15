@@ -178,8 +178,9 @@ class TrackService {
         const tracks = await Track.find(query)
             .skip(skip)
             .limit(limit)
-            .populate("images", "data mimeType")
-            .populate("created_by", "_id");
+            .populate("thumbnailImage", "data mimeType")
+            .populate("created_by", "_id")
+            .lean();
         const totalTracks = await Track.countDocuments(query);
         
         return {
