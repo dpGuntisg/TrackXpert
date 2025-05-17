@@ -7,6 +7,7 @@ import eventRoutes from './eventRoutes.js';
 import eventRegistrationRoutes from './eventRegistrationRoutes.js';
 import pdfTicketRoutes from './pdfTicketRoutes.js';
 import adminRoutes from './adminRoutes.js';
+import reportRoutes from './reportRoutes.js';
 
 const router = express.Router();
 
@@ -18,5 +19,6 @@ router.use('/events', eventRoutes);
 router.use('/event-registrations', eventRegistrationRoutes);
 router.use('/tickets', pdfTicketRoutes);
 router.use('/admin', adminRoutes);
+router.use('/reports', reportRoutes);
 
 export default router;

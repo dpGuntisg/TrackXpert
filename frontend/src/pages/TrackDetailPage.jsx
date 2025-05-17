@@ -2,12 +2,13 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler, faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock, faCheck, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler, faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock, faCheck, faInfoCircle, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import { MapSelector, startIcon, endIcon} from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
 import { TrackForm } from '../components/TrackForm.jsx';
 import JoiningRequestForm from '../components/JoiningRequestForm.jsx';
+import ReportForm from "../components/ReportForm.jsx";
 import UserContact from "../components/UserContact.jsx";
 import { useTranslation } from 'react-i18next';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
@@ -549,6 +550,20 @@ export default function TrackDetailPage() {
                         )}
                     </div>
                     
+                    {/* Report button */}
+                    {(userId !== track.created_by?._id) &&(
+                        <div className="absolute bottom-6 right-6">
+                            <ReportForm targetType="Track" targetId={track._id}
+                                triggerComponent={
+                                    <button className="flex items-center gap-2 bg-red-900/30 border border-red-700 text-red-400  px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+                                        <FontAwesomeIcon icon={faTriangleExclamation} className="text-mainRed" />
+                                        Report
+                                    </button>
+                                }
+                            />
+                        </div>
+                    )}
+                    
                     {/* Track title and basic info overlay */}
                     <div className="absolute bottom-6 left-6 space-y-2 max-w-3/4">
                         <h1 className="text-4xl font-bold drop-shadow-lg">{track.name}</h1>
@@ -569,8 +584,7 @@ export default function TrackDetailPage() {
 
                 {/* User Contact Card */}
                 <UserContact created_by={track.created_by} />
-
-
+                
                 {/* Action buttons for track owner */}
                 <div className="flex space-x-4 justify-end mt-8">
                     {(userId === track.created_by?._id || role === "admin") && (

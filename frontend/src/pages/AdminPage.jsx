@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faSquarePollVertical, faUsers, faUserCheck, faRoute, faCalendarAlt, faMapMarkerAlt, faAngleDown, faAngleUp, faFilter } from '@fortawesome/free-solid-svg-icons';
+import { faFileAlt, faSquarePollVertical, faUsers, faUserCheck, faRoute, faCalendarAlt, faMapMarkerAlt, faAngleDown, faAngleUp, faFilter, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
 import TracksPerCountryChart from '../components/AdminPanelComponents/TracksPerCountryChart';
 import UserGrowthChart from '../components/AdminPanelComponents/UserGrowthChart';
+import ReportsTab from '../components/AdminPanelComponents/ReportsTab';
 import SearchBar from '../components/SearchBar';
 const AdminPage = () => {
     // logs state 
@@ -41,6 +42,9 @@ const AdminPage = () => {
     const [eventCount, setEventCount] = useState(null);
     const [growthDates, setGrowthDates] = useState([]); 
     const [growthCounts, setGrowthCounts] = useState([]);
+
+    // reports state
+    const [reports, setReports] = useState([]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -128,6 +132,21 @@ const AdminPage = () => {
             }
         }
         fetchGrowth();
+    }, []);
+
+    useEffect(() => {
+        const fetchReports = async () => {
+            setLoading(true);
+            try {
+                const res = await axiosInstance.get('/reports/pending');
+                setReports(res.data);
+            } catch (error) {
+                console.error('Failed to fetch admin reports', error);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchReports();
     }, []);
 
     const handleSearch = useCallback((query) => {
@@ -330,6 +349,10 @@ const AdminPage = () => {
                         )}
                     </div>
                 );
+            case 'reports':
+                return(
+                    <ReportsTab reports={reports} loading={loading} error={error} />
+                )    
             default:
                 return null;
         }
@@ -397,6 +420,13 @@ const AdminPage = () => {
                 >
                     <FontAwesomeIcon icon={faFileAlt} className='mr-2' />
                     {t('admin.logs')}
+                </button>
+                <button
+                    className={`px-6 py-3 font-medium flex items-center ${tab === 'reports' ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
+                    onClick={() => setTab('reports')}
+                >
+                    <FontAwesomeIcon icon={faTriangleExclamation} className='mr-2' />
+                    {t('admin.reports')}
                 </button>
             {/* Tabs Render*/}
             </div>
