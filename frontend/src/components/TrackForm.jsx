@@ -20,7 +20,6 @@ export const TrackForm = ({
     const files = Array.from(e.target.files);
     
     if (files.length > 0) {
-
       if ((values.images?.length || 0) + files.length > 7) {
         alert(t('tracks.form.validation.tooManyImages'));
         return;

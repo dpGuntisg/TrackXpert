@@ -17,6 +17,7 @@ const TrackSchema = new mongoose.Schema({
   },
   images: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Image' }],
   thumbnailImage: { type: mongoose.Schema.Types.ObjectId, ref: "Image" },
+  isArchived: { type: Boolean, default: false },
   // Track tags with validation
   tags: {
     type: [String],

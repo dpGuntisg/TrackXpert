@@ -120,7 +120,12 @@
     "passwordMismatch": "Paroles nesakrīt",
     "invalidEmail": "Lūdzu ievadiet derīgu e-pasta adresi",
     "invalidPhone": "Lūdzu ievadiet derīgu tālruņa numuru",
-    "requiredField": "Šis lauks ir obligāts"
+    "requiredField": "Šis lauks ir obligāts",
+    "banned": "Konts Aizliegts",
+    "banReason": "Aizlieguma Iemesls",
+    "bannedUntil": "Aizlieguma Ilgums",
+    "permanent": "Pastāvīgs",
+    "bannedMessage": "Jūsu konts ir Bloķēts. Iemesls: {{reason}}. Līdz: {{until}}"
   },
   "profile": {
     "title": "Profils",
@@ -611,6 +616,10 @@
     "userGrowth": "Lietotāju pieaugums",
     "activityLogs": "Audita Žurnāls",
     "searchLogs":"Meklēt pēc User ID vai Username",
+    "reports": "Sūdzības",
+    "pendingReports": "Esošās Sūdzības",
+    "resolvedReports": "Atrisinātās Sūdzības",
+    "dismissedReports": "Noraidītās Sūdzības",
     "actions":{
       "created_account": "Izveidoja profilu",
       "updated_account": "Rediģēja profilu",
@@ -620,7 +629,8 @@
       "deleted_track": "Dzēsa trasi",
       "created_event": "Izveidoja pasākumu",
       "updated_event": "Rediģēja pasākumu",
-      "deleted_event": "Dzēsa pasākumu"
+      "deleted_event": "Dzēsa pasākumu",
+      "banned_user": "Bloķēja lietotāju"
     },
     "actionTypes": {
       "created": "Izveidoja",
