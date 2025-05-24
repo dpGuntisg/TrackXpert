@@ -128,6 +128,11 @@ class EventService {
                 }
             }
             updates.images = imageIds;
+            
+            // Set thumbnail image if it's not set or if it was deleted
+            if (!updates.thumbnailImage || !imageIds.includes(updates.thumbnailImage.toString())) {
+                updates.thumbnailImage = imageIds[0];
+            }
         }
 
         // Handle dates
