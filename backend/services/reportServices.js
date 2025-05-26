@@ -17,9 +17,17 @@ class ReportService {
     
     static async getPendingReports() {
         const pendingreports = await Report.find({ status: "pending" })
-            .populate("reportedBy", "username")
+                    .populate("reportedBy", "username profile_image _id")
+                    .sort({ createdAt: -1 });
         return pendingreports;
     }
+
+    static async getReportsByStatus(status) {
+    const reports = await Report.find({ status })
+        .populate("reportedBy", "username profile_image _id")
+        .sort({ createdAt: -1 }); // Sort by newest first
+    return reports;
+}
 
     static async updateReportStatus(reportId, status, reviewedBy) {
         try {

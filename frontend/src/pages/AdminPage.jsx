@@ -46,7 +46,6 @@ const AdminPage = () => {
     const [growthCounts, setGrowthCounts] = useState([]);
 
     // reports state
-    const [reports, setReports] = useState([]);
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -136,21 +135,6 @@ const AdminPage = () => {
             }
         }
         fetchGrowth();
-    }, []);
-
-    useEffect(() => {
-        const fetchReports = async () => {
-            setLoading(true);
-            try {
-                const res = await axiosInstance.get('/reports/pending');
-                setReports(res.data);
-            } catch (error) {
-                console.error('Failed to fetch admin reports', error);
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchReports();
     }, []);
 
     const handleSearch = useCallback((query) => {
@@ -374,8 +358,8 @@ const AdminPage = () => {
                 );
             case 'reports':
                 return(
-                    <ReportsTab reports={reports} loading={loading} error={error} />
-                )    
+                    <ReportsTab onReportUpdate={() => {}} />
+                );
             default:
                 return null;
         }

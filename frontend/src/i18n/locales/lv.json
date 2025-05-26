@@ -530,6 +530,7 @@
     "registrationRejected": "Reģistrācija noraidīta",
     "registrationRejectedMessage": "Jūsu reģistrācijas pieprasījums ir noraidīts no organizatora puses",
     "noRegistrationInstructions": "Nav norādītu specifisku reģistrācijas instrukciju. Lūdzu, sazinieties ar organizatoru, ja jums ir kādi jautājumi.",
+    
     "liked": "Patīk",
     "unliked": "Nepatīk",
     "like": "Patīk",
@@ -557,6 +558,9 @@
     "loginToRegister": "Ielogoties, lai reģistrētos",
     "cannotRegisterAsCreator": "Jūs nevarat reģistrēties savā pasākumā",
     "downloadTicket": "Lejupielādēt Biļeti",
+    "deletedSuccess": "Pasākums izdzests!",
+    "updatedSuccsesfully": "Pasākums atjaunots!",
+    "createdSuccsesfully": "Pasākums izveidots!",
     "status": {
       "completed": "Pabeigts",
       "active": "Aktīvs",
@@ -633,6 +637,7 @@
     "pendingReports": "Esošās Sūdzības",
     "resolvedReports": "Atrisinātās Sūdzības",
     "dismissedReports": "Noraidītās Sūdzības",
+    "noSearchResults": "Reģistri nav atrasti",
     "actions":{
       "created_account": "Izveidoja profilu",
       "updated_account": "Rediģēja profilu",
@@ -671,6 +676,8 @@
     "resolved": "Atrisināts",
     "dismissed": "Noraidīts",
     "noPendingReports": "Nav neapstrādātu ziņojumu",
-    "noFilteredReports": "Nav atrastu ziņojumu"
+    "noFilteredReports": "Nav atrastu ziņojumu",
+    "noDismissedReports": "Nav noraidītu ziņojumu",
+    "statusUpdated": "Ziņojuma statuss veiksmīgi atjaunots"
   }
 } 

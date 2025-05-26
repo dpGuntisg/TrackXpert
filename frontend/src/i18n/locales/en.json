@@ -551,6 +551,9 @@
     "loginToRegister": "Login to register",
     "cannotRegisterAsCreator": "You cannot register for your own event",
     "downloadTicket": "Download Ticket",
+    "deletedSuccess": "Event deleted successfully!",
+    "updatedSuccsesfully": "Event updated successfully!",
+    "createdSuccsesfully": "Event created successfully!",
     "status": {
       "completed": "Completed",
       "active": "Active",
@@ -633,6 +636,7 @@
     "pendingReports": "Pending Reports",
     "resolvedReports": "Resolved Reports",
     "dismissedReports": "Dismissed Reports",
+    "noSearchResults": "No logs found",
     "actions":{
       "created_account": "Created account",
       "updated_account": "Edited account",
@@ -671,6 +675,8 @@
     "resolved": "Resolved",
     "dismissed": "Dismissed",
     "noPendingReports": "No pending reports",
-    "noFilteredReports": "No reports found"
+    "noFilteredReports": "No reports found",
+    "noDismissedReports": "No dismissed reports",
+    "statusUpdated": "Ziņojuma statuss veiksmīgi atjaunots"
   }
 } 

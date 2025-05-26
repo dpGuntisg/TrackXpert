@@ -15,25 +15,57 @@ import axiosInstance from '../../utils/axios';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 
-const ReportsTab = ({ reports, loading, error, onReportUpdate }) => {
+const ReportsTab = ({ onReportUpdate }) => {
   const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState('pending');
   const [expandedReports, setExpandedReports] = useState({});
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const { user } = useAuth();
 
-  
+  // Fetch reports based on current status filter
+  const fetchReports = async (status = statusFilter) => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.get(`/reports?status=${status}`);
+      setReports(response.data);
+      setError('');
+    } catch (error) {
+      setError(error.response?.data?.message || 'Error fetching reports');
+      setReports([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch reports when component mounts or status filter changes
+  useEffect(() => {
+    fetchReports();
+  }, [statusFilter]);
+
   const handleStatusUpdate = async (reportId, newStatus) => {
     try {
       await axiosInstance.patch(`/reports/${reportId}/status`, { 
         status: newStatus
       });
       toast.success(t('report.statusUpdated'));
+      
+      // Refresh the current reports list
+      await fetchReports();
+      
+      // Call parent callback if provided
       if (onReportUpdate) {
         onReportUpdate();
       }
     } catch (error) {
       toast.error(t('report.statusUpdateError'));
     }
+  };
+
+  const handleStatusFilterChange = (newStatus) => {
+    setStatusFilter(newStatus);
+    setExpandedReports({}); // Clear expanded reports when switching tabs
   };
 
   const toggleReportExpansion = (reportId) => {
@@ -51,10 +83,6 @@ const ReportsTab = ({ reports, loading, error, onReportUpdate }) => {
     }
   };
 
-  const filteredReports = reports.filter(report => 
-    report.status === statusFilter
-  );
-
   return (
     <div className="bg-accentBlue p-6 rounded-xl shadow-lg text-white space-y-4">
       <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
@@ -65,7 +93,7 @@ const ReportsTab = ({ reports, loading, error, onReportUpdate }) => {
       {/* Filter Controls */}
       <div className="flex flex-wrap gap-2 mb-4">
         <button 
-          onClick={() => setStatusFilter('pending')}
+          onClick={() => handleStatusFilterChange('pending')}
           className={`px-3 py-1 text-sm rounded-full border ${
             statusFilter === 'pending'
               ? 'bg-mainYellow text-mainBlue border-mainYellow'
@@ -75,7 +103,7 @@ const ReportsTab = ({ reports, loading, error, onReportUpdate }) => {
           {t('admin.pendingReports')}
         </button>
         <button 
-          onClick={() => setStatusFilter('resolved')}
+          onClick={() => handleStatusFilterChange('resolved')}
           className={`px-3 py-1 text-sm rounded-full border ${
             statusFilter === 'resolved'
               ? 'bg-mainYellow text-mainBlue border-mainYellow'
@@ -85,7 +113,7 @@ const ReportsTab = ({ reports, loading, error, onReportUpdate }) => {
           {t('admin.resolvedReports')}
         </button>
         <button 
-          onClick={() => setStatusFilter('dismissed')}
+          onClick={() => handleStatusFilterChange('dismissed')}
           className={`px-3 py-1 text-sm rounded-full border ${
             statusFilter === 'dismissed'
               ? 'bg-mainYellow text-mainBlue border-mainYellow'
@@ -100,9 +128,14 @@ const ReportsTab = ({ reports, loading, error, onReportUpdate }) => {
         <div className="flex justify-center items-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainYellow"></div>
         </div>
-      ) : filteredReports.length > 0 ? (
+      ) : error ? (
+        <div className="text-center py-12 border border-dashed border-red-500 rounded-lg">
+          <FontAwesomeIcon icon={faTriangleExclamation} className="text-red-500 text-4xl mb-4" />
+          <p className="text-lg text-red-400">{error}</p>
+        </div>
+      ) : reports.length > 0 ? (
         <div className="space-y-4">
-          {filteredReports.map((report) => (
+          {reports.map((report) => (
             <div key={report._id} className="flex items-start gap-4 p-4 border rounded-lg border-accentGray hover:bg-mainBlue/30 transition-colors">
               {/* Profile Image */}
               <div className="flex-shrink-0">
@@ -122,7 +155,10 @@ const ReportsTab = ({ reports, loading, error, onReportUpdate }) => {
               {/* Report Details */}
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-300">
-                  <span className="font-medium text-mainYellow">{report.reportedBy?.username}</span>
+                  <div className="flex flex-row items-center space-x-1">
+                    <span className="font-medium text-mainYellow">{report.reportedBy?.username}</span>
+                    <span className="text-xs text-gray-400">({report.reportedBy?._id})</span>
+                  </div>
                   <span>{t('report.reported')}</span>
                   <span className="font-medium text-white flex items-center">
                     <FontAwesomeIcon icon={getTargetTypeIcon(report.targetType)} className="mr-1 text-mainYellow" />
@@ -201,7 +237,9 @@ const ReportsTab = ({ reports, loading, error, onReportUpdate }) => {
           <p className="text-lg text-gray-300">
             {statusFilter === 'pending' 
               ? t('report.noPendingReports')
-              : t('report.noFilteredReports')}
+              : statusFilter === 'resolved'
+              ? t('report.noResolvedReports')
+              : t('report.noDismissedReports')}
           </p>
         </div>
       )}
