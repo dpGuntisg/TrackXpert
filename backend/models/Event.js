@@ -21,6 +21,7 @@ const EventSchema = new mongoose.Schema({
         maxLenght: 15000,
         trim: true
     },
+    isArchived: { type: Boolean, default: false },
     date: {
         startDate: { 
           type: Date, 

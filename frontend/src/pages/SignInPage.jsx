@@ -27,6 +27,13 @@ export default function SignInPage() {
       });
       
       if (response.status === 200 && response.data.user) {
+        if (response.data.user.isBanned) {
+          setError(t('auth.bannedMessage', {
+            reason: response.data.user.banReason,
+            until: response.data.user.bannedUntil ? new Date(response.data.user.bannedUntil).toLocaleString() : t('auth.permanent')
+          }));
+          return;
+        }
         setUserId(response.data.user._id);
         setRole(response.data.user.role);
         setSuccess(t('auth.signInSuccess'));
@@ -35,7 +42,12 @@ export default function SignInPage() {
         setError(t('auth.signInError'));
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
+      if (error.response?.status === 403 && error.response?.data?.banned) {
+        setError(t('auth.bannedMessage', {
+          reason: error.response.data.reason,
+          until: error.response.data.bannedUntil ? new Date(error.response.data.bannedUntil).toLocaleString() : t('auth.permanent')
+        }));
+      } else if (error.response && error.response.data && error.response.data.message) {
         setError(error.response.data.message);
       } else if (error.request) {
         setError(t('common.noServerResponse'));

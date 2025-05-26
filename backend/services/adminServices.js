@@ -4,6 +4,7 @@ import Event from "../models/Event.js";
 import Token from "../models/Token.js";
 import UserActionLog from "../models/UserActionLog.js";
 import mongoose from "mongoose";
+import Image from "../models/Images.js";
 
 class AdminService {
     static async getAllUsers() {
@@ -168,6 +169,76 @@ class AdminService {
       }
     }
     
+    static async banUser(userId, { reason, duration, isPermanent }) {
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                throw new Error("User not found");
+            }
+
+            if (user.role === "admin") {
+                throw new Error("Cannot ban an admin user");
+            }
+
+            user.isBanned = true;
+            user.banReason = reason;
+            user.bannedUntil = isPermanent ? null : new Date(Date.now() + duration * 24 * 60 * 60 * 1000);
+
+            await user.save();
+
+            // Handle user's content based on ban type
+            if (isPermanent) {
+                // Delete all user content
+                await Promise.all([
+                    Track.deleteMany({ created_by: userId }),
+                    Event.deleteMany({ created_by: userId }),
+                    Image.deleteMany({ uploaded_by: userId })
+                ]);
+            } else {
+                // Archive user content
+                await Promise.all([
+                    Track.updateMany({ created_by: userId }, { $set: { isArchived: true } }),
+                    Event.updateMany({ created_by: userId }, { $set: { isArchived: true } }),
+                    Image.updateMany({ uploaded_by: userId }, { $set: { isArchived: true } })
+                ]);
+            }
+
+            return user;
+        } catch (error) {
+            console.error("Error in banUser:", error);
+            throw error;
+        }
+    }
+
+    static async unbanUser(userId) {
+        try {
+            const user = await User.findById(userId);
+            if (!user) {
+                throw new Error("User not found");
+            }
+
+            if (!user.isBanned) {
+                throw new Error("User is not banned");
+            }
+
+            user.isBanned = false;
+            user.banReason = undefined;
+            user.bannedUntil = undefined;
+
+            await user.save();
+
+            // Restore archived content
+            await Promise.all([
+                Track.updateMany({ created_by: userId, isArchived: true }, { $set: { isArchived: false } }),
+                Event.updateMany({ created_by: userId, isArchived: true }, { $set: { isArchived: false } }),
+                Image.updateMany({ uploaded_by: userId, isArchived: true }, { $set: { isArchived: false } })
+            ]);
+            return user;
+        } catch (error) {
+            console.error("Error in unbanUser:", error);
+            throw error;
+        }
+    }
 }
 
 export default AdminService;

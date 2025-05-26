@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFileAlt, faSquarePollVertical, faUsers, faUserCheck, faRoute, faCalendarAlt, faMapMarkerAlt, faAngleDown, faAngleUp, faFilter, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faFileAlt, faSquarePollVertical, faUsers, faUserCheck, faRoute, faCalendarAlt, faMapMarkerAlt, faAngleDown, faAngleUp, faFilter, faTriangleExclamation, faBan } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
 import TracksPerCountryChart from '../components/AdminPanelComponents/TracksPerCountryChart';
 import UserGrowthChart from '../components/AdminPanelComponents/UserGrowthChart';
 import ReportsTab from '../components/AdminPanelComponents/ReportsTab';
+import BanModal from '../components/AdminPanelComponents/BanModal';
 import SearchBar from '../components/SearchBar';
 const AdminPage = () => {
     // logs state 
@@ -32,7 +33,8 @@ const AdminPage = () => {
         created_event: "bg-green-900/30 border border-green-700 text-green-400",
         updated_event: "bg-yellow-900/30 border border-yellow-700 text-yellow-400",
         deleted_event: "bg-red-900/30 border border-red-700 text-red-400",
-        updated_account: "bg-yellow-900/30 border border-yellow-700 text-yellow-400"
+        updated_account: "bg-yellow-900/30 border border-yellow-700 text-yellow-400",
+        banned_user: "bg-red-900/30 border border-red-700 text-red-400"
       };
     // stats state 
     const [tracksPerCountry, setTracksPerCountry] = useState(null);
@@ -49,6 +51,8 @@ const AdminPage = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [tab, setTab] = useState('statistics');
+
+    const [selectedUserForBan, setSelectedUserForBan] = useState(null);
 
     const { t } = useTranslation();
 
@@ -158,6 +162,14 @@ const AdminPage = () => {
         setSortOrder(prev => (prev === "asc" ? "desc" : "asc"));
       };
     
+      const handleBanUser = (userId, username) => {
+        setSelectedUserForBan({ userId, username });
+    };
+
+    const handleBanSuccess = () => {
+        fetchLogs(); // Refresh logs after banning
+    };
+
 
       
     const renderTab = () => {
@@ -295,7 +307,7 @@ const AdminPage = () => {
                                                     </div>
                                                     <div className="flex items-center">
                                                         <span className={`px-2 py-1 rounded text-sm ${actionColors[log.action] || "bg-gray-100 text-gray-800"}`}>
-                                                        {t(`admin.actions.${log.action}`)}
+                                                            {t(`admin.actions.${log.action}`)}
                                                         </span>
                                                     </div>
                                                     <div>
@@ -314,6 +326,17 @@ const AdminPage = () => {
                                                     </div>
                                                     <div className="text-sm text-gray-300">
                                                         {format(new Date(log.createdAt), 'dd/MM/yyyy HH:mm')}
+                                                    </div>
+                                                    <div className="flex items-center">
+                                                        {log.userId?.role !== 'admin' && (
+                                                            <button
+                                                                onClick={() => handleBanUser(log.userId._id, log.userId.username)}
+                                                                className="text-mainRed hover:text-red-400 transition-colors"
+                                                                title={t('admin.banUser')}
+                                                            >
+                                                                <FontAwesomeIcon icon={faBan} />
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             ))}
@@ -432,6 +455,16 @@ const AdminPage = () => {
             </div>
                 {renderTab()}
             </div>
+            
+            {/* Ban Modal */}
+            {selectedUserForBan && (
+                <BanModal
+                    userId={selectedUserForBan.userId}
+                    username={selectedUserForBan.username}
+                    onClose={() => setSelectedUserForBan(null)}
+                    onBanSuccess={handleBanSuccess}
+                />
+            )}
         </div>
     );
 };

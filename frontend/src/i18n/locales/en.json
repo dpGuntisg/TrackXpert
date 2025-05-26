@@ -120,7 +120,12 @@
     "passwordMismatch": "Passwords do not match",
     "invalidEmail": "Please enter a valid email address",
     "invalidPhone": "Please enter a valid phone number",
-    "requiredField": "This field is required"
+    "requiredField": "This field is required",
+    "banned": "Account Banned",
+    "banReason": "Ban Reason",
+    "bannedUntil": "Ban Duration",
+    "permanent": "Permanent",
+    "bannedMessage": "Your account has been banned. Reason: {{reason}}. Until: {{until}}"
   },
   "profile": {
     "title": "Profile",
@@ -231,7 +236,7 @@
       "requestFormTitle": "Track Participation Request",
       "bookSession": "Book a track session",
       "selectedTags": "Selected Tags",
-      "validation": {
+      "errors": {
         "nameTooShort": "Track name must be at least 5 characters long.",
         "nameTooLong": "Track name is too long (maximum 100 characters).",
         "descriptionTooShort": "Track description must be at least 10 characters long.",
@@ -239,24 +244,26 @@
         "locationTooShort": "Track location must be at least 5 characters long.",
         "locationTooLong": "Track location is too long (maximum 100 characters).",
         "imageRequired": "At least one track image is required.",
-        "tagsRequired": "Please select at least one tag",
-        "trackTypeRequired": "Please select at least one track type",
-        "selectTrackType": "Select track type",
-        "selectMoreTags": "Select more tags",
-        "tooManyTrackTypeTags": "You can select up to 2 track types",
-        "oneDifficultyLevel": "You can only select one difficulty level",
-        "tooManyTags": "You can select up to 5 tags",
-        "tooManyImages": "You can only upload up to 7 images",
         "fixErrors": "Please fix the errors before continuing.",
         "notAuthenticated": "You must be logged in to create a track.",
         "availabilityRequired": "Please add at least one availability slot",
-        "saveDrawing": "To save the drawing, please click the 'Save' icon on the map.",
         "geometryRequired": "Please either place a marker or draw a track on the map",
+        "saveDrawing": "To save the drawing, please click the 'Save' icon on the map.",
+        "tooManyImages": "You can only upload up to 7 images",
         "fetchCountries": "Failed to load countries. Please try again.",
         "fetchRegions": "Failed to load regions. Please try again.",
         "fetchCities": "Failed to load cities. Please try again.",
         "selectCountryFirst": "Please select a country first",
         "selectRegionFirst": "Please select a region first"
+      },
+      "validation": {
+        "tooManyTrackTypeTags": "You can select up to 2 track types",
+        "oneDifficultyLevel": "You can only select one difficulty level",
+        "tooManyTags": "You can select up to 5 tags",
+        "tagsRequired": "Please select at least one tag",
+        "trackTypeRequired": "Please select at least one track type",
+        "selectTrackType": "Select track type",
+        "selectMoreTags": "Select more tags"
       },
       "success": "Track created successfully!",
       "successEdit": "Track updated successfully!",
@@ -608,6 +615,10 @@
     "userGrowth": "User Growth",
     "activityLogs": "Audit Log",
     "searchLogs":"Search by User ID or Username",
+    "reports": "Reports",
+    "pendingReports": "Pending Reports",
+    "resolvedReports": "Resolved Reports",
+    "dismissedReports": "Dismissed Reports",
     "actions":{
       "created_account": "Created account",
       "updated_account": "Edited account",
@@ -617,7 +628,8 @@
       "deleted_track": "Deleted track",
       "created_event": "Created event",
       "updated_event": "Edited event",
-      "deleted_event": "Deleted event"
+      "deleted_event": "Deleted event",
+      "banned_user": "Banned user"
     },
     "actionTypes": {
       "created": "Created",

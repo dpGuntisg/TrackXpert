@@ -5,6 +5,7 @@ import { validateTrackTags, getValidTags } from './helpers/tagHelper.js';
 import { buildTrackQuery } from './helpers/filterHelper.js';
 import { logActivity } from "./helpers/logHelper.js";
 import { hasModificationPermission } from "./helpers/permissionHelper.js";
+import { activeOnly } from "./helpers/archiveHelper.js";
 
 class TrackService {
     static async createTrack(userId,{ name, description, location, images, availability, latitude, longitude, distance, polyline, tags, joining_enabled, joining_requirements }) {
@@ -170,40 +171,48 @@ class TrackService {
     }
 
     static async getAllTracks({ page = 1, limit = 6, filters = {} }) {
-        const skip = (page - 1) * limit;
-        
-        // Build query using the filter helper
-        const query = buildTrackQuery(filters);
-        
-        const tracks = await Track.find(query)
+        try {
+          const skip = (page - 1) * limit; 
+          // Build query using the filter helper
+          const query = buildTrackQuery(filters);
+          const tracks = await Track.find(activeOnly(query))
             .skip(skip)
             .limit(limit)
             .populate("thumbnailImage", "data mimeType")
             .populate("created_by", "_id")
             .lean();
-        const totalTracks = await Track.countDocuments(query);
+          const totalTracks = await Track.countDocuments(activeOnly(query));
         
-        return {
+          return {
             tracks,
             totalTracks,
             totalPages: Math.ceil(totalTracks / limit),
             currentPage: page
-        };
+          };
+          } catch (error) {
+            console.error("Error in getAllTracks:", error);
+            throw error;
+      }
     }
 
     static async getTrackById(trackId) {
-        const track = await Track.findById(trackId)
-            .populate({
-                path: 'created_by',
-                select: 'name surname username email phonenumber profile_image',
-                populate: {
-                    path: 'profile_image',
-                    select: 'data mimeType'
-                }
-            })
-            .populate("images", "data mimeType");
+      try {
+        const track = await Track.findOne({ _id: trackId, ...activeOnly() })
+          .populate({
+            path: 'created_by',
+            select: 'name surname username email phonenumber profile_image',
+              populate: {
+                path: 'profile_image',
+                select: 'data mimeType'
+              }
+          })
+          .populate("images", "data mimeType");
         if (!track) throw new Error("Track not found");
         return track;
+      } catch (error) {
+        console.error("Error in getTrackById:", error);
+        throw error;
+      }
     }
 
     static async deleteTrack(trackId, userId) {
@@ -267,13 +276,18 @@ class TrackService {
     }
 
     static async getLikedTracks(userId) {
+      try {
         if (!userId) throw new Error("User ID is required");
         
-        const tracks = await Track.find({ likes: userId })
+        const tracks = await Track.find(activeOnly({ likes: userId }))
           .populate("created_by", "username email phonenumber")
           .populate("thumbnailImage", "data mimeType");
         
         return tracks;
+      } catch (error) {
+        console.error("Error in getLikedTracks:", error);
+        throw error;
+      }
     }
 }
 

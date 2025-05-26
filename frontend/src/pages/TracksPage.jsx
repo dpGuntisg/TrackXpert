@@ -184,47 +184,47 @@ export default function TracksPage() {
         let isValid = true;
 
         if (!formValues.name || formValues.name.length < 5) {
-            errors.name = t('tracks.form.validation.nameTooShort');
+            errors.name = t('tracks.form.errors.nameTooShort');
             isValid = false;
         } else if (formValues.name.length > 100) {
-            errors.name = t('tracks.form.validation.nameTooLong');
+            errors.name = t('tracks.form.errors.nameTooLong');
             isValid = false;
         }
 
         if (!formValues.description || formValues.description.length < 10) {
-            errors.description = t('tracks.form.validation.descriptionTooShort');
+            errors.description = t('tracks.form.errors.descriptionTooShort');
             isValid = false;
         } else if (formValues.description.length > 15000) {
-            errors.description = t('tracks.form.validation.descriptionTooLong');
+            errors.description = t('tracks.form.errors.descriptionTooLong');
             isValid = false;
         }
 
         if (!formValues.location || formValues.location.length < 5) {
-            errors.location = t('tracks.form.validation.locationTooShort');
+            errors.location = t('tracks.form.errors.locationTooShort');
             isValid = false;
         } else if (formValues.location.length > 100) {
-            errors.location = t('tracks.form.validation.locationTooLong');
+            errors.location = t('tracks.form.errors.locationTooLong');
             isValid = false;
         }
 
         if (!formValues.images || formValues.images.length === 0) {
-            errors.images = t('tracks.form.validation.imageRequired');
+            errors.images = t('tracks.form.errors.imageRequired');
             isValid = false;
         }
 
-            const trackTypeTags = formValues.tags.filter(tag => 
-                ['rally_stage', 'hill_climb', 'circuit', 'off_road', 'circuit_race'].includes(tag)
-            );
-            if (trackTypeTags.length > 2) {
-                errors.tags = t('tracks.form.validation.tooManyTrackTypeTags');
-                isValid = false;
-            }
+        const trackTypeTags = formValues.tags.filter(tag => 
+            ['rally_stage', 'hill_climb', 'circuit', 'off_road', 'circuit_race'].includes(tag)
+        );
+        if (trackTypeTags.length > 2) {
+            errors.tags = t('tracks.form.validation.tooManyTrackTypeTags');
+            isValid = false;
+        }
 
-            // Check total tags limit
-            if (formValues.tags.length > 5) {
-                errors.tags = t('tracks.form.validation.tooManyTags');
-                isValid = false;
-            }
+        // Check total tags limit
+        if (formValues.tags.length > 5) {
+            errors.tags = t('tracks.form.validation.tooManyTags');
+            isValid = false;
+        }
 
         setFormErrors(errors);
         
@@ -236,7 +236,7 @@ export default function TracksPage() {
                 images: true,
                 tags: true,
             });
-            setError(t('tracks.form.validation.fixErrors'));
+            setError(t('tracks.form.errors.fixErrors'));
         } else {
             setError("");
         }

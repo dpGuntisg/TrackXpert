@@ -7,6 +7,7 @@ import { validateEventTags } from './helpers/tagHelper.js';
 import mongoose from "mongoose";
 import { hasModificationPermission } from "./helpers/permissionHelper.js";
 import { logActivity } from "./helpers/logHelper.js";
+import { activeOnly } from "./helpers/archiveHelper.js";
 
 class EventService {
     static async createEvent(userId, { name, description, location, date, tracks, participants, unlimitedParticipants, status, registrationDate, images, tags, registrationInstructions, requireManualApproval, generatePdfTickets }) {
@@ -193,7 +194,7 @@ class EventService {
                 ];
             }
 
-            const events = await Event.find(query)
+            const events = await Event.find(activeOnly(query))
                 .skip(skip)
                 .limit(limit)
                 .populate("created_by", "username _id email")
@@ -201,7 +202,7 @@ class EventService {
                 .populate("tracks", "name length availability")
                 .lean();
             
-            const totalEvents = await Event.countDocuments(query);
+            const totalEvents = await Event.countDocuments(activeOnly(query));
 
             return {
                 events,
@@ -217,7 +218,7 @@ class EventService {
 
     static async getEventsById(eventId) {
         try {
-            const event = await Event.findById(eventId)
+            const event = await Event.findOne({ _id: eventId, ...activeOnly() })
                 .populate("created_by", "username _id email") 
                 .populate("images", "data mimeType")
                 .populate({
@@ -307,6 +308,21 @@ class EventService {
         event.likes = event.likes.filter(id => id.toString() !== userId);
         await event.save();
         return event;
+    }
+
+    static async getLikedEvents(userId) {
+        try {
+            if (!userId) throw new Error("User ID is required");
+            
+            const events = await Event.find(activeOnly({ likes: userId }))
+                .populate("created_by", "username email")
+                .populate("thumbnailImage", "data mimeType");
+            
+            return events;
+        } catch (error) {
+            console.error("Error in getLikedEvents:", error);
+            throw error;
+        }
     }
 }
 

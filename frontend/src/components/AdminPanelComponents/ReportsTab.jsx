@@ -60,7 +60,7 @@ const ReportsTab = ({ reports, loading, error }) => {
               : 'border-accentGray text-gray-300 hover:bg-mainBlue/20'
           }`}
         >
-          {t('reports.pending')}
+          {t('admin.pendingReports')}
         </button>
         <button 
           onClick={() => setStatusFilter('resolved')}
@@ -70,7 +70,7 @@ const ReportsTab = ({ reports, loading, error }) => {
               : 'border-accentGray text-gray-300 hover:bg-mainBlue/20'
           }`}
         >
-          {t('reports.resolved')}
+          {t('admin.resolvedReports')}
         </button>
         <button 
           onClick={() => setStatusFilter('dismissed')}
@@ -80,7 +80,7 @@ const ReportsTab = ({ reports, loading, error }) => {
               : 'border-accentGray text-gray-300 hover:bg-mainBlue/20'
           }`}
         >
-          {t('reports.dismissed')}
+          {t('admin.dismissedReports')}
         </button>
       </div>
 
