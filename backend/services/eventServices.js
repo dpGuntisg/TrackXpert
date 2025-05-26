@@ -130,6 +130,10 @@ class EventService {
             updates.images = imageIds;
         }
 
+        if((!event.thumbnailImage || !updates.thumbnailImage) && updates.images && updates.images.length > 0) {
+            event.thumbnailImage = updates.images[0];
+        }
+
         // Handle dates
         if (updates.date) {
             updates.date = {

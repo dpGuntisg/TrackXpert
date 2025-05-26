@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, Marker, Polyline, useMapEvents, useMap, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMapMarkerAlt, faPencilAlt, faRotateLeft, faTrash, faSave, faExpand, faCompress, faBezierCurve } from '@fortawesome/free-solid-svg-icons';
 import { GeoSearchControl, OpenStreetMapProvider } from 'leaflet-geosearch';
@@ -272,8 +272,30 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
   const initializedRef = useRef(false);  // Ref to track initialization state
   const drawingsRef = useRef({ point: null, polyline: null });  // Ref to store drawings for saving
 
-  // Default map center if no position is provided
-  const mapCenter = position && position.length >= 2 ? position : [56.9496, 24.1052];
+  // center map on drawings
+  const mapCenter = useMemo(() => {
+    // Use explicitly passed center prop first
+    if (center && center.length >= 2) {
+      return center;
+    }
+    
+    // Then try position prop
+    if (position && position.length >= 2) {
+      return position;
+    }
+    
+    // Then try initial drawings
+    if (initialDrawings?.polyline && initialDrawings.polyline.length > 0) {
+      return initialDrawings.polyline[0]; // First point of polyline
+    }
+    
+    if (initialDrawings?.point && initialDrawings.point.length >= 2) {
+      return initialDrawings.point;
+    }
+    
+    // Default fallback
+    return [56.9496, 24.1052];
+  }, [center, position, initialDrawings]);
   
   // Function to add a curve segment to the polyline
   const addCurveSegment = (startPoint, endPoint, controlPoint) => {
@@ -619,7 +641,7 @@ export const MapSelector = ({ position, onPositionChange, initialDrawings = null
       </div>
 
       {/* Leaflet map container */}
-      <MapContainer center={mapCenter} zoom={20} style={{ height: '100%', width: '100%' }} >
+      <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }} >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <SearchControl />
         <MapHoverHandler 

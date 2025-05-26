@@ -36,8 +36,8 @@
     "september": "Septembris",
     "october": "Oktobris",
     "november": "Novembris",
-    "december": "Decembris"
-
+    "december": "Decembris",
+    "noServerResponse": "Radās problēma ar servera savienojumu. Lūdzu, mēģiniet vēlāk."
   },
   "contact": {
     "title": "Izveidoja"
@@ -49,9 +49,9 @@
   },
   "home": {
     "title": "Kur Trases Iegūst Dzīvību",
-    "subtitle": "Atklāj, Radi, un Sacientes Kā Nekad Iepriekš",
+    "subtitle": "Atklāj, Radi un Sacientes Kā Nekad Iepriekš",
     "description": "Izpēti mūsu plašo trašu klāstu – izvēlies tās, kas atbilst tavam stilam un piedzīvojumu garam. Sāc savu ceļojumu, izpētot citiem lietotājiem pievienotās trases, vai pievieno jaunas vietas mūsu kopienai!",
-    "exploreButton": "IZPĒTIT TRĀSES",
+    "exploreButton": "IZPĒTĪT TRASES",
     "features": {
       "createTracks": {
         "title": "Izveido Savas Trases",
@@ -125,7 +125,11 @@
     "banReason": "Aizlieguma Iemesls",
     "bannedUntil": "Aizlieguma Ilgums",
     "permanent": "Pastāvīgs",
-    "bannedMessage": "Jūsu konts ir Bloķēts. Iemesls: {{reason}}. Līdz: {{until}}"
+    "bannedMessage": "Jūsu konts ir Bloķēts. Iemesls: {{reason}}. Līdz: {{until}}",
+    "fieldsRequired": "Visi lauki ir obligāti",
+    "nameTooShort": "Vārdam jābūt vismaz 3 rakstzīmes garam",
+    "surnameTooShort": "Uzvārdam jābūt vismaz 3 rakstzīmes garam",
+    "passwordRequirements": "Parolei jāsatur vismaz viena lielā burtā, viena mazā burtā un viens cipars"
   },
   "profile": {
     "title": "Profils",
@@ -246,7 +250,7 @@
         "nameTooLong": "Trases nosaukums ir pārāk garš (maksimums 100 rakstzīmes).",
         "descriptionTooShort": "Trases aprakstam jābūt vismaz 10 rakstzīmes garam.",
         "descriptionTooLong": "Trases apraksts ir pārāk garš (maksimums 15000 rakstzīmes).",
-        "locationTooShort": "Trases vietai jābūt vismaz 5 rakstzīmes garai.",
+        "locationTooShort": "Lūdzu norādiet trases atrašanāš vietu.",
         "locationTooLong": "Trases vieta ir pārāk gara (maksimums 100 rakstzīmes).",
         "imageRequired": "Nepieciešams vismaz viens trases attēls.",
         "fixErrors": "Lūdzu, izlabojiet kļūdas pirms turpināt.",

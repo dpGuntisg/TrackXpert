@@ -38,7 +38,8 @@
     "september": "September",
     "october": "October",
     "november": "November",
-    "december": "December"
+    "december": "December",
+    "noServerResponse":"The server is not responding. Please try again in a moment."
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",
@@ -50,7 +51,7 @@
   },
   "home": {
     "title": "Where Tracks Come to Life",
-    "subtitle": "Discover, Create, and Compete Like Never Before",
+    "subtitle": "Discover, Create and Compete Like Never Before",
     "description": "Explore our wide variety of tracks – choose the ones that match your style and adventurous spirit. Start your journey by exploring the tracks added by other users or contribute by adding new locations to our community!",
     "exploreButton": "EXPLORE TRACKS",
     "features": {
@@ -125,7 +126,11 @@
     "banReason": "Ban Reason",
     "bannedUntil": "Ban Duration",
     "permanent": "Permanent",
-    "bannedMessage": "Your account has been banned. Reason: {{reason}}. Until: {{until}}"
+    "bannedMessage": "Your account has been banned. Reason: {{reason}}. Until: {{until}}",
+    "fieldsRequired": "All fields are required",
+    "nameTooShort": "Name must be at least 3 characters long",
+    "surnameTooShort": "Surname must be at least 3 characters long",
+    "passwordRequirements": "Password must contain at least one uppercase letter, one lowercase letter and a number"
   },
   "profile": {
     "title": "Profile",
@@ -241,7 +246,7 @@
         "nameTooLong": "Track name is too long (maximum 100 characters).",
         "descriptionTooShort": "Track description must be at least 10 characters long.",
         "descriptionTooLong": "Track description is too long (maximum 15000 characters).",
-        "locationTooShort": "Track location must be at least 5 characters long.",
+        "locationTooShort": "Please select the track location.",
         "locationTooLong": "Track location is too long (maximum 100 characters).",
         "imageRequired": "At least one track image is required.",
         "fixErrors": "Please fix the errors before continuing.",

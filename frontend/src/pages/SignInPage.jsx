@@ -47,8 +47,8 @@ export default function SignInPage() {
           reason: error.response.data.reason,
           until: error.response.data.bannedUntil ? new Date(error.response.data.bannedUntil).toLocaleString() : t('auth.permanent')
         }));
-      } else if (error.response && error.response.data && error.response.data.message) {
-        setError(error.response.data.message);
+      } else if (error.response?.data?.error) {
+        setError(t(error.response.data.error));
       } else if (error.request) {
         setError(t('common.noServerResponse'));
       } else {

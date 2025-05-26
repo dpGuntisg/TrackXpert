@@ -426,7 +426,7 @@ export default function TracksPage() {
                                 </button>
                             </div>
 
-                            {/* Global error message */}
+                            {/* error message */}
                             {error && (
                                 <div className="mt-4 bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
                                     <div className="flex items-center gap-2 text-red-500">

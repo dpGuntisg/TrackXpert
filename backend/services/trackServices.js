@@ -131,6 +131,10 @@ class TrackService {
         if (imagesToDelete.length > 0) {
           await Image.deleteMany({ _id: { $in: imagesToDelete } });
         }
+
+        if ((!track.thumbnailImage || !updates.thumbnailImage) && updates.images && updates.images.length > 0) {
+          track.thumbnailImage = updates.images[0];
+        }
       
         // Update the track with the new data
         Object.assign(track, updates);
