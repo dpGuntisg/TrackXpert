@@ -142,11 +142,11 @@ function CreateEventPage({ mode = 'create' }) {
         switch(stepNumber) {
             case 1:
                 if (!values.name || values.name.length < 5) {
-                    newErrors.name = t('tracks.form.validation.nameTooShort');
+                    newErrors.name = t('event.form.validation.nameTooShort');
                     isValid = false;
                 }
                 if (!values.description || values.description.length < 10) {
-                    newErrors.description = t('tracks.form.validation.descriptionTooShort');
+                    newErrors.description = t('event.form.validation.descriptionTooShort');
                     isValid = false;
                 }
                 if (!values.eventDate?.startDate || !values.eventDate?.endDate) {
@@ -158,7 +158,7 @@ function CreateEventPage({ mode = 'create' }) {
                     isValid = false;
                 }
                 if (!values.images || values.images.length === 0) {
-                    newErrors.images = t('tracks.form.validation.imageRequired');
+                    newErrors.images = t('event.form.validation.tooManyImages');
                     isValid = false;
                 }
                 break;
