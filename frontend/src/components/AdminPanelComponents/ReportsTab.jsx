@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -11,17 +11,29 @@ import {
   faTimesCircle 
 } from '@fortawesome/free-solid-svg-icons';
 import { format } from 'date-fns';
+import axiosInstance from '../../utils/axios';
+import { toast } from 'react-toastify';
+import { useAuth } from '../../context/AuthContext';
 
-const ReportsTab = ({ reports, loading, error }) => {
+const ReportsTab = ({ reports, loading, error, onReportUpdate }) => {
   const { t } = useTranslation();
   const [statusFilter, setStatusFilter] = useState('pending');
   const [expandedReports, setExpandedReports] = useState({});
+  const { user } = useAuth();
+
   
-  const handleStatusUpdate = (reportId, newStatus) => {
-    console.log(`Updating report ${reportId} to ${newStatus}`);
-    // Implementation for API call would go here
-    // await axiosInstance.patch(`/reports/${reportId}/status`, { status: newStatus });
-    // Then refetch reports or update state
+  const handleStatusUpdate = async (reportId, newStatus) => {
+    try {
+      await axiosInstance.patch(`/reports/${reportId}/status`, { 
+        status: newStatus
+      });
+      toast.success(t('report.statusUpdated'));
+      if (onReportUpdate) {
+        onReportUpdate();
+      }
+    } catch (error) {
+      toast.error(t('report.statusUpdateError'));
+    }
   };
 
   const toggleReportExpansion = (reportId) => {
@@ -111,7 +123,7 @@ const ReportsTab = ({ reports, loading, error }) => {
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-2 text-sm text-gray-300">
                   <span className="font-medium text-mainYellow">{report.reportedBy?.username}</span>
-                  <span>{t('reports.reported')}</span>
+                  <span>{t('report.reported')}</span>
                   <span className="font-medium text-white flex items-center">
                     <FontAwesomeIcon icon={getTargetTypeIcon(report.targetType)} className="mr-1 text-mainYellow" />
                     {report.targetType}
@@ -139,7 +151,7 @@ const ReportsTab = ({ reports, loading, error }) => {
                     onClick={() => toggleReportExpansion(report._id)} 
                     className="text-sm text-mainYellow hover:text-yellow-400 underline flex items-center"
                   >
-                    {expandedReports[report._id] ? t('reports.hideReason') : t('reports.showReason')}
+                    {expandedReports[report._id] ? t('report.hideReason') : t('report.showReason')}
                   </button>
                   
                   {expandedReports[report._id] && (
@@ -160,13 +172,13 @@ const ReportsTab = ({ reports, loading, error }) => {
                         className="px-4 py-1.5 text-sm font-medium bg-green-900/30 border border-green-700 text-green-400 hover:bg-green-900/50 rounded-md transition-colors"
                         onClick={() => handleStatusUpdate(report._id, 'resolved')}
                       >
-                        <FontAwesomeIcon icon={faCheckCircle} className="mr-1" /> {t('reports.resolve')}
+                        <FontAwesomeIcon icon={faCheckCircle} className="mr-1" /> {t('report.resolve')}
                       </button>
                       <button
                         className="px-4 py-1.5 text-sm font-medium bg-red-900/30 border border-red-700 text-red-400 hover:bg-red-900/50 rounded-md transition-colors"
                         onClick={() => handleStatusUpdate(report._id, 'dismissed')}
                       >
-                        <FontAwesomeIcon icon={faTimesCircle} className="mr-1" /> {t('reports.dismiss')}
+                        <FontAwesomeIcon icon={faTimesCircle} className="mr-1" /> {t('report.dismiss')}
                       </button>
                     </div>
                   ) : (
@@ -175,7 +187,7 @@ const ReportsTab = ({ reports, loading, error }) => {
                         ? "bg-green-900/30 border border-green-700 text-green-400" 
                         : "bg-red-900/30 border border-red-700 text-red-400"
                     }`}>
-                      {report.status === 'resolved' ? t('reports.resolved') : t('reports.dismissed')}
+                      {report.status === 'resolved' ? t('report.resolved') : t('report.dismissed')}
                     </span>
                   )}
                 </div>
@@ -188,8 +200,8 @@ const ReportsTab = ({ reports, loading, error }) => {
           <FontAwesomeIcon icon={faTriangleExclamation} className="text-mainYellow text-4xl mb-4" />
           <p className="text-lg text-gray-300">
             {statusFilter === 'pending' 
-              ? t('reports.noPendingReports')
-              : t('reports.noFilteredReports')}
+              ? t('report.noPendingReports')
+              : t('report.noFilteredReports')}
           </p>
         </div>
       )}

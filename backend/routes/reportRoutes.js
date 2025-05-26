@@ -24,5 +24,20 @@ router.get("/pending", verifyToken, verifyAdmin, async (req, res) => {
     }
 });
 
+router.patch('/:reportId/status', verifyToken, verifyAdmin, async (req, res) => {
+    try {
+        const { reportId } = req.params;
+        const { status } = req.body;
+        
+        if (!['pending', 'resolved', 'dismissed'].includes(status)) {
+            return res.status(400).json({ message: 'Invalid status' });
+        }
+
+        const report = await ReportServices.updateReportStatus(reportId, status, req.userId);
+        res.json(report);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
 
 export default router;

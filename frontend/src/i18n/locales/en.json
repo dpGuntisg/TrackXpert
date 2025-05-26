@@ -128,6 +128,8 @@
     "permanent": "Permanent",
     "bannedMessage": "Your account has been banned. Reason: {{reason}}. Until: {{until}}",
     "fieldsRequired": "All fields are required",
+    "nameRequired": "Name cannot be empty or consist only of spaces",
+    "surnameRequired": "Surname cannot be empty or consist only of spaces",
     "nameTooShort": "Name must be at least 3 characters long",
     "surnameTooShort": "Surname must be at least 3 characters long",
     "passwordRequirements": "Password must contain at least one uppercase letter, one lowercase letter and a number"
@@ -169,7 +171,13 @@
     "deleteSuccess": "Profile deleted successfully!",
     "successEdit": "Profile updated successfully!",
     "validation": {
-      "usernameRequired": "Username cannot be empty"
+      "usernameRequired": "Username cannot be empty",
+      "usernameTooShort": "Username must be at least 3 characters long",
+      "usernameTaken": "Username is already taken",
+      "nameRequired": "Name cannot be empty",
+      "nameTooShort": "Name must be at least 3 characters long",
+      "surnameRequired": "Surname cannot be empty",
+      "surnameTooShort": "Surname must be at least 3 characters long"
     }
   },
   "tracks": {
@@ -593,6 +601,7 @@
   "notifications": {
     "title": "Notifications",
     "noNotifications": "No new notifications",
+    "noSentRequests": "No sent requests",
     "markAllRead": "Mark all as read",
     "viewAll": "View all notifications",
     "sentRequests": "Sent requests",
@@ -642,5 +651,26 @@
       "deleted": "Deleted",
       "joined": "Joined"
     }
+  },
+  "report": {
+    "title": "Report",
+    "warning": "Warning",
+    "falseReportWarning": "Submitting false or malicious reports may result in account suspension or permanent ban. Please ensure your report is accurate and legitimate.",
+    "instructions": "Instructions",
+    "instructionsDetail": "Please provide specific details about your report. Include relevant information such as timestamps, content details, and why you believe this needs attention.",
+    "reasonLabel": "Reason for Report",
+    "reasonPlaceholder": "Describe the issue in detail...",
+    "submit": "Submit Report",
+    "success": "Report submitted successfully",
+    "error": "Failed to submit report",
+    "showReason": "Show reason",
+    "hideReason": "Hide reason",
+    "reported": "reported",
+    "resolve": "Resolve",
+    "dismiss": "Dismiss",
+    "resolved": "Resolved",
+    "dismissed": "Dismissed",
+    "noPendingReports": "No pending reports",
+    "noFilteredReports": "No reports found"
   }
 } 

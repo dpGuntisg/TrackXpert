@@ -5,7 +5,7 @@ const reportSchema = new mongoose.Schema({
     targetType: { type: String, enum: ['User', 'Track', 'Event'], required: true },
     targetId: { type: mongoose.Schema.Types.ObjectId, required: true },
     reason: { type: String, required: true },
-    status: { type: String, enum: ['pending', 'reviewed', 'dismissed'], default: 'pending' },
+    status: { type: String, enum: ['pending', 'resolved', 'dismissed'], default: 'pending' },
     createdAt: { type: Date, default: Date.now, expires: '7d' },
     reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   });

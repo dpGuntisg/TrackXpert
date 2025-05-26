@@ -20,6 +20,23 @@ class ReportService {
             .populate("reportedBy", "username")
         return pendingreports;
     }
+
+    static async updateReportStatus(reportId, status, reviewedBy) {
+        try {
+            const report = await Report.findById(reportId);
+            if (!report) {
+                throw new Error('Report not found');
+            }
+
+            report.status = status;
+            report.reviewedBy = reviewedBy;
+            await report.save();
+
+            return report;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 export default ReportService;

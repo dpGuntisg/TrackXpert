@@ -116,6 +116,7 @@
     "alreadyHaveAccount": "Jau ir konts?",
     "signInHere": "Ieiet šeit",
     "loginError": "Nepareizs e-pasts vai parole",
+    "nameRequired": "Vārds nevar būt tukšs vai sastāvēt tikai no atstarpēm",
     "signUpError": "Kļūda veidojot kontu",
     "passwordMismatch": "Paroles nesakrīt",
     "invalidEmail": "Lūdzu ievadiet derīgu e-pasta adresi",
@@ -127,6 +128,7 @@
     "permanent": "Pastāvīgs",
     "bannedMessage": "Jūsu konts ir Bloķēts. Iemesls: {{reason}}. Līdz: {{until}}",
     "fieldsRequired": "Visi lauki ir obligāti",
+    "surnameRequired": "Uzvārds nevar būt tukšs vai sastāvēt tikai no atstarpēm",
     "nameTooShort": "Vārdam jābūt vismaz 3 rakstzīmes garam",
     "surnameTooShort": "Uzvārdam jābūt vismaz 3 rakstzīmes garam",
     "passwordRequirements": "Parolei jāsatur vismaz viena lielā burtā, viena mazā burtā un viens cipars"
@@ -168,7 +170,13 @@
     "deleteSuccess": "Profils veiksmīgi dzēsts!",
     "successEdit": "Profils veiksmīgi rediģēts!",
     "validation": {
-      "usernameRequired": "Lietotājvārds nevar būt tukšs"
+      "usernameRequired": "Lietotājvārds nevar būt tukšs",
+      "usernameTooShort": "Lietotājvārdam jābūt vismaz 3 rakstzīmes garam",
+      "usernameTaken": "Lietotājvārds jau ir aizņemts",
+      "nameRequired": "Vārds nevar būt tukšs",
+      "nameTooShort": "Vārdam jābūt vismaz 3 rakstzīmes garam",
+      "surnameRequired": "Uzvārds nevar būt tukšs",
+      "surnameTooShort": "Uzvārdam jābūt vismaz 3 rakstzīmes garam"
     }
   },
   "map": {
@@ -593,6 +601,7 @@
   "notifications": {
     "title": "Paziņojumi",
     "noNotifications": "Nav jauni paziņojumi",
+    "noSentRequests": "Nav sūtītu paziņojumi",
     "markAllRead": "Atzīmēt visus kā lasītus.",
     "viewAll": "Apskatīt visus paziņojumus",
     "sentRequests": "Sūtītie ziņojumi.",
@@ -642,5 +651,26 @@
       "deleted": "Dzēsa",
       "joined": "Pievienojās"
     }
+  },
+  "report": {
+    "title": "Ziņot",
+    "warning": "Brīdinājums",
+    "falseReportWarning": "Nepatiess vai ļaunprātīgs ziņojums var novest pie jūsu konta bloķēšanu. Lūdzu, pārliecinieties, ka jūsu ziņojums ir precīzs un pamatots.",
+    "instructions": "Instrukcijas",
+    "instructionsDetail": "Lūdzu, sniedziet konkrētu informāciju par ziņojumu. Iekļaujiet attiecīgos datus, piemēram, laika zīmogus, saturu un iemeslu, kāpēc uzskatāt, ka tas prasa uzmanību.",
+    "reasonLabel": "Ziņojuma iemesls",
+    "reasonPlaceholder": "Aprakstiet problēmu pēc iespējas detalizētāk...",
+    "submit": "Iesniegt ziņojumu",
+    "success": "Ziņojums veiksmīgi iesniegts",
+    "error": "Neizdevās iesniegt ziņojumu",
+    "showReason": "Parādīt iemeslu",
+    "hideReason": "Paslēpt iemeslu",
+    "reported": "ziņots",
+    "resolve": "Atrisināt",
+    "dismiss": "Noraidīt",
+    "resolved": "Atrisināts",
+    "dismissed": "Noraidīts",
+    "noPendingReports": "Nav neapstrādātu ziņojumu",
+    "noFilteredReports": "Nav atrastu ziņojumu"
   }
 } 

@@ -606,7 +606,7 @@ export default function TrackDetailPage() {
                                 triggerComponent={
                                     <button className="flex items-center gap-2 bg-red-900/30 border border-red-700 text-red-400  px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
                                         <FontAwesomeIcon icon={faTriangleExclamation} className="text-mainRed" />
-                                        Report
+                                        {t("report.title")}
                                     </button>
                                 }
                             />

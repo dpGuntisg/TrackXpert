@@ -6,7 +6,7 @@ import {
   faHeart, faCalendarAlt, faTicketAlt, 
   faTag, faFlagCheckered, faRoad, faCar, faStar, faCog, faLightbulb,
   faChevronLeft, faChevronRight, faArrowLeft, faClock,
-  faCheckCircle, faTimesCircle, faPencil, faTrash
+  faCheckCircle, faTimesCircle, faPencil, faTrash, faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
@@ -16,6 +16,7 @@ import TrackCard from "../components/TrackCard.jsx";
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import RegistrationModal from '../components/RegistrationModal';
 import EventParticipants from '../components/EventParticipants';
+import ReportForm from "../components/ReportForm.jsx";
 
 
 //Return the appropriate icon for a tag category
@@ -369,6 +370,20 @@ const EventDetailPage = () => {
                 }`}>
                   {t(`event.status.${eventStatus}`)}
                 </div>
+
+                {/* Report button */}
+                {(userId !== event.created_by?._id) &&(
+                    <div className="absolute bottom-6 right-6">
+                        <ReportForm targetType="Event" targetId={event._id}
+                            triggerComponent={
+                                <button className="flex items-center gap-2 bg-red-900/80 border border-red-700 text-red-400  px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
+                                    <FontAwesomeIcon icon={faTriangleExclamation} className="text-mainRed" />
+                                    {t("report.title")}
+                                </button>
+                            }
+                        />
+                    </div>
+                )}
               </div>
             </div>
             

@@ -117,16 +117,36 @@ export default function ProfilePage() {
     };
     
     const handleProfileEdit = async () => {
-        if (!newUsername.trim()) {
-            setError(t('profile.validation.usernameRequired'));
+        const errors = {};
+        
+        if (!newUsername || !newUsername.trim()) {
+            errors.username = t('profile.validation.usernameRequired');
+        } else if (newUsername.trim().length < 3) {
+            errors.username = t('profile.validation.usernameTooShort');
+        }
+        
+        if (!newName || !newName.trim()) {
+            errors.name = t('profile.validation.nameRequired');
+        } else if (newName.trim().length < 3) {
+            errors.name = t('profile.validation.nameTooShort');
+        }
+        
+        if (!newSurname || !newSurname.trim()) {
+            errors.surname = t('profile.validation.surnameRequired');
+        } else if (newSurname.trim().length < 3) {
+            errors.surname = t('profile.validation.surnameTooShort');
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setError(Object.values(errors)[0]);
             return;
         }
 
         try {
             const updateData = {
-                name: newName,
-                surname: newSurname,
-                username: newUsername,
+                name: newName.trim(),
+                surname: newSurname.trim(),
+                username: newUsername.trim(),
                 phonenumber: newPhonenumber || null
             };
 
