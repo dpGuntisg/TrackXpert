@@ -19,6 +19,14 @@ const UserGrowthChart = ({ data }) => {
     return { day, userCount: foundDay ? foundDay.count : 0 };
   });
 
+  if (!data || data.length === 0) {
+  return (
+    <div className="text-center py-8 text-gray-400">
+      {t('admin.noDataAvailable')}
+    </div>
+  );
+}
+
   // Determine the maximum y-value for better scaling
   const maxY = Math.max(...currentMonthData.map(d => d.userCount), 0);
   const yAxisTicks = Array.from({ length: maxY + 1 }, (_, i) => i);

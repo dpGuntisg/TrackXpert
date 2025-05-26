@@ -17,6 +17,13 @@ const TracksPerCountryChart = ({ data }) => {
   const maxY = Math.max(...formattedData.map(d => d.y), 0);
   const yAxisTicks = Array.from({ length: maxY + 1 }, (_, i) => i);
 
+  if (!data || data.length === 0) {
+  return (
+    <div className="text-center py-8 text-gray-400">
+      {t('admin.noDataAvailable')}
+    </div>
+  );
+}
   return (
     <div className="w-full mt-20"> 
       <VictoryChart

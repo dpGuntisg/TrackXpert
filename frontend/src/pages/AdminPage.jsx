@@ -165,7 +165,7 @@ const AdminPage = () => {
                             <div className="flex justify-center items-center py-12">
                                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainYellow"></div>
                             </div>
-                        ) : tracksPerCountry && tracksPerCountry.length > 0 ? (
+                        ) : userCount !== null ? (
                             <>
                                 {/* Summary Statistics Section */}
                                 <div className="bg-accentBlue rounded-xl shadow-md p-6">
@@ -220,18 +220,27 @@ const AdminPage = () => {
                                             <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-mainYellow" />
                                             {t('admin.tracksPerCountry')}
                                         </h2>
-                                        <div className="">
-                                            <TracksPerCountryChart data={tracksPerCountry} />
+                                        {tracksPerCountry?.length > 0 ? (
+                                        <TracksPerCountryChart data={tracksPerCountry} />
+                                    ) : (
+                                        <div className="text-gray-400 text-center py-8">
+                                        {t('admin.noDataAvailable')}
                                         </div>
+                                    )}
                                     </div>
                                     <div className="bg-accentBlue rounded-xl shadow-md p-6">
-                                        <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center text-white">
-                                            <FontAwesomeIcon icon={faMapMarkerAlt} className="mr-2 text-mainYellow" />
-                                            {t('admin.userGrowth')}
-                                        </h2>
-                                        <div>
-                                            <UserGrowthChart data={growthCounts.map((count, index) => ({ day: growthDates[index], count }))} />
+                                       {growthDates?.length > 0 && growthCounts.some(count => count > 0) ? (
+                                        <UserGrowthChart 
+                                            data={growthCounts.map((count, index) => ({ 
+                                                day: growthDates[index], 
+                                                count 
+                                            }))} 
+                                        />
+                                    ) : (
+                                        <div className="text-gray-400 text-center py-8">
+                                            {t('admin.noDataAvailable')}
                                         </div>
+                                    )}
                                     </div>
                                 </div>
                             </>
