@@ -112,9 +112,10 @@ const SearchAndFilter = ({
         ref={searchPanelRef}
         className={`fixed left-0 top-0 h-screen bg-accentBlue shadow-lg transition-transform duration-300 ease-in-out transform ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } w-[280px] sm:w-[320px] z-[40]`}
+        } w-[280px] sm:w-[320px] z-[40] flex flex-col`}
       >
-        <div className="p-4 mt-20">
+        {/* Header Section */}
+        <div className="flex-shrink-0 p-4 mt-20">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold text-mainYellow">{t('common.search')}</h2>
             <button
@@ -133,18 +134,19 @@ const SearchAndFilter = ({
               autoFocus={isOpen}
             />
           </div>
-          
-          {/* Filter Component */}
-          <div className="mt-6">
-            <h3 className="text-lg font-semibold text-mainYellow mb-4">{t('common.filter')}</h3>
-            <Filter 
-              onFilterChange={handleFilterChange}
-              type={type}
-              activeCategory={activeCategory}
-              onCategorySelect={handleCategorySelect}
-              initialFilters={filters}
-            />
-          </div>
+          <h3 className="text-lg font-semibold text-mainYellow mb-4">{t('common.filter')}</h3>
+        </div>
+        
+        {/* Filter Component*/}
+        <div className="flex-1 px-4 overflow-hidden">
+          <Filter 
+            onFilterChange={handleFilterChange}
+            type={type}
+            activeCategory={activeCategory}
+            onCategorySelect={handleCategorySelect}
+            initialFilters={filters}
+            className="h-full"
+          />
         </div>
       </div>
 
@@ -159,4 +161,4 @@ const SearchAndFilter = ({
   );
 };
 
-export default SearchAndFilter; 
+export default SearchAndFilter;
