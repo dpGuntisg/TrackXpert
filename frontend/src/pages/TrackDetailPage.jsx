@@ -2,7 +2,9 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler, faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock, faCheck, faInfoCircle, faTriangleExclamation, faExclamationCircle } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler,
+     faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock, faCheck, faInfoCircle,
+     faTriangleExclamation, faExclamationCircle,} from '@fortawesome/free-solid-svg-icons';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import { MapSelector, startIcon, endIcon} from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
@@ -14,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { getTagIcon, getTagInfoUniversal } from '../utils/tagUtils.js';
 
 // Map component with React.memo to prevent unnecessary re-renders
 const TrackMap = React.memo(({ coordinates, polyline }) => {
@@ -64,6 +67,7 @@ const TrackMap = React.memo(({ coordinates, polyline }) => {
     </div>
   );
 });
+
 
 export default function TrackDetailPage() {
     const { t } = useTranslation();
@@ -631,8 +635,31 @@ export default function TrackDetailPage() {
                     </div>
                 </div>
 
+                                    {/* Tags section - Add this after the basic info overlay */}
+                    <div className="flex flex-wrap gap-2 px-4 bg-accentBlue py-2 rounded-b-xl mb-4">
+                    {track.tags && track.tags.map((tag, idx) => {
+                        const tagInfo = getTagInfoUniversal(tag, t);
+                        if (!tagInfo) return null;
+                        
+                        return (
+                        <span 
+                            key={idx} 
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-sm bg-gray-800 text-white font-medium border border-gray-700"
+                        >
+                            <FontAwesomeIcon 
+                            icon={getTagIcon(tagInfo.category)} 
+                            className="text-mainYellow" 
+                            />
+                            <span>{tagInfo.label}</span>
+                        </span>
+                        );
+                    })}
+                    </div>
+                
                 {/* User Contact Card */}
                 <UserContact created_by={track.created_by} />
+
+                
                 
                 {/* Action buttons for track owner */}
                 <div className="flex space-x-4 justify-end mt-8">

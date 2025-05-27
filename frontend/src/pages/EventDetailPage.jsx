@@ -3,8 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faHeart, faCalendarAlt, faTicketAlt, 
-  faTag, faFlagCheckered, faRoad, faCar, faStar, faCog, faLightbulb,
+  faHeart, faCalendarAlt, faTicketAlt, faFlagCheckered,
   faChevronLeft, faChevronRight, faArrowLeft, faClock,
   faCheckCircle, faTimesCircle, faPencil, faTrash, faTriangleExclamation
 } from '@fortawesome/free-solid-svg-icons';
@@ -17,60 +16,8 @@ import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import RegistrationModal from '../components/RegistrationModal';
 import EventParticipants from '../components/EventParticipants';
 import ReportForm from "../components/ReportForm.jsx";
+import { getTagIcon, getTagInfoUniversal } from '../utils/tagUtils.js';
 
-
-//Return the appropriate icon for a tag category
-const getTagIcon = (category) => {
-  switch (category) {
-    case 'trackType':
-    case 'eventType':
-      return faFlagCheckered;
-    case 'surfaceType':
-      return faRoad;
-    case 'vehicleType':
-    case 'vehicleRequirements':
-      return faCar;
-    case 'difficulty':
-      return faStar;
-    case 'specialFeatures':
-      return faLightbulb;
-    case 'eventFormat':
-      return faCog;
-    default:
-      return faTag;
-  }
-};
-
-//Get tag information from translation keys
-const getTagInfoUniversal = (tag, t) => {
-  // Try event categories first
-  const eventCategories = ['eventType', 'difficulty', 'vehicleRequirements', 'specialFeatures', 'eventFormat'];
-  for (const category of eventCategories) {
-    const label = t(`tags.event.${category}.${tag}`);
-    if (label && label !== `tags.event.${category}.${tag}`) {
-      return {
-        category,
-        label,
-        type: 'event'
-      };
-    }
-  }
-  
-  // Try track categories
-  const trackCategories = ['trackType', 'difficulty', 'surfaceType', 'vehicleType', 'specialFeatures'];
-  for (const category of trackCategories) {
-    const label = t(`tags.track.${category}.${tag}`);
-    if (label && label !== `tags.track.${category}.${tag}`) {
-      return {
-        category,
-        label,
-        type: 'track'
-      };
-    }
-  }
-  
-  return null;
-};
 
 //Format a date string to a localized format
 const formatDate = (dateString) => {

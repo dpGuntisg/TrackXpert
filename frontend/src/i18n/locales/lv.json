@@ -253,6 +253,7 @@
       "tagHelper": "Lūdzu, izvēlieties vismaz vienu tagu",
       "locationDetails": "Vietas informācija",
       "enterLocationDetails": "Ievadiet konkrētas vietas aprakstu (piem., ielas adrese, orientieris)",
+      "tagCounter": "{{total}}/12 izvēlēti tagi (Trases tipi: {{trackType}}/4)",
       "errors": {
         "nameTooShort": "Trases nosaukumam jābūt vismaz 5 rakstzīmes garam.",
         "nameTooLong": "Trases nosaukums ir pārāk garš (maksimums 100 rakstzīmes).",

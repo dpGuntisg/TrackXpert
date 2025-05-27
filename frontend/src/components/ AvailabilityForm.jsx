@@ -91,7 +91,7 @@ export const AvailabilityForm = ({ availability, setAvailability, error, setErro
             </h4>
 
             {availability.length > 0 && (
-                <div className="space-y-2">
+                <div className="space-y-2 max-h-[200px] overflow-y-auto">
                     <p className="text-sm font-medium text-gray-300">{t('availability.selectedTimeSlots')}:</p>
                     {availability.map((slot, index) => (
                         <div key={index} className="flex items-center justify-between bg-gray-800 p-3 rounded-lg">
@@ -113,8 +113,8 @@ export const AvailabilityForm = ({ availability, setAvailability, error, setErro
             )}
 
             <div className="space-y-2">
-                <div className="flex gap-3">
-                    <div className="flex-1">
+                <div className="flex flex-col md:flex-row gap-3">
+                    <div className="flex-1 space-y-2">
                         <label className="block text-sm font-medium text-gray-300">{t('availability.startDay')}</label>
                         <select
                             name="startDay"

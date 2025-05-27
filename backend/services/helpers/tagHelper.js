@@ -80,14 +80,14 @@ export const validateTrackTags = (tags) => {
     }
 
     // Check total number of tags
-    if (tags.length > 8) {
-        throw new Error("Track cannot have more than 8 tags total");
+    if (tags.length > 12) {
+        throw new Error("Track cannot have more than 12 tags total");
     }
 
     // Check track type tags limit
     const trackTypeTags = tags.filter(tag => TRACK_TAG_CATEGORIES.trackType.includes(tag));
-    if (trackTypeTags.length > 2) {
-        throw new Error("Track cannot have more than 2 track type tags");
+    if (trackTypeTags.length > 4) {
+        throw new Error("Track cannot have more than 4 track type tags");
     }
 
     // Check difficulty tags limit

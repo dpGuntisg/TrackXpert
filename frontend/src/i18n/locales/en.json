@@ -249,6 +249,7 @@
       "requestFormTitle": "Track Participation Request",
       "bookSession": "Book a track session",
       "selectedTags": "Selected Tags",
+      "tagCounter": "{{total}}/12 izvēlēti tagi (Trases tipi: {{trackType}}/4)",
       "errors": {
         "nameTooShort": "Track name must be at least 5 characters long.",
         "nameTooLong": "Track name is too long (maximum 100 characters).",
