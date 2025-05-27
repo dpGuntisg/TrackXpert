@@ -2,14 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faBell, faExclamation, faUser, faSignOutAlt, faHome, faRoute, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faTimes, faBell, faExclamation, faUser, faSignOutAlt, faHome, faRoute, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import { useTranslation } from 'react-i18next';
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useAuth } from '../context/AuthContext';
 import TrackRequest from './TrackRequest';
 import EventRequest from './EventRequest';
 import logo from '../assets/logo.png';
-
 
 const Navbar = () => {
   const { t } = useTranslation();
@@ -22,7 +21,8 @@ const Navbar = () => {
   const [eventRequests, setEventRequests] = useState([]);
   const navigate = useNavigate();
   const notificationsRef = useRef(null);
-  
+  const mobileMenuRef = useRef(null);
+
   useEffect(() => {
     const getProfile = async () => {
       if (!userId) return;
@@ -44,8 +44,15 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Handle notifications dropdown
       if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
         setIsNotificationsOpen(false);
+      }
+      // Handle mobile menu
+      if (mobileMenuRef.current && 
+          !mobileMenuRef.current.contains(event.target) &&
+          !event.target.closest('button[aria-label="Menu"]')) {
+        setIsNavOpen(false);
       }
     };
 
@@ -66,12 +73,10 @@ const Navbar = () => {
         axiosInstance.get("/event-registrations/pending")
       ]);
       
-      // Handle track requests
       const pendingTrackRequests = Array.isArray(trackRequestsRes.data) 
         ? trackRequestsRes.data.filter(request => request.status === 'pending')
         : [];
       
-      // Handle event requests
       const pendingEventRequests = Array.isArray(eventRequestsRes.data) 
         ? eventRequestsRes.data.filter(request => request.status === 'pending')
         : [];
@@ -103,6 +108,10 @@ const Navbar = () => {
     `relative hover:bg-mainRed text-left rounded transition-all duration-50 font-bold
      sm:hover:text-mainRed sm:transition-all sm:hover:bg-transparent sm:justify-center flex items-center gap-2
      ${isActive ? "text-mainRed" : ""}`;
+
+  const mobileLinkClass = ({ isActive }) => 
+    `flex items-center gap-3 px-4 py-3 rounded-lg font-bold transition-colors duration-200
+     ${isActive ? 'text-mainRed' : 'text-mainYellow hover:bg-mainRed/10'}`;
 
   const pendingRequestsCount = trackRequests.length + eventRequests.length;
 
@@ -140,7 +149,7 @@ const Navbar = () => {
           </div>
 
           {/* Right side items */}
-          <div className=" md:w-1/4 flex items-center space-x-4">
+          <div className="md:w-1/4 flex items-center space-x-4">
             <LanguageSwitcher />
             {isUserLoggedIn() ? (
               <>
@@ -203,11 +212,11 @@ const Navbar = () => {
             ) : (
               <>
                 <NavLink to="/signin" className="relative w-auto text-center overflow-hidden text-mainRed hover:bg-mainRed rounded transition-all duration-500
-                                               sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap font-bold">
+                                               sm:px-6 sm:py-2 sm:rounded hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap font-bold hidden md:flex">
                   {t('navbar.signin')}
                 </NavLink>
                 <NavLink to="/signup" className="relative w-auto text-center overflow-hidden hover:bg-mainRed rounded transition-all duration-500
-                                               sm:px-6 sm:py-2 sm:rounded sm:hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap font-bold">
+                                               sm:px-6 sm:py-2 sm:rounded sm:hover:text-mainYellow min-w-0 flex-shrink-0 whitespace-nowrap font-bold hidden md:flex">
                   {t('navbar.signup')}
                 </NavLink>
               </>
@@ -215,36 +224,104 @@ const Navbar = () => {
 
             {/* Mobile menu button */}
             <button 
-              onClick={toggleNavbar} 
-              className="md:hidden p-2 text-mainRed hover:text-mainYellow transition-colors">
-              <FontAwesomeIcon icon={faBars} className="text-xl" />
+              onClick={toggleNavbar}
+              aria-label="Menu"
+              className="md:hidden p-2 text-mainRed hover:text-mainYellow transition-colors"
+            >
+              <FontAwesomeIcon icon={isNavOpen ? faTimes : faBars} className="text-xl" />
             </button>
           </div>
         </div>
+      </div>
 
-        {/* Mobile Navigation */}
-        {isNavOpen && (
-          <div className="md:hidden py-2">
-            <NavLink to="/" className={navLinkClass}>
-              <FontAwesomeIcon icon={faHome} />
-              <span>{t('navbar.home')}</span>
-            </NavLink>
-            <NavLink to="/tracks" className={navLinkClass}>
-              <FontAwesomeIcon icon={faRoute} />
-              <span>{t('navbar.tracks')}</span>
-            </NavLink>
-            <NavLink to="/events" className={navLinkClass}>
-              <FontAwesomeIcon icon={faCalendarAlt} />
-              <span>{t('navbar.events')}</span>
-            </NavLink>
-            {isUserLoggedIn() && (
-              <NavLink to="/profile" className={navLinkClass}>
-                <FontAwesomeIcon icon={faUser} />
-                <span>{t('navbar.profile')}</span>
+      {/* Mobile Navigation */}
+      <div className={`fixed inset-0 z-50 md:hidden ${isNavOpen ? 'visible' : 'invisible'}`}>
+        {/* Backdrop */}
+        <div 
+          className={`fixed inset-0 bg-black/50 transition-opacity duration-300 ${
+            isNavOpen ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={toggleNavbar}
+        />
+
+        {/* Sidebar Menu */}
+        <div
+          ref={mobileMenuRef}
+          className={`fixed top-0 right-0 h-full w-64 bg-accentBlue transform transition-transform duration-300 ease-in-out shadow-xl ${
+            isNavOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          <div className="flex flex-col h-full">
+            <div className="p-4 border-b border-accentGray">
+              <img src={logo} alt="Logo" className="w-12 h-12" />
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              <NavLink to="/" onClick={toggleNavbar} className={mobileLinkClass}>
+                <FontAwesomeIcon icon={faHome} />
+                <span>{t('navbar.home')}</span>
               </NavLink>
-            )}
+              
+              <NavLink to="/tracks" onClick={toggleNavbar} className={mobileLinkClass}>
+                <FontAwesomeIcon icon={faRoute} />
+                <span>{t('navbar.tracks')}</span>
+              </NavLink>
+
+              <NavLink to="/events" onClick={toggleNavbar} className={mobileLinkClass}>
+                <FontAwesomeIcon icon={faCalendarAlt} />
+                <span>{t('navbar.events')}</span>
+              </NavLink>
+
+              {isUserLoggedIn() && (
+                <>
+                  <NavLink to="/profile" onClick={toggleNavbar} className={mobileLinkClass}>
+                    <FontAwesomeIcon icon={faUser} />
+                    <span>{t('navbar.profile')}</span>
+                  </NavLink>
+                  <NavLink to="/notifications" onClick={toggleNavbar} className={mobileLinkClass}>
+                    <FontAwesomeIcon icon={faBell} />
+                    <span>{t('navbar.notifications')}</span>
+                    {pendingRequestsCount > 0 && (
+                      <span className="ml-auto flex items-center justify-center w-4 h-4 bg-mainRed text-white text-xs font-bold rounded-full">
+                        <FontAwesomeIcon icon={faExclamation} />
+                      </span>
+                    )}
+                  </NavLink>
+                </>
+              )}
+            </div>
+
+            {/* Mobile Footer Section */}
+            <div className="p-4 border-t border-accentGray">
+              {isUserLoggedIn() ? (
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-2 text-mainRed hover:text-mainYellow transition-colors font-bold"
+                >
+                  <FontAwesomeIcon icon={faSignOutAlt} />
+                  <span>{t('navbar.signout')}</span>
+                </button>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <NavLink
+                    to="/signin"
+                    onClick={toggleNavbar}
+                    className="text-center py-2 text-mainRed hover:text-mainYellow transition-colors font-bold"
+                  >
+                    {t('navbar.signin')}
+                  </NavLink>
+                  <NavLink
+                    to="/signup"
+                    onClick={toggleNavbar}
+                    className="text-center py-2 text-white bg-mainRed/80 hover:bg-mainRed rounded-lg transition-colors font-bold"
+                  >
+                    {t('navbar.signup')}
+                  </NavLink>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Alert Message */}

@@ -89,7 +89,8 @@
     "signin": "SIGN IN",
     "signout": "SIGN OUT",
     "tracks": "TRACKS",
-    "events": "EVENTS"
+    "events": "EVENTS",
+    "notifications": "NOTIFICATIONS"
   },
   "auth": {
     "welcomeBack": "Welcome Back",
