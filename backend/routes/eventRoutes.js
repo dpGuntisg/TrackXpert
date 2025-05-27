@@ -77,4 +77,22 @@ router.post("/:id/unlike", verifyToken, async (req, res) => {
     }
 });
 
+router.get("/profile/:userId/events", verifyToken, async (req, res) => {
+    try {
+        const events = await EventService.getEventsByUserId(req.params.userId);
+        res.status(200).json({ message: "User events fetched successfully", events });
+    } catch (error) {
+        res.status(error.status || 500).json({ message: error.message });
+    }
+});
+
+router.get("/profile/:userId/liked", verifyToken, async (req, res) => {
+    try {
+        const events = await EventService.getLikedEvents(req.params.userId);
+        res.status(200).json({ message: "Liked events fetched successfully", events });
+    } catch (error) {
+        res.status(error.status || 500).json({ message: error.message });
+    }
+});
+
 export default router;

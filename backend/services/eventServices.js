@@ -223,7 +223,14 @@ class EventService {
     static async getEventsById(eventId) {
         try {
             const event = await Event.findOne({ _id: eventId, ...activeOnly() })
-                .populate("created_by", "username _id email") 
+                .populate({
+                    path: "created_by",
+                    select: "username _id email phonenumber profile_image",
+                    populate: {
+                    path: "profile_image",
+                    select: "data mimeType"
+                    }
+                }) 
                 .populate("images", "data mimeType")
                 .populate({
                     path: "tracks",
@@ -252,15 +259,16 @@ class EventService {
 
     static async getEventsByUserId(userId) {
         try {
+            if (!userId) throw new Error("User ID is required");
+            
             const events = await Event.find({ created_by: userId })
-                .populate("created_by", "username email") 
+                .populate("created_by", "username email")
                 .populate("thumbnailImage", "data mimeType");
-
-            if (!events.length) throw new Error("No events found for this user");
+            
             return events;
         } catch (error) {
-            console.log(error);
-            throw new Error("Events not found!");
+            console.error("Error in getEventsByUserId:", error);
+            throw error;
         }
     }
 

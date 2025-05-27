@@ -156,7 +156,10 @@
     "profilePicture": "Profile Picture",
     "createdTracks": "Created Tracks",
     "createdEvents": "Created Events",
-    "likedTracks": "Liked",
+    "liked": "Liked",
+    "likedTracks": "Liked Tracks",
+    "likedEvents": "Liked Events",
+    "noLikedEvents":"No liked events yet.",
     "noTracks": "No tracks created yet.",
     "noEvents": "No events created yet.",
     "noLiked": "No tracks liked yet.",
@@ -554,8 +557,8 @@
     "cannotRegisterAsCreator": "You cannot register for your own event",
     "downloadTicket": "Download Ticket",
     "deletedSuccess": "Event deleted successfully!",
-    "updatedSuccsesfully": "Event updated successfully!",
-    "createdSuccsesfully": "Event created successfully!",
+    "updatedSuccessfully": "Event updated successfully!",
+    "createdSuccessfully": "Event created successfully!",
     "status": {
       "completed": "Completed",
       "active": "Active",
@@ -601,7 +604,13 @@
     "registrationRejected": "Registration rejected",
     "registrationRejectedMessage": "Your registration request has been rejected by the organizer",
     "noRegistrationInstructions": "No specific registration instructions provided. Please contact the organizer if you have any questions.",
-    "defaultRegistrationMessage": "You are about to register for this event. Please review the event details and click the register button below to confirm your participation."
+    "defaultRegistrationMessage": "You are about to register for this event. Please review the event details and click the register button below to confirm your participation.",
+    "noLikedEvents": "No liked events yet.",
+    "likedEvents": "Liked",
+    "createdEvents": "Created Events",
+    "eventsError": "Failed to fetch events",
+    "likedEventsError": "Failed to fetch liked events",
+    "createdEventsError": "Failed to fetch created events"
   },
   "notifications": {
     "title": "Notifications",

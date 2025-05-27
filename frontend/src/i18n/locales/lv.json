@@ -155,7 +155,10 @@
     "profilePicture": "Profila Attēls",
     "createdTracks": "Izveidotās Trases",
     "createdEvents": "Izveidotie Pasākumi",
-    "likedTracks": "Patīk",
+    "liked": "Patīk",
+    "likedTracks": "Iecienītās trases",
+    "likedEvents": "Iecienītie pasākumi",
+    "noLikedEvents":"Vēl nav neviena iecienītā pasākuma.",
     "noTracks": "Vēl nav izveidotu trašu.",
     "noEvents": "Vēl nav izveidotu pasākumu.",
     "noLiked": "Vēl nav nevienas iecienītās trases.",
@@ -532,7 +535,6 @@
     "registrationRejected": "Reģistrācija noraidīta",
     "registrationRejectedMessage": "Jūsu reģistrācijas pieprasījums ir noraidīts no organizatora puses",
     "noRegistrationInstructions": "Nav norādītu specifisku reģistrācijas instrukciju. Lūdzu, sazinieties ar organizatoru, ja jums ir kādi jautājumi.",
-    
     "liked": "Patīk",
     "unliked": "Nepatīk",
     "like": "Patīk",
@@ -561,8 +563,8 @@
     "cannotRegisterAsCreator": "Jūs nevarat reģistrēties savā pasākumā",
     "downloadTicket": "Lejupielādēt Biļeti",
     "deletedSuccess": "Pasākums izdzests!",
-    "updatedSuccsesfully": "Pasākums atjaunots!",
-    "createdSuccsesfully": "Pasākums izveidots!",
+    "updatedSuccessfully": "Pasākums atjaunots!",
+    "createdSuccessfully": "Pasākums izveidots!",
     "status": {
       "completed": "Pabeigts",
       "active": "Aktīvs",
@@ -602,7 +604,13 @@
     "dates": "Datumi",
     "registered": "Jūs esat reģistrējies šim pasākumam",
     "registrationConfirmed":"Jūs esat apstiprināts un pievienots pasākumam.",
-    "defaultRegistrationMessage": "Jūs gatavojaties reģistrēties šim pasākumam. Lūdzu, pārskatiet pasākuma detaļas un noklikšķiniet uz reģistrēšanās pogas zemāk, lai apstiprinātu savu dalību."
+    "defaultRegistrationMessage": "Jūs gatavojaties reģistrēties šim pasākumam. Lūdzu, pārskatiet pasākuma detaļas un noklikšķiniet uz reģistrēšanās pogas zemāk, lai apstiprinātu savu dalību.",
+    "noLikedEvents": "Vēl nav neviena iecienītā pasākuma.",
+    "likedEvents": "Patīk",
+    "createdEvents": "Izveidotie Pasākumi",
+    "eventsError": "Neizdevās iegūt pasākumus",
+    "likedEventsError": "Neizdevās iegūt iecienītos pasākumus",
+    "createdEventsError": "Neizdevās iegūt izveidotos pasākumus"
   },
   "notifications": {
     "title": "Paziņojumi",

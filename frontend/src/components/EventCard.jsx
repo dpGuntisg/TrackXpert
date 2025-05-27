@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
-import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faCalendar, faTag, faFlagCheckered,faRoad, faCar, faStar, faCog, faLightbulb,} from '@fortawesome/free-solid-svg-icons';
 
@@ -102,11 +101,6 @@ const EventCard = ({ event }) => {
             const updatedEvent = response.data.event;
             setIsLiked(!isLiked);
             setLikeCount(updatedEvent.likes.length);
-            if (isLiked) {
-                toast.warning('You unliked this event!');
-            } else {
-                toast.success('You liked this event!');
-            }
         } catch (error) {
             console.error('Error updating like status:', error);
         }
