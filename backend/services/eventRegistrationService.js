@@ -176,8 +176,13 @@ class EventRegistrationService {
 
             // Update event's current participants count if approved
             if (status === 'approved' && !registration.event.unlimitedParticipants) {
-                registration.event.currentParticipants += 1;
-                await registration.event.save();
+                const event = await Event.findById(registration.event._id);
+                if (event) {
+                    // Ensure currentParticipants is a number and handle NaN
+                    const currentCount = Number(event.currentParticipants) || 0;
+                    event.currentParticipants = currentCount + 1;
+                    await event.save();
+                }
             }
 
             return registration;

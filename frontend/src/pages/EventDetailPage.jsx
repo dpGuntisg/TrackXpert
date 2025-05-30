@@ -43,10 +43,12 @@ const EventDetailPage = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [isRegistered, setIsRegistered] = useState(false);
+  const [registrationStatus, setRegistrationStatus] = useState(null); // Add separate state for registration status
   const [isRegistrationOpen, setIsRegistrationOpen] = useState(false);
   const [isEventCreator, setIsEventCreator] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState(false);
   const [showRegistrationModal, setShowRegistrationModal] = useState(false);
+  const [registrationLoading, setRegistrationLoading] = useState(false); // Add loading state for registration
 
   // Fetch event data
   useEffect(() => {
@@ -78,21 +80,7 @@ const EventDetailPage = () => {
         
         // Check if user is already registered
         if (userId) {
-          try {
-            const registrationResponse = await axiosInstance.get(`/event-registrations/user`);
-            const userRegistration = registrationResponse.data.registrations.find(
-              reg => reg.event._id === id
-            );
-            setIsRegistered(!!userRegistration);
-            if (userRegistration) {
-              setEvent(prev => ({
-                ...prev,
-                registrationStatus: userRegistration.status
-              }));
-            }
-          } catch (error) {
-            console.error('Error checking registration status:', error);
-          }
+          await checkRegistrationStatus();
         }
         
         setLoading(false);
@@ -110,6 +98,33 @@ const EventDetailPage = () => {
 
     fetchEvent();
   }, [id, userId, t, navigate]);
+
+  const checkRegistrationStatus = async () => {
+    if (!userId) {
+      setIsRegistered(false);
+      setRegistrationStatus(null);
+      return;
+    }
+
+    try {
+      const registrationResponse = await axiosInstance.get(`/event-registrations/user`);
+      const userRegistration = registrationResponse.data.registrations.find(
+        reg => reg.event._id === id
+      );
+      
+      if (userRegistration) {
+        setIsRegistered(true);
+        setRegistrationStatus(userRegistration.status);
+      } else {
+        setIsRegistered(false);
+        setRegistrationStatus(null);
+      }
+    } catch (error) {
+      console.error('Error checking registration status:', error);
+      setIsRegistered(false);
+      setRegistrationStatus(null);
+    }
+  };
 
 // Handles like/unlike button click
   const handleLikeClick = async () => {
@@ -138,27 +153,46 @@ const EventDetailPage = () => {
     }
     
     try {
+      setRegistrationLoading(true);
+      
       await axiosInstance.post(`/event-registrations/register/${id}`, {
         registrationInfo: registrationInfo || null
       });
       
-      // Close modal and show success message
       setShowRegistrationModal(false);
-      toast.success(t('event.registrationSuccess'));
       
-      // Refetch event data to update UI
-      const response = await axiosInstance.get(`/events/${id}`);
-      setEvent(response.data.event);
+      // Update registration state
       setIsRegistered(true);
+      
+      // Check if the event requires manual approval to determine the status
+      if (event.requireManualApproval) {
+        setRegistrationStatus('pending');
+        toast.success(t('event.registrationSubmitted')); // 
+      } else {
+        setRegistrationStatus('approved');
+        toast.success(t('event.registrationSuccess'));
+      }
+      
+      // Refetch event data to get updated participant count
+      const response = await axiosInstance.get(`/events/${id}`);
+      setEvent(prev => ({
+        ...prev,
+        ...response.data.event
+      }));
       
     } catch (error) {
       console.error('Error during registration:', error);
       toast.error(error.response?.data?.message || t('common.error'));
+      // Reset registration state on error
+      setIsRegistered(false);
+      setRegistrationStatus(null);
+    } finally {
+      setRegistrationLoading(false);
     }
   };
 
 
-   //Handles image carousel navigation
+   //Handle image carousel navigation
 
   const handleImageNavigation = (direction) => {
     if (!event || !event.images || event.images.length <= 1) return;
@@ -461,9 +495,9 @@ const EventDetailPage = () => {
                   {isRegistered ? (
                     <div className={`p-3 rounded-lg ${
                       event.requireManualApproval 
-                        ? (event.registrationStatus === 'pending' 
+                        ? (registrationStatus === 'pending' 
                           ? 'bg-yellow-900/30 border border-yellow-700'
-                          : event.registrationStatus === 'rejected'
+                          : registrationStatus === 'rejected'
                           ? 'bg-red-900/30 border border-red-700'
                           : 'bg-green-900/30 border border-green-700')
                         : 'bg-green-900/30 border border-green-700'
@@ -471,31 +505,31 @@ const EventDetailPage = () => {
                       <div className="flex items-center gap-2">
                         <FontAwesomeIcon 
                           icon={event.requireManualApproval 
-                            ? (event.registrationStatus === 'pending' 
+                            ? (registrationStatus === 'pending' 
                               ? faClock
-                              : event.registrationStatus === 'rejected'
+                              : registrationStatus === 'rejected'
                               ? faTimesCircle
                               : faCheckCircle)
                             : faCheckCircle} 
                           className={event.requireManualApproval 
-                            ? (event.registrationStatus === 'pending' 
+                            ? (registrationStatus === 'pending' 
                               ? 'text-yellow-500'
-                              : event.registrationStatus === 'rejected'
+                              : registrationStatus === 'rejected'
                               ? 'text-red-500'
                               : 'text-green-500')
                             : 'text-green-500'} 
                         />
                         <p className="font-medium text-white">
                           {event.requireManualApproval 
-                            ? (event.registrationStatus === 'pending' 
+                            ? (registrationStatus === 'pending' 
                               ? t('event.registrationPending')
-                              : event.registrationStatus === 'rejected'
+                              : registrationStatus === 'rejected'
                               ? t('event.registrationRejected')
                               : t('event.registrationConfirmed'))
                             : t('event.registrationConfirmed')}
                         </p>
                       </div>
-                      {event.requireManualApproval && event.registrationStatus === 'rejected' && (
+                      {event.requireManualApproval && registrationStatus === 'rejected' && (
                         <p className="text-sm text-gray-300 mt-1">
                           {t('event.registrationRejectedMessage')}
                         </p>
@@ -504,14 +538,16 @@ const EventDetailPage = () => {
                   ) : (
                     <button
                       onClick={() => setShowRegistrationModal(true)}
-                      disabled={!userId || (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) || isEventCreator}
+                      disabled={registrationLoading || !userId || (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) || isEventCreator}
                       className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                        !userId || (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) || isEventCreator
+                        registrationLoading || !userId || (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) || isEventCreator
                           ? 'bg-gray-700 cursor-not-allowed opacity-60'
                           : 'bg-mainRed hover:bg-red-700'
                       } text-white`}
                     >
-                      {!userId
+                      {registrationLoading
+                        ? t('common.loading')
+                        : !userId
                         ? t('event.loginToRegister')
                         : isEventCreator
                         ? t('event.cannotRegisterAsCreator')
@@ -520,7 +556,7 @@ const EventDetailPage = () => {
                         : t('event.register')}
                     </button>
                   )}
-                  {isRegistered && event.registrationStatus === 'approved' && (
+                  {isRegistered && registrationStatus === 'approved' && (
                     <button 
                       onClick={handleTicketDownload} 
                       className="w-full py-3 px-4 rounded-lg mt-4 font-medium transition-colors bg-mainRed hover:bg-red-700"
