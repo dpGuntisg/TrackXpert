@@ -243,29 +243,20 @@ const EventDetailPage = () => {
     }
   };
 
-    // If event is null, return nothing
-    if (!event) return null;
-
-    const eventStartDate = new Date(event.date?.startDate);
-    const eventEndDate = new Date(event.date?.endDate);
-    const registrationStartDate = new Date(event.registrationDate?.startDate);
-    const registrationEndDate = new Date(event.registrationDate?.endDate);
-    
-    const now = new Date();
-    const eventStatus = now > eventEndDate ? 'completed' : (now >= eventStartDate ? 'active' : 'upcoming');
-  
-
-  // Loading state
+    // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainRed"></div>
+      <div className="flex h-screen w-screen items-center justify-center bg-mainBlue">
+        <div className="flex flex-col items-center">
+          <div className="loader ease-linear rounded-full border-4 border-t-4 border-mainRed h-12 w-12 mb-4"></div>
+          <p className="text-lg">{t('event.loading')}</p>
+        </div>
       </div>
     );
   }
 
   // Error state
-  if (error) {
+  if (error && error !== "No token provided" && error !== "Invalid or expired token") {
     return (
       <div className="min-h-screen p-4 flex flex-col items-center justify-center">
         <div className="text-mainRed text-6xl mb-4"><FontAwesomeIcon icon={faTimesCircle} /></div>
@@ -278,6 +269,18 @@ const EventDetailPage = () => {
       </div>
     );
   }
+
+  // If event is null after loading and no error, render nothing
+  if (!event) return null;
+
+    const eventStartDate = new Date(event.date?.startDate);
+    const eventEndDate = new Date(event.date?.endDate);
+    const registrationStartDate = new Date(event.registrationDate?.startDate);
+    const registrationEndDate = new Date(event.registrationDate?.endDate);
+    
+    const now = new Date();
+    const eventStatus = now > eventEndDate ? 'completed' : (now >= eventStartDate ? 'active' : 'upcoming');
+  
 
   return (
     <div className="min-h-screen bg-mainBlue text-white p-4 sm:p-6 md:p-8">

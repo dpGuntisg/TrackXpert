@@ -48,37 +48,32 @@
     "privacy": "Privātuma politika"
   },
   "home": {
-    "title": "Kur Trases Iegūst Dzīvību",
-    "subtitle": "Atklāj, Radi un Sacientes Kā Nekad Iepriekš",
+    "title": "Kur trases gūst dzīvību",
+    "subtitle": "Atklāj, radi un sacenties kā nekad iepriekš",
     "description": "Izpēti mūsu plašo trašu klāstu – izvēlies tās, kas atbilst tavam stilam un piedzīvojumu garam. Sāc savu ceļojumu, izpētot citiem lietotājiem pievienotās trases, vai pievieno jaunas vietas mūsu kopienai!",
     "exploreButton": "IZPĒTĪT TRASES",
     "features": {
       "createTracks": {
-        "title": "Izveido Savas Trases",
+        "title": "Izveido savas trases",
         "description": "Dalies ar savām iecienītākajām braukšanas vietām. Atzīmē atrašanās vietas vai zīmē detalizētus maršrutus kartē."
       },
       "joinTracks": {
-        "title": "Pievienojies Trašu Sesijām",
+        "title": "pievienojies trašu sesijām",
         "description": "Sazinies ar trašu īpašniekiem un piedalies aizraujošās braukšanas sesijās. Izmēģini jaunas trases kopā ar citiem entuziastiem."
       },
       "createEvents": {
-        "title": "Organizē Pasākumus",
+        "title": "Organizē pasākumus",
         "description": "Izveido un vadi savas trašu dienas, sacensības vai neformālas tikšanās. Vieno kopienu."
       },
       "joinEvents": {
-        "title": "Piedalies Pasākumos",
+        "title": "Piedalies pasākumos",
         "description": "Atrodi un piedalies aizraujošos auto pasākumos. No trašu dienām līdz čempionātiem, katram kaut kas atradīsies."
       },
       "discover": {
-        "title": "Atklāj Jaunus Maršrutus",
+        "title": "Atklāj Jaunus maršrutus",
         "description": "Izpēti augošo trašu un maršrutu kolekciju. Atrodi slēptās pērles un populārās vietas savā apkārtnē."
-      },
-      "progress": {
-        "title": "Seko Savam Progresam",
-        "description": "Seko līdzi savām apmeklētajām vietām un pasākumiem. Veido savu braukšanas portfolio."
       }
-    },
-    "tutorialPlaceholder": "Iespējams, pamācība vai kaut kas tāds."
+    }
   },
   "navbar": {
     "home": "SĀKUMS",
@@ -505,6 +500,7 @@
   },
   "event": {
     "title": "Izpēti Pasākumus",
+    "loading": "Ielādē pasākumus...",
     "createEventDescription": "Izpildiet visus soļus lai izveidotu pasākumu",
     "editEventDescription": "Izpildiet visus soļus lai rediģētu pasākumu",
     "createEvent": "Izveidot Pasākumu",
@@ -561,6 +557,8 @@
     "registrationFull": "Pasākums ir pilns",
     "loginToRegister": "Ielogoties, lai reģistrētos",
     "cannotRegisterAsCreator": "Jūs nevarat reģistrēties savā pasākumā",
+    "registrationSubmitted": "Reģistrācijas pieprasījums ir iesniegts",
+    "registrationPendingApproval": "Jūsu reģistrācija ir iesniegta un gaida apstiprinājumu no pasākuma organizatora.",
     "downloadTicket": "Lejupielādēt Biļeti",
     "deletedSuccess": "Pasākums izdzests!",
     "updatedSuccessfully": "Pasākums atjaunots!",

@@ -506,6 +506,7 @@
   },
   "event": {
     "title": "Explore Events",
+    "loading": "Loading events...", 
     "createEvent": "Create Event",
     "editEvent": "Edit Event",
     "deleteEvent": "Delete Event",
@@ -558,6 +559,7 @@
     "downloadTicket": "Download Ticket",
     "deletedSuccess": "Event deleted successfully!",
     "updatedSuccessfully": "Event updated successfully!",
+    "registrationSubmitted": "Registration request submitted successfully!",
     "createdSuccessfully": "Event created successfully!",
     "status": {
       "completed": "Completed",
