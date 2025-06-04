@@ -38,14 +38,6 @@ const EventParticipants = ({ eventId }) => {
         );
     }
 
-    if (error) {
-        return (
-            <div className="text-red-500 text-sm p-4">
-                {error}
-            </div>
-        );
-    }
-
     return (
         <div className="bg-accentBlue p-6 rounded-xl shadow-lg">
             <h2 className="text-xl font-semibold mb-4 border-b border-mainRed pb-2 flex items-center">
