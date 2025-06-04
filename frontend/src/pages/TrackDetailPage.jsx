@@ -604,7 +604,7 @@ export default function TrackDetailPage() {
                     </div>
                     
                     {/* Report button */}
-                    {(userId !== track.created_by?._id) &&(
+                    {( userId && userId !== track.created_by?._id) &&(
                         <div className="absolute bottom-6 right-6">
                             <ReportForm targetType="Track" targetId={track._id}
                                 triggerComponent={

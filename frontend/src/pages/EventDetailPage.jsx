@@ -356,7 +356,7 @@ const EventDetailPage = () => {
                 </div>
 
                 {/* Report button */}
-                {(userId !== event.created_by?._id) &&(
+                {( userId && userId !== event.created_by?._id) &&(
                     <div className="absolute bottom-6 right-6">
                         <ReportForm targetType="Event" targetId={event._id}
                             triggerComponent={
