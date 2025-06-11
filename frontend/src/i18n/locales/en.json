@@ -627,7 +627,11 @@
     "wantsToRegister": "wants to register for the event:",
     "requestToRegister": "for event:",
     "registrationInfo": "Registration information:",
-    "noRegistrationInfo": "No registration information provided"
+    "noRegistrationInfo": "No registration information provided",
+    "trackRequestAccepted": "You have accepted the request to join the track",
+    "trackRequestRejected": "You have rejected the request to join the track",
+    "eventRequestAccepted": "You have accepted the request to register for the event",
+    "eventRequestRejected": "You have rejected the request to register for the event"
   },
   "admin": {
     "title": "Admin Panel",

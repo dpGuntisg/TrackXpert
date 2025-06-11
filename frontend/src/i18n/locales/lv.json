@@ -623,7 +623,11 @@
     "wantsToRegister": "vēlās reģistrēties pasākumā:",
     "requestToRegister": "pasākumam:",
     "registrationInfo": "Reģistrācijas informācija:",
-    "noRegistrationInfo": "Nav norādītas reģistrācijas informācijas"
+    "noRegistrationInfo": "Nav norādītas reģistrācijas informācijas",
+    "trackRequestAccepted": "Tu esi apstiprinājis pieprasījumu pievienoties trasei",
+    "trackRequestRejected": "Tu esi noraidījis pieprasījumu pievienoties trasei",
+    "eventRequestAccepted": "Tu esi apstiprinājis reģistrācijas pieprasījumu pasākumam",
+    "eventRequestRejected": "Tu esi noraidījis reģistrācijas pieprasījumu pasākumam"
   },
   "admin": {
     "title": "Administratora panelis",
