@@ -18,6 +18,8 @@ export default function NotificationPage() {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('notifications');
+    const [selectedRequests, setSelectedRequests] = useState([]);
+    const [selectionMode, setSelectionMode] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
@@ -82,6 +84,26 @@ export default function NotificationPage() {
             setError(error.response?.data?.message || t('notifications.updateError'));
         }
     };
+    
+    const toggleSelection = () => {
+        setSelectionMode(!selectionMode);
+        if (selectionMode) {
+            // If exiting selection mode, clear selected requests
+            setSelectedRequests([]);
+        }
+    };
+
+    const handleSelectRequest = (requestId) => {
+        if (selectionMode) {
+            setSelectedRequests((prevSelected) => {
+                if (prevSelected.includes(requestId)) {
+                    return prevSelected.filter(id => id !== requestId);
+                } else {
+                    return [...prevSelected, requestId];
+                }
+            });
+        }
+    };
 
     if (isLoading) {
         return (
@@ -111,7 +133,7 @@ export default function NotificationPage() {
                                 <div className="relative">
                                     <FontAwesomeIcon icon={faEnvelope} className="size-6"/>
                                     {(trackRequests.length + eventRequests.length) > 0 && (
-                                        <span className="absolute -top-2 -right-2 text-xs bg-mainRed text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
+                                        <span className="absolute -top-2 -right-2 text-xs bg-mainRed text-white px-1.5 py-0.5 rounded-sm min-w-[18px] text-center leading-none">
                                             {trackRequests.length + eventRequests.length}
                                         </span>
                                     )}
@@ -145,7 +167,9 @@ export default function NotificationPage() {
                         {/* Delete Button */}
                         {((activeTab === 'notifications' && (trackRequests.length > 0 || eventRequests.length > 0)) ||
                         (activeTab === 'sent' && (sentTrackRequests.length > 0 || sentEventRequests.length > 0))) && (
-                            <button className="px-3 py-3 sm:px-6 font-medium text-gray-400 hover:text-mainRed flex items-center text-sm sm:text-base transition-colors duration-200 hover:bg-mainRed/10 rounded-lg">
+                            <button className="px-3 py-3 sm:px-6 font-medium text-gray-400 hover:text-mainRed flex items-center text-sm sm:text-base transition-colors duration-200 hover:bg-mainRed/10 rounded-lg"
+                                onClick={toggleSelection}
+                            >
                                 <FontAwesomeIcon icon={faTrash} className="size-5" />
                                 <span className="hidden sm:inline ml-2">{t('common.delete')}</span>
                             </button>
@@ -177,6 +201,9 @@ export default function NotificationPage() {
                                     showActions={true}
                                     className="bg-accentBlue"
                                     action={t('notifications.wantsToJoin')}
+                                    selectionMode={selectionMode}
+                                    selected={selectedRequests.includes(request._id)}
+                                    onSelect={handleSelectRequest}
                                 />
                             ))}
                             {eventRequests.map((request) => (
@@ -205,6 +232,9 @@ export default function NotificationPage() {
                                     showActions={false}
                                     className="bg-accentBlue"
                                     isSentByCurrentUser={request.sender?.id === user?.id}
+                                    selectionMode={selectionMode}
+                                    selected={selectedRequests.includes(request._id)}
+                                    onSelect={handleSelectRequest}
                                 />
                             ))}
                             {sentEventRequests.map((request) => (

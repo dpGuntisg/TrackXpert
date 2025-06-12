@@ -115,6 +115,23 @@ class TrackRequestService {
 
         return request;
     }
+
+    static async deleteRequests(requestIds, userId) {
+        const ids = Array.isArray(requestIds) ? requestIds : [requestIds];
+
+        const requests = await TrackRequest.find({
+            _id: { $in: ids },
+            $or: [{ sender: userId }, { receiver: userId }]
+        });
+
+        if (requests.length === 0) throw new Error("No deletable requests found");
+
+        const idsToDelete = requests.map(r => r._id);
+        await TrackRequest.deleteMany({ _id: { $in: idsToDelete } });
+
+        return { message: "Requests deleted successfully" };
+    }
+
 }
 
 export default TrackRequestService;
