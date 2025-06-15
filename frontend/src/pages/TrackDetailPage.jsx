@@ -121,6 +121,8 @@ export default function TrackDetailPage() {
         tags: false,
         joining_details: false
     });
+    const [hasExistingRequest, setHasExistingRequest] = useState(false);
+    const [requestStatus, setRequestStatus] = useState(null);
     // Format distance with memoization
     const formattedDistance = useMemo(() => {
         return `${parseFloat(track.distance).toFixed(2).replace('.', ',')} km`;
@@ -433,7 +435,33 @@ export default function TrackDetailPage() {
         return `${hourNum % 12 || 12}:${minute} ${ampm}`;
     };
 
+    // Add this function to check for existing requests
+    const checkExistingRequest = useCallback(async () => {
+        if (!userId) return;
+        try {
+            const response = await axiosInstance.get("/track-requests/sent-requests");
+            const existingRequest = response.data.find(request => request.track._id === trackId);
+            setHasExistingRequest(!!existingRequest);
+            if (existingRequest) {
+                setRequestStatus(existingRequest.status);
+            }
+        } catch (error) {
+            console.error("Error checking existing request:", error);
+        }
+    }, [userId, trackId]);
+
+    // Add effect to check for existing requests when track data is loaded
+    useEffect(() => {
+        if (track._id) {
+            checkExistingRequest();
+        }
+    }, [track._id, checkExistingRequest]);
+
     const openRegisterForm = () => {
+        if (hasExistingRequest) {
+            toast.info(t('tracks.alreadyRequested'));
+            return;
+        }
         setRegisterForm(!registerForm);
     };
 
@@ -450,11 +478,40 @@ export default function TrackDetailPage() {
             setRequests(response.data);
             setContent(''); 
             setRegisterForm(false);
+            setHasExistingRequest(true);
+            toast.success(t('tracks.requestSent'));
         } catch (error) {
             console.error('Error details:', error.response?.data);
             setError(error.response?.data?.message || t('common.error'));
         }
     }
+
+    const getButtonText = () => {
+        switch (requestStatus) {
+            case 'pending':
+                return t('common.pending');
+            case 'accepted':
+                return t('common.approved');
+            case 'rejected':
+                return t('common.rejected');
+            default:
+                return t('tracks.form.bookSession');
+        }
+    };
+
+    const getButtonStyle = () => {
+        switch (requestStatus) {
+            case 'pending':
+                return 'bg-gray-600 cursor-not-allowed';
+            case 'accepted':
+                return 'bg-green-600 cursor-not-allowed';
+            case 'rejected':
+                return 'bg-red-600 cursor-not-allowed';
+            default:
+                return 'bg-mainRed hover:bg-red-700';
+        }
+    };
+
     // Render loading state
     if (loading) {
         return (
@@ -684,12 +741,13 @@ export default function TrackDetailPage() {
                     {track.joining_enabled === true && userId && userId !== track.created_by._id && (
                         <>
                         <button 
-                            className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl" 
+                            className={`flex items-center gap-2 ${getButtonStyle()} text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl`} 
                             onClick={openRegisterForm}
+                            disabled={hasExistingRequest}
                         >
-                            {t('tracks.form.bookSession')}
+                            {getButtonText()}
                         </button>
-                        {registerForm && (
+                        {registerForm && !hasExistingRequest && (
                             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
                                 <div className="bg-accentBlue rounded-xl shadow-lg max-w-2xl w-full p-6 relative">
                                     {/* Close button */}

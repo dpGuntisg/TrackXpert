@@ -220,6 +220,8 @@
     "back": "Back",
     "creating": "Creating...",
     "more": "more",
+    "alreadyRequested": "You have already requested to join this track.",
+    "requestSent": "Request sent successfully!",
     "form": {
       "trackName": "Track Name",
       "enterTrackName": "Enter the track name *",

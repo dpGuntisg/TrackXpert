@@ -221,6 +221,8 @@
     "saveChanges": "Saglabāt Izmaiņas",
     "back": "Atpakaļ",
     "creating": "Izveido...",
+    "alreadyRequested": "Jūs jau esat pieprasījis pievienoties šai trasei.",
+    "requestSent": "Pieprasījums veiksmīgi nosūtīts!",
     "form": {
       "trackName": "Trases Nosaukums",
       "enterTrackName": "Ievadiet trases nosaukumu *",
