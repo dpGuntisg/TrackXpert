@@ -632,16 +632,15 @@ export default function ProfilePage() {
             </div>
 
             {/* Delete Confirmation Modal */}
-            {deleteConfirmation && (
-                <DeleteConfirmationModal 
-                    onCancel={() => setDeleteConfirmation(false)}
-                    onConfirm={handleProfileDelete}
-                    title={t('profile.deleteProfile')}
-                    message={t('profile.confirmDelete')}
-                    confirmText={t('profile.confirmDelete')}
-                    cancelText={t('profile.cancel')}
-                />
-            )}
+            <DeleteConfirmationModal 
+                isOpen={deleteConfirmation}
+                onCancel={() => setDeleteConfirmation(false)}
+                onConfirm={handleProfileDelete}
+                title={t('profile.deleteProfile')}
+                message={t('profile.confirmDelete')}
+                confirmText={t('profile.confirmDelete')}
+                cancelText={t('profile.cancel')}
+            />
         </div>
     );
 }

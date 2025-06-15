@@ -941,16 +941,15 @@ export default function TrackDetailPage() {
                 )}
 
                 {/* Delete Confirmation Modal */}
-                {deleteConfirmation && (
-                    <DeleteConfirmationModal 
-                        onCancel={() => setDeleteConfirmation(false)}
-                        onConfirm={handleDelete}
-                        title={t('tracks.deleteTrack')}
-                        message={t('tracks.confirmDelete')}
-                        confirmText={t('tracks.confirmDelete')}
-                        cancelText={t('tracks.cancel')}
-                    />
-                )}
+                <DeleteConfirmationModal 
+                    isOpen={deleteConfirmation}
+                    onCancel={() => setDeleteConfirmation(false)}
+                    onConfirm={handleDelete}
+                    title={t('tracks.deleteTrack')}
+                    message={t('tracks.confirmDelete')}
+                    confirmText={t('tracks.confirmDelete')}
+                    cancelText={t('tracks.cancel')}
+                />
             </div>
         </div>
     );

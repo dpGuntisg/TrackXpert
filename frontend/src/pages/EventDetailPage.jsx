@@ -658,16 +658,15 @@ const EventDetailPage = () => {
       </div>
       
       {/* Delete Confirmation Modal */}
-      {deleteConfirmation && (
-        <DeleteConfirmationModal 
-          onCancel={() => setDeleteConfirmation(false)}
-          onConfirm={handleDelete}
-          title={t('event.deleteEvent')}
-          message={t('event.confirmDelete')}
-          confirmText={t('event.confirmDelete')}
-          cancelText={t('common.cancel')}
-        />
-      )}
+      <DeleteConfirmationModal 
+        isOpen={deleteConfirmation}
+        onCancel={() => setDeleteConfirmation(false)}
+        onConfirm={handleDelete}
+        title={t('event.deleteEvent')}
+        message={t('event.confirmDelete')}
+        confirmText={t('event.confirmDelete')}
+        cancelText={t('common.cancel')}
+      />
 
       {/* Registration Modal */}
       <RegistrationModal
