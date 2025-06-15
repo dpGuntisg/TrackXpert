@@ -664,8 +664,6 @@ const EventDetailPage = () => {
         onConfirm={handleDelete}
         title={t('event.deleteEvent')}
         message={t('event.confirmDelete')}
-        confirmText={t('event.confirmDelete')}
-        cancelText={t('common.cancel')}
       />
 
       {/* Registration Modal */}

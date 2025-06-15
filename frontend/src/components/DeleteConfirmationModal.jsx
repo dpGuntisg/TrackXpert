@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
-const DeleteConfirmationModal = ({ isOpen, onClose, onCancel, onConfirm, title, message, confirmText, cancelText }) => {
+const DeleteConfirmationModal = ({ isOpen, onClose, onCancel, onConfirm, title, message }) => {
     const { t } = useTranslation();
     
     if (!isOpen) return null;
@@ -28,13 +28,13 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onCancel, onConfirm, title, 
                         onClick={handleClose}
                         className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors"
                     >
-                        {cancelText || t('common.cancel')}
+                        {t('common.cancel')}
                     </button>
                     <button
                         onClick={onConfirm}
                         className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                     >
-                        {confirmText || t('common.delete')}
+                        {t('common.delete')}
                     </button>
                 </div>
             </div>

@@ -947,8 +947,6 @@ export default function TrackDetailPage() {
                     onConfirm={handleDelete}
                     title={t('tracks.deleteTrack')}
                     message={t('tracks.confirmDelete')}
-                    confirmText={t('tracks.confirmDelete')}
-                    cancelText={t('tracks.cancel')}
                 />
             </div>
         </div>

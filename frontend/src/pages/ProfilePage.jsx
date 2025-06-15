@@ -638,8 +638,6 @@ export default function ProfilePage() {
                 onConfirm={handleProfileDelete}
                 title={t('profile.deleteProfile')}
                 message={t('profile.confirmDelete')}
-                confirmText={t('profile.confirmDelete')}
-                cancelText={t('profile.cancel')}
             />
         </div>
     );
