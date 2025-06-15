@@ -1,222 +1,196 @@
 import EventRegistration from "../models/EventRegistration.js";
 import Event from "../models/Event.js";
-import mongoose from "mongoose";
+import User from "../models/User.js";
+import { logActivity } from "./helpers/logHelper.js";
+import crypto from "crypto";
 
 class EventRegistrationService {
-    static async registerForEvent(eventId, userId, registrationInfo = null) {
-        try {
-            // Check if event exists and is not completed
-            const event = await Event.findById(eventId);
-            if (!event) {
-                throw new Error("Event not found");
-            }
+    static async createRegistration(userId, eventId, registrationInfo) {
+        const event = await Event.findById(eventId);
+        if (!event) throw new Error("Event not found");
 
-            // Check if event is completed
-            if (event.status === 'completed') {
-                throw new Error("Cannot register for completed events");
-            }
+        // Check if registration is open
+        const now = new Date();
+        if (now < event.registrationDate.startDate || now > event.registrationDate.endDate) {
+            throw new Error("Registration is not open for this event");
+        }
 
-            // Check if registration period is open
-            const now = new Date();
-            const startDate = new Date(event.registrationDate.startDate);
-            const endDate = new Date(event.registrationDate.endDate);
-            // Set end date to end of day (23:59:59) to include the full end date
-            endDate.setHours(23, 59, 59, 999);
+        // Check if user is already registered
+        const existingRegistration = await EventRegistration.findOne({ event: eventId, user: userId });
+        if (existingRegistration) {
+            throw new Error("You are already registered for this event");
+        }
 
-            if (now < startDate || now > endDate) {
-                throw new Error('Registration is not open for this event');
-            }
+        // Check if user is already in approvedParticipants
+        const isAlreadyApproved = event.approvedParticipants.some(p => p.user.toString() === userId);
+        if (isAlreadyApproved) {
+            throw new Error("You are already registered for this event");
+        }
 
-            // Check if event has reached maximum participants
-            if (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) {
-                throw new Error("Event has reached maximum participants");
-            }
+        // Check if event is full
+        if (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) {
+            throw new Error("Event is full");
+        }
 
-            // Check if user is already registered
-            const existingRegistration = await EventRegistration.findOne({
-                event: eventId,
-                user: userId
-            });
+        // Create registration
+        const registration = await EventRegistration.create({
+            event: eventId,
+            user: userId,
+            registrationInfo,
+            status: event.requireManualApproval ? 'pending' : 'approved'
+        });
 
-            if (existingRegistration) {
-                throw new Error("Already registered for this event");
-            }
+        // If manual approval is not required, automatically approve
+        if (!event.requireManualApproval) {
+            // Generate ticket ID
+            const timestamp = Date.now();
+            const uniqueString = `${userId}-${eventId}-${timestamp}`;
+            const ticketId = crypto.createHash('sha256').update(uniqueString).digest('hex').substring(0, 12).toUpperCase();
 
-            // Create new registration with appropriate status
-            const registration = await EventRegistration.create({
-                event: eventId,
+            // Add to approved participants
+            event.approvedParticipants.push({
                 user: userId,
-                registrationInfo: registrationInfo,
-                status: event.requireManualApproval ? 'pending' : 'approved'
+                ticketId,
+                registeredAt: new Date()
             });
+            event.currentParticipants += 1;
+            await event.save();
 
-            // Only update participants count if auto-approved
-            if (!event.requireManualApproval && !event.unlimitedParticipants) {
+            // Update registration with ticket ID
+            registration.ticketId = ticketId;
+            await registration.save();
+        }
+
+        await logActivity(userId, 'registered_for_event', {
+            eventId: event._id,
+            eventName: event.name,
+            status: registration.status
+        });
+
+        return registration;
+    }
+
+    static async updateRegistrationStatus(registrationId, userId, status) {
+        const registration = await EventRegistration.findById(registrationId);
+        if (!registration) throw new Error("Registration not found");
+
+        const event = await Event.findById(registration.event);
+        if (!event) throw new Error("Event not found");
+
+        // Check if user has permission to update status
+        if (event.created_by.toString() !== userId) {
+            throw new Error("Unauthorized");
+        }
+
+        // Update registration status
+        registration.status = status;
+        await registration.save();
+
+        // If approved, add to event's approved participants
+        if (status === 'approved') {
+            // Check if already approved
+            const isAlreadyApproved = event.approvedParticipants.some(p => p.user.toString() === registration.user.toString());
+            if (!isAlreadyApproved) {
+                // Generate ticket ID
+                const timestamp = Date.now();
+                const uniqueString = `${registration.user}-${event._id}-${timestamp}`;
+                const ticketId = crypto.createHash('sha256').update(uniqueString).digest('hex').substring(0, 12).toUpperCase();
+
+                // Add to approved participants
+                event.approvedParticipants.push({
+                    user: registration.user,
+                    ticketId,
+                    registeredAt: new Date()
+                });
                 event.currentParticipants += 1;
                 await event.save();
-            }
 
-            return registration;
-        } catch (error) {
-            console.error("Error registering for event:", error);
-            throw error;
+                // Update registration with ticket ID
+                registration.ticketId = ticketId;
+                await registration.save();
+            }
         }
-    }
 
-    static async getEventRegistrations(eventId) {
-        try {
-            return await EventRegistration.find({ event: eventId })
-                .populate({
-                    path: 'user',
-                    select: 'username email profile_image',
-                    populate: {
-                        path: 'profile_image',
-                        select: 'data mimeType'
-                    }
-                })
-                .sort({ registeredAt: -1 });
-        } catch (error) {
-            console.error("Error fetching event registrations:", error);
-            throw error;
-        }
-    }
+        await logActivity(userId, 'updated_registration_status', {
+            registrationId: registration._id,
+            eventId: event._id,
+            eventName: event.name,
+            status
+        });
 
-    static async getUserRegistrations(userId) {
-        try {
-            return await EventRegistration.find({ user: userId })
-                .populate('event', 'name date status')
-                .sort({ registeredAt: -1 });
-        } catch (error) {
-            console.error("Error fetching user registrations:", error);
-            throw error;
-        }
-    }
-
-    static async cancelRegistration(eventId, userId) {
-        try {
-            const registration = await EventRegistration.findOneAndDelete({
-                event: eventId,
-                user: userId
-            });
-
-            if (!registration) {
-                throw new Error("Registration not found");
-            }
-
-            // Update event's current participants count
-            const event = await Event.findById(eventId);
-            if (event && !event.unlimitedParticipants) {
-                event.currentParticipants = Math.max(0, event.currentParticipants - 1);
-                await event.save();
-            }
-
-            return registration;
-        } catch (error) {
-            console.error("Error canceling registration:", error);
-            throw error;
-        }
-    }
-
-    static async getPendingRegistrations(userId) {
-        try {
-            // Find events created by the user that require manual approval
-            const events = await Event.find({
-                created_by: new mongoose.Types.ObjectId(userId),
-                requireManualApproval: true
-            }).select('_id');
-
-            if (!events || events.length === 0) {
-                return [];
-            }
-
-            const eventIds = events.map(event => event._id);
-
-            // Get all pending registrations for these events
-            return await EventRegistration.find({
-                event: { $in: eventIds },
-                status: 'pending'
-            })
-            .populate({
-                path: 'user',
-                select: 'username email profile_image',
-                populate: {
-                    path: 'profile_image',
-                    select: 'data mimeType'
-                }
-            })
-            .populate('event', 'name')
-            .sort({ registeredAt: -1 });
-        } catch (error) {
-            console.error("Error fetching pending registrations:", error);
-            throw error;
-        }
-    }
-
-    static async updateRegistrationStatus(registrationId, status, userId) {
-        try {
-            const registration = await EventRegistration.findById(registrationId)
-                .populate("event", "name created_by")
-                .populate("user", "username");
-
-            if (!registration) {
-                throw new Error("Registration not found");
-            }
-
-            // Check if the user is the event creator
-            if (registration.event.created_by.toString() !== userId) {
-                throw new Error("Unauthorized to update registration status");
-            }
-
-            if (!['pending', 'approved', 'rejected'].includes(status)) {
-                throw new Error(`Invalid status: ${status}. Valid statuses are: pending, approved, rejected`);
-            }
-
-            registration.status = status;
-            await registration.save();
-
-            // Update event's current participants count if approved
-            if (status === 'approved' && !registration.event.unlimitedParticipants) {
-                const event = await Event.findById(registration.event._id);
-                if (event) {
-                    // Ensure currentParticipants is a number and handle NaN
-                    const currentCount = Number(event.currentParticipants) || 0;
-                    event.currentParticipants = currentCount + 1;
-                    await event.save();
-                }
-            }
-
-            return registration;
-        } catch (error) {
-            console.error("Error updating registration status:", error);
-            throw error;
-        }
+        return registration;
     }
 
     static async deleteRegistrations(registrationIds, userId) {
-        const ids = Array.isArray(registrationIds) ? registrationIds : [registrationIds];
+        const registrations = await EventRegistration.find({ _id: { $in: registrationIds } });
+        
+        // Group registrations by event
+        const eventRegistrations = {};
+        registrations.forEach(reg => {
+            if (!eventRegistrations[reg.event]) {
+                eventRegistrations[reg.event] = [];
+            }
+            eventRegistrations[reg.event].push(reg);
+        });
 
-        const registrations = await EventRegistration.find({
-            _id: { $in: ids },
-            $or: [{ user: userId }, { 'event.created_by': userId }]
-        }).populate('event');
+        // Process each event's registrations
+        for (const [eventId, eventRegs] of Object.entries(eventRegistrations)) {
+            const event = await Event.findById(eventId);
+            if (!event) continue;
 
-        if (registrations.length === 0) throw new Error("No deletable registrations found");
+            // Check if user has permission
+            if (event.created_by.toString() !== userId) {
+                throw new Error("Unauthorized");
+            }
 
-        // Update event participants count for approved registrations
-        for (const reg of registrations) {
-            if (reg.status === 'approved' && !reg.event.unlimitedParticipants) {
-                const event = await Event.findById(reg.event._id);
-                if (event) {
-                    event.currentParticipants = Math.max(0, event.currentParticipants - 1);
-                    await event.save();
-                }
+            // Remove from approved participants if they were approved
+            const approvedUserIds = eventRegs
+                .filter(reg => reg.status === 'approved')
+                .map(reg => reg.user.toString());
+
+            if (approvedUserIds.length > 0) {
+                event.approvedParticipants = event.approvedParticipants.filter(
+                    p => !approvedUserIds.includes(p.user.toString())
+                );
+                event.currentParticipants = Math.max(0, event.currentParticipants - approvedUserIds.length);
+                await event.save();
             }
         }
 
-        await EventRegistration.deleteMany({ _id: { $in: ids } });
+        // Delete the registrations
+        await EventRegistration.deleteMany({ _id: { $in: registrationIds } });
+
+        await logActivity(userId, 'deleted_registrations', {
+            registrationIds,
+            count: registrationIds.length
+        });
 
         return { message: "Registrations deleted successfully" };
     }
+
+    static async getRegistrationsByEvent(eventId, userId) {
+        const event = await Event.findById(eventId);
+        if (!event) throw new Error("Event not found");
+
+        // Check if user has permission
+        if (event.created_by.toString() !== userId) {
+            throw new Error("Unauthorized");
+        }
+
+        const registrations = await EventRegistration.find({ event: eventId })
+            .populate('user', 'name surname email')
+            .sort({ createdAt: -1 });
+
+        return registrations;
+    }
+
+    static async getRegistrationsByUser(userId) {
+        const registrations = await EventRegistration.find({ user: userId })
+            .populate('event', 'name date location')
+            .sort({ createdAt: -1 });
+
+        return registrations;
+    }
 }
 
-export default EventRegistrationService; 
+export default EventRegistrationService;

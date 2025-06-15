@@ -6,7 +6,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { sanitizeName } from "./helpers/sanitizeHelper.js";
-
+import crypto from "crypto";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -21,7 +21,7 @@ class PdfTicketService {
         }
 
         // Check if user is registered and approved for the event
-        const registration = await EventRegistration.findOne({
+        let registration = await EventRegistration.findOne({
             event: eventId,
             user: userId,
             status: 'approved'
@@ -29,6 +29,18 @@ class PdfTicketService {
 
         if (!registration) {
             throw new Error("You must be an approved participant to download a ticket");
+        }
+
+        // Generate or get existing ticket ID
+        if (!registration.ticketId) {
+            // Generate a unique ticket ID using user ID, event ID, and timestamp
+            const timestamp = Date.now();
+            const uniqueString = `${userId}-${eventId}-${timestamp}`;
+            const ticketId = crypto.createHash('sha256').update(uniqueString).digest('hex').substring(0, 12).toUpperCase();
+            
+            // Save the ticket ID to the registration
+            registration.ticketId = ticketId;
+            await registration.save();
         }
 
         const doc = new PDFkit({ size: "A4", margin: 50 });
@@ -95,6 +107,12 @@ class PdfTicketService {
             dateText = `${startDate.toLocaleString('en-US', opts)} to ${endDate.toLocaleString('en-US', opts)}`;
         }
         doc.fontSize(12).fillColor(valueColor).text(dateText, leftPad, y, { align: "left" });
+
+        // Add Ticket ID
+        y += sectionGap;
+        doc.fontSize(10).fillColor(labelColor).text("TICKET ID", leftPad, y, { align: "left" });
+        y += 14;
+        doc.fontSize(14).fillColor(valueColor).text(registration.ticketId, leftPad, y, { align: "left" });
 
         doc.pipe(res);
         doc.end();

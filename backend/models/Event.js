@@ -65,6 +65,22 @@ const EventSchema = new mongoose.Schema({
             message: props => `Current participants cannot exceed maximum participants`
         }
     },
+    approvedParticipants: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true
+        },
+        ticketId: {
+            type: String,
+            unique: true,
+            sparse: true
+        },
+        registeredAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
     images: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Image',
@@ -123,6 +139,9 @@ const EventSchema = new mongoose.Schema({
 }, {
     timestamps: true
 });
+
+// Create a compound index to ensure a user can only be registered once per event
+EventSchema.index({ 'approvedParticipants.user': 1 }, { unique: true });
 
 EventSchema.pre("save", function (next) {
   // Set thumbnailImage if not already set and images exist
