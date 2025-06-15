@@ -139,11 +139,9 @@ export default function NotificationPage() {
 
             // Delete event registrations if any
             if (eventRequestIds.length > 0) {
-                await Promise.all(
-                    eventRequestIds.map(id => 
-                        axiosInstance.delete(`/event-registrations/${id}`)
-                    )
-                );
+                await axiosInstance.delete('/event-registrations/delete-request', {
+                    data: { registrationIds: eventRequestIds }
+                });
             }
 
             toast.success(t('notifications.deleteSuccess'));

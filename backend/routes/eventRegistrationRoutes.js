@@ -4,6 +4,21 @@ import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
+// Delete registrations
+router.delete("/delete-request", verifyToken, async (req, res) => {
+    try {
+        const { registrationIds } = req.body;
+        if (!registrationIds || !Array.isArray(registrationIds)) {
+            return res.status(400).json({ message: "Invalid registration IDs" });
+        }
+        
+        await EventRegistrationService.deleteRegistrations(registrationIds, req.userId);
+        res.status(200).json({ message: "Registrations deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 // Register for an event
 router.post("/register/:eventId", verifyToken, async (req, res) => {
     try {

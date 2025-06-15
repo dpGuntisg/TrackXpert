@@ -191,6 +191,32 @@ class EventRegistrationService {
             throw error;
         }
     }
+
+    static async deleteRegistrations(registrationIds, userId) {
+        const ids = Array.isArray(registrationIds) ? registrationIds : [registrationIds];
+
+        const registrations = await EventRegistration.find({
+            _id: { $in: ids },
+            $or: [{ user: userId }, { 'event.created_by': userId }]
+        }).populate('event');
+
+        if (registrations.length === 0) throw new Error("No deletable registrations found");
+
+        // Update event participants count for approved registrations
+        for (const reg of registrations) {
+            if (reg.status === 'approved' && !reg.event.unlimitedParticipants) {
+                const event = await Event.findById(reg.event._id);
+                if (event) {
+                    event.currentParticipants = Math.max(0, event.currentParticipants - 1);
+                    await event.save();
+                }
+            }
+        }
+
+        await EventRegistration.deleteMany({ _id: { $in: ids } });
+
+        return { message: "Registrations deleted successfully" };
+    }
 }
 
 export default EventRegistrationService; 
