@@ -56,8 +56,8 @@ export default function SignUpPage() {
         setError(t('auth.signUpError'));
       }
     } catch (error) {
-      if (error.response && error.response.data && error.response.data.message) {
-        setError(error.response.data.message);
+      if (error.response?.data?.error) {
+        setError(t(error.response.data.error));
       } else if (error.request) {
         setError(t('common.noServerResponse'));
       } else {

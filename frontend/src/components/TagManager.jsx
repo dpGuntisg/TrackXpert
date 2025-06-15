@@ -6,10 +6,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 const TagManager = ({ 
   tags = [], 
   onChange, 
-  maxTags = 8, 
-  maxTrackTypeTags = 2,
+  maxTags = 12, 
+  maxTrackTypeTags = 4,
   isEvent = false,
-  touched = false
+  touched = false,
+  showValidation = false // New prop to control when to show validation
 }) => {
   const { t } = useTranslation();
   const [selectedTags, setSelectedTags] = useState(tags);
@@ -79,31 +80,50 @@ const TagManager = ({
 
   // Validate tags and update validation state
   const validateTags = (tags) => {
-    // Common validation for both track and event tags
     const hasEnoughTags = tags.length >= 1;
     const hasTooManyTags = tags.length > maxTags;
     const hasDuplicateTags = new Set(tags).size !== tags.length;
 
+    // For tracks, check track type tags
+    let hasTooManyTrackTypeTags = false;
+    let hasTrackTypeTags = false;
+    
+    if (!isEvent) {
+      const trackTypeTags = tags.filter(tag => getTagInfo(tag)?.category === 'trackType');
+      hasTrackTypeTags = trackTypeTags.length > 0;
+      hasTooManyTrackTypeTags = trackTypeTags.length > maxTrackTypeTags;
+    }
+
     setValidationState({
       hasEnoughTags,
       hasTooManyTags,
-      hasDuplicateTags
+      hasTooManyTrackTypeTags,
+      hasDuplicateTags,
+      hasTrackTypeTags
     });
 
-    if (hasTooManyTags) {
-      setError(t('tracks.form.validation.tooManyTags'));
-      return false;
-    }
-    if (hasDuplicateTags) {
-      setError(t('tracks.form.validation.duplicateTags'));
-      return false;
-    }
-    if (!hasEnoughTags) {
-      setError(t('tracks.form.validation.tagsRequired'));
-      return false;
+    // Only set error if showValidation is true (after form submission attempt)
+    if (showValidation) {
+      if (hasTooManyTags) {
+        setError(t('tracks.form.validation.tooManyTags', { max: maxTags }));
+        return false;
+      }
+      if (hasTooManyTrackTypeTags) {
+        setError(t('tracks.form.validation.tooManyTrackTypeTags', { max: maxTrackTypeTags }));
+        return false;
+      }
+      if (hasDuplicateTags) {
+        setError(t('tracks.form.validation.duplicateTags'));
+        return false;
+      }
+      if (!hasEnoughTags) {
+        setError(isEvent ? t('events.form.validation.tagsRequired') : t('tracks.form.validation.tagsRequired'));
+        return false;
+      }
+    } else {
+      setError(''); // Clear error when not showing validation
     }
 
-    setError('');
     return true;
   };
 
@@ -113,11 +133,14 @@ const TagManager = ({
 
     let newTags;
     if (selectedTags.includes(tag)) {
+      // Remove tag
       newTags = selectedTags.filter(t => t !== tag);
     } else {
+      // Add tag - check limits first
+      
       // Check total tags limit
       if (selectedTags.length >= maxTags) {
-        setError(t('tracks.form.validation.tooManyTags'));
+        setError(t('tracks.form.validation.tooManyTags', { max: maxTags }) || `Maximum ${maxTags} tags allowed`);
         return;
       }
 
@@ -125,7 +148,7 @@ const TagManager = ({
       if (!isEvent && tagInfo.category === 'trackType') {
         const trackTypeTags = selectedTags.filter(t => getTagInfo(t)?.category === 'trackType');
         if (trackTypeTags.length >= maxTrackTypeTags) {
-          setError(t('tracks.form.validation.tooManyTrackTypeTags'));
+          setError(t('tracks.form.validation.tooManyTrackTypeTags', { max: maxTrackTypeTags }) || `Maximum ${maxTrackTypeTags} track type tags allowed`);
           return;
         }
       }
@@ -134,7 +157,7 @@ const TagManager = ({
       if (tagInfo.category === 'difficulty') {
         const difficultyTags = selectedTags.filter(t => getTagInfo(t)?.category === 'difficulty');
         if (difficultyTags.length >= 1) {
-          setError(t('tracks.form.validation.oneDifficultyLevel'));
+          setError(t('tracks.form.validation.oneDifficultyLevel') || 'Only one difficulty level allowed');
           return;
         }
       }
@@ -145,6 +168,11 @@ const TagManager = ({
     setSelectedTags(newTags);
     validateTags(newTags);
     onChange(newTags);
+    
+    // Clear error when successfully adding/removing tags
+    if (!showValidation) {
+      setError('');
+    }
   };
 
   // Get categories for the current type
@@ -162,10 +190,35 @@ const TagManager = ({
     return Object.keys(categoryTags).filter(tag => tag !== 'title');
   };
 
+  // Check if a tag can be added (for visual feedback)
+  const canAddTag = (tag) => {
+    if (selectedTags.includes(tag)) return true; // Can always remove
+    
+    const tagInfo = getTagInfo(tag);
+    if (!tagInfo) return false;
+
+    // Check total limit
+    if (selectedTags.length >= maxTags) return false;
+
+    // Check track type limit
+    if (!isEvent && tagInfo.category === 'trackType') {
+      const trackTypeTags = selectedTags.filter(t => getTagInfo(t)?.category === 'trackType');
+      if (trackTypeTags.length >= maxTrackTypeTags) return false;
+    }
+
+    // Check difficulty limit
+    if (tagInfo.category === 'difficulty') {
+      const difficultyTags = selectedTags.filter(t => getTagInfo(t)?.category === 'difficulty');
+      if (difficultyTags.length >= 1) return false;
+    }
+
+    return true;
+  };
+
   // Initialize validation state
   useEffect(() => {
     validateTags(selectedTags);
-  }, []);
+  }, [showValidation]);
 
   return (
     <div className="space-y-4">
@@ -175,6 +228,14 @@ const TagManager = ({
           ? 'Select event tags (type, difficulty, vehicle requirements, features)'
           : t(`tags.track.title`)}
       </h3>
+
+      {/* Tag count indicator */}
+      <div className="text-sm text-gray-400">
+        {t('tracks.form.tagCounter', { 
+          total: selectedTags.length,
+          trackType: selectedTags.filter(tag => getTagInfo(tag)?.category === 'trackType').length
+        })}
+      </div>
 
       {/* Category Selection */}
       <div className="flex flex-wrap gap-2 mb-4">
@@ -201,20 +262,24 @@ const TagManager = ({
             if (!tagInfo) return null;
 
             const isSelected = selectedTags.includes(tag);
+            const canAdd = canAddTag(tag);
             
             return (
               <button
                 key={tag}
                 onClick={() => handleTagClick(tag)}
+                disabled={!canAdd && !isSelected}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium 
                           transition-all duration-200 transform hover:scale-105
                           ${isSelected 
                             ? 'bg-mainRed text-white shadow-lg' 
-                            : 'bg-gray-800 text-gray-300'}`}
+                            : canAdd
+                              ? 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                              : 'bg-gray-900 text-gray-500 cursor-not-allowed opacity-50'}`}
               >
                 <FontAwesomeIcon 
                   icon={getTagIcon(tagInfo.category)} 
-                  className={isSelected ? 'text-white' : 'text-mainYellow'} 
+                  className={isSelected ? 'text-white' : canAdd ? 'text-mainYellow' : 'text-gray-600'} 
                 />
                 <span>{tagInfo.label}</span>
               </button>
@@ -224,10 +289,10 @@ const TagManager = ({
       )}
 
       {/* Selected Tags Display */}
-      <div className={`mt-4 ${touched && !validationState.hasEnoughTags ? 'border-2 border-red-500 rounded-lg p-4' : ''}`}>
+      <div className={`mt-4 ${showValidation && !validationState.hasEnoughTags ? 'border-2 border-red-500 rounded-lg p-4' : ''}`}>
         <h3 className="text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
           {t('tracks.form.selectedTags')}
-          {validationState.hasEnoughTags && validationState.hasTrackTypeTags && !validationState.hasTooManyTags && !validationState.hasTooManyTrackTypeTags && (
+          {validationState.hasEnoughTags && !validationState.hasTooManyTags && !validationState.hasTooManyTrackTypeTags && (
             <FontAwesomeIcon icon={faCheckCircle} className="text-green-500" />
           )}
         </h3>
@@ -255,7 +320,7 @@ const TagManager = ({
         </div>
       </div>
 
-      {/* Validation Messages */}
+      {/* Validation Messages - only show when showValidation is true or when user hits limits */}
       {error && (
         <p className="text-sm text-red-500 flex items-center gap-2">
           <FontAwesomeIcon icon={faExclamationCircle} />
@@ -266,4 +331,4 @@ const TagManager = ({
   );
 };
 
-export default TagManager; 
+export default TagManager;

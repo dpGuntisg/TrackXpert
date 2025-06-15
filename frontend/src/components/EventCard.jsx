@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
-import { toast } from 'react-toastify';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faCalendar, faTag, faFlagCheckered,faRoad, faCar, faStar, faCog, faLightbulb,} from '@fortawesome/free-solid-svg-icons';
 
@@ -102,11 +101,6 @@ const EventCard = ({ event }) => {
             const updatedEvent = response.data.event;
             setIsLiked(!isLiked);
             setLikeCount(updatedEvent.likes.length);
-            if (isLiked) {
-                toast.warning('You unliked this event!');
-            } else {
-                toast.success('You liked this event!');
-            }
         } catch (error) {
             console.error('Error updating like status:', error);
         }
@@ -122,7 +116,7 @@ const EventCard = ({ event }) => {
     const hasMoreTags = event.tags && event.tags.length > 3;
 
     return (
-        <div className="group relative h-full w-full overflow-hidden rounded-xl bg-accentBlue shadow-xl border-2 border-transparent transition-all duration-300 transform-gpu hover:shadow-2xl hover:border-mainYellow will-change-transform">            
+        <div className="group relative h-full w-full overflow-hidden rounded-xl bg-accentBlue shadow-xl border-2 border-transparent transition-all duration-300 transform-gpu hover:shadow-2xl hover:border-mainYellow will-change-transform flex flex-col">            
             {/* Image Section*/}
             <div className="relative h-64 w-full overflow-hidden sm:h-72">
                 {firstImage ? (
@@ -151,13 +145,13 @@ const EventCard = ({ event }) => {
             </div>
             
             {/* Content Section*/}
-            <div className="flex flex-col gap-3 p-5">
+            <div className="flex flex-col flex-grow p-5 pb-16 relative">
                 {/* Title */}
                 <h3 className="text-2xl font-bold text-white transition-colors duration-300 group-hover:text-mainYellow">{event.name}</h3>
                 
                 {/* Track info if available */}
                 {trackNames && (
-                    <div className="flex items-center gap-2 text-gray-300">
+                    <div className="flex items-center gap-2 text-gray-300 mt-3">
                         <FontAwesomeIcon icon={faRoad} className="text-mainYellow" />
                         <span className="line-clamp-1">{trackNames}</span>
                     </div>
@@ -165,7 +159,7 @@ const EventCard = ({ event }) => {
                 
                 {/* Tags*/}
                 {limitedTags.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-2 mt-3">
                         {limitedTags.map((tag, idx) => {
                             const tagInfo = getTagInfoUniversal(tag, t);
                             if (!tagInfo) return null;
@@ -188,31 +182,33 @@ const EventCard = ({ event }) => {
                 )}
                 
                 {/* Description*/}
-                <div className="line-clamp-2 text-sm text-gray-300 transition-colors duration-300">
+                <div className="line-clamp-2 text-sm text-gray-300 transition-colors duration-300 mt-3">
                     {event.description}
                 </div>
                 
-                {/* Footer */}
-                <div className="mt-2 flex items-center justify-between pt-2">
-                    <span></span> {/* Empty span to maintain the justify-between spacing */}
+                {/* Footer - buttons */}
+                <div className="absolute bottom-0 left-0 right-0 flex items-center justify-between p-5">
+                    {/* Like button */}
+                    {userId && userId !== event.created_by?._id ? (
+                        <button
+                            onClick={handleLikeClick}
+                            className={`text-2xl ${
+                                isLiked ? 'text-mainRed' : 'text-gray-400'
+                            } hover:text-mainRed transition-colors duration-200 z-10`}
+                            aria-label={isLiked ? t('event.unlike') : t('event.like')}
+                        >
+                            <FontAwesomeIcon icon={faHeart} />
+                        </button>
+                    ) : (
+                        <span></span> // Empty span to maintain spacing when no like button
+                    )}
+                    
+                    {/* View Details button */}
                     <span className="rounded-lg bg-mainRed px-4 py-2 text-sm font-medium text-white transition-all duration-300 group-hover:bg-mainYellow group-hover:text-mainBlue group-hover:shadow-md">
                         {t('common.viewDetails')}
                     </span>
                 </div>
             </div>
-            
-            {/* Like button */}
-            {userId && userId !== event.created_by?._id && (
-                <button
-                    onClick={handleLikeClick}
-                    className={`absolute bottom-4 left-4 text-2xl ${
-                        isLiked ? 'text-mainRed' : 'text-gray-400'
-                    } hover:text-mainRed transition-colors duration-200 z-10`}
-                    aria-label={isLiked ? t('event.unlike') : t('event.like')}
-                >
-                    <FontAwesomeIcon icon={faHeart} />
-                </button>
-            )}
             
             {/* Link overlay for the entire card */}
             <Link 

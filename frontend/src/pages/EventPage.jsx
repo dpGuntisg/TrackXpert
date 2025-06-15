@@ -84,22 +84,28 @@ function EventPage() {
                 }
             </div>
 
-            {/* Events Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {loading ? (
-                    <div className="col-span-full flex justify-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mainRed"></div>
+            {/* Loader */}
+            {loading ? (
+                <div className="flex items-center justify-center min-h-[40vh]">
+                    <div className="flex flex-col items-center">
+                        <div className="loader ease-linear rounded-full border-4 border-t-4 border-mainRed h-12 w-12 mb-4"></div>
+                        <p className="text-lg">{t('event.loading')}</p>
                     </div>
-                ) : events.length > 0 ? (
-                    events.map(event => (
-                        <EventCard key={event._id} event={event} />
-                    ))
-                ) : (
-                    <div className="col-span-full text-center text-gray-400">
-                        {t('event.noEvents')}
-                    </div>
-                )}
-            </div>
+                </div>
+            ) : (
+                // Events Grid
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {events.length > 0 ? (
+                        events.map(event => (
+                            <EventCard key={event._id} event={event} />
+                        ))
+                    ) : (
+                        <div className="col-span-full text-center text-gray-400">
+                            {t('event.noEvents')}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }       

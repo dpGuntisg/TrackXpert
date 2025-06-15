@@ -2,7 +2,9 @@ import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axiosInstance from '../utils/axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler, faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock, faCheck, faInfoCircle, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { faLocationDot, faPencil, faTrash, faTimes, faArrowLeft, faCalendarAlt, faRuler,
+     faCircleInfo, faChevronLeft, faChevronRight, faMapMarkerAlt, faClock, faCheck, faInfoCircle,
+     faTriangleExclamation, faExclamationCircle,} from '@fortawesome/free-solid-svg-icons';
 import { MapContainer, TileLayer, Marker, Polyline } from 'react-leaflet';
 import { MapSelector, startIcon, endIcon} from '../components/MapSelector';
 import AvailabilityForm from '../components/ AvailabilityForm.jsx';
@@ -14,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import { useAuth } from '../context/AuthContext';
 import { toast } from 'react-toastify';
+import { getTagIcon, getTagInfoUniversal } from '../utils/tagUtils.js';
 
 // Map component with React.memo to prevent unnecessary re-renders
 const TrackMap = React.memo(({ coordinates, polyline }) => {
@@ -65,6 +68,7 @@ const TrackMap = React.memo(({ coordinates, polyline }) => {
   );
 });
 
+
 export default function TrackDetailPage() {
     const { t } = useTranslation();
     const { id: trackId } = useParams();
@@ -108,6 +112,15 @@ export default function TrackDetailPage() {
     const [registerForm, setRegisterForm] = useState(false);
     const [content, setContent] = useState('');
     const [requests, setRequests] = useState([]);
+    const [formErrors, setFormErrors] = useState({});
+    const [formTouched, setFormTouched] = useState({
+        name: false,
+        description: false,
+        location: false,
+        images: false,
+        tags: false,
+        joining_details: false
+    });
     // Format distance with memoization
     const formattedDistance = useMemo(() => {
         return `${parseFloat(track.distance).toFixed(2).replace('.', ',')} km`;
@@ -174,23 +187,7 @@ export default function TrackDetailPage() {
     const validateStep = useCallback(() => {
         switch(step) {
             case 1:
-                if (!editValues.name?.trim() || editValues.name.length < 5) {
-                    setError(t('tracks.form.validation.nameTooShort'));
-                    return false;
-                }
-                if (!editValues.description?.trim() || editValues.description.length < 10) {
-                    setError(t('tracks.form.validation.descriptionTooShort'));
-                    return false;
-                }
-                if (!editValues.location?.trim() || editValues.location.length < 5) {
-                    setError(t('tracks.form.validation.locationTooShort'));
-                    return false;
-                }
-                if (!editValues.images || editValues.images.length === 0) {
-                    setError(t('tracks.form.validation.imageRequired'));
-                    return false;
-                }
-                return true;
+                return validateStep1();
             
             case 2:
                 return true;
@@ -328,6 +325,57 @@ export default function TrackDetailPage() {
         setDrawings(newDrawings);
     }, []);
 
+    const validateStep1 = () => {
+        const errors = {};
+        let isValid = true;
+
+        if (!editValues.name?.trim() || editValues.name.length < 5) {
+            errors.name = t('tracks.form.errors.nameTooShort');
+            isValid = false;
+        } else if (editValues.name.length > 100) {
+            errors.name = t('tracks.form.errors.nameTooLong');
+            isValid = false;
+        }
+
+        if (!editValues.description?.trim() || editValues.description.length < 10) {
+            errors.description = t('tracks.form.errors.descriptionTooShort');
+            isValid = false;
+        } else if (editValues.description.length > 15000) {
+            errors.description = t('tracks.form.errors.descriptionTooLong');
+            isValid = false;
+        }
+
+        if (!editValues.location?.trim() || editValues.location.length < 5) {
+            errors.location = t('tracks.form.errors.locationTooShort');
+            isValid = false;
+        } else if (editValues.location.length > 100) {
+            errors.location = t('tracks.form.errors.locationTooLong');
+            isValid = false;
+        }
+
+        if (!editValues.images || editValues.images.length === 0) {
+            errors.images = t('tracks.form.errors.imageRequired');
+            isValid = false;
+        }
+
+        setFormErrors(errors);
+        
+        if (!isValid) {
+            setFormTouched({
+                name: true,
+                description: true,
+                location: true,
+                images: true,
+                tags: true,
+            });
+            setError(t('tracks.form.errors.fixErrors'));
+        } else {
+            setError("");
+        }
+        
+        return isValid;
+    };
+
     // Edit modal content based on current step
     const renderEditStep = useCallback(() => {
         switch(step) {
@@ -339,6 +387,8 @@ export default function TrackDetailPage() {
                         handleImageChange={handleImageChange}
                         currentImageIndex={currentImageIndex}
                         setCurrentImageIndex={setCurrentImageIndex}
+                        errors={formErrors}
+                        touched={formTouched}
                     />
                 );
             case 2:
@@ -352,8 +402,12 @@ export default function TrackDetailPage() {
                 );
             case 3:
                 const centerPosition = drawings.polyline && drawings.polyline.length > 0
-                ? drawings.polyline[drawings.polyline.length - 1]  
-                : drawings.point || [56.9496, 24.1052]; 
+                    ? drawings.polyline[drawings.polyline.length - 1]  
+                    : drawings.point || (track.coordinates?.coordinates 
+                        ? [track.coordinates.coordinates[1], track.coordinates.coordinates[0]]
+                        : track.polyline?.coordinates?.[0] 
+                            ? [track.polyline.coordinates[0][1], track.polyline.coordinates[0][0]]
+                            : [56.9496, 24.1052]); // Default to Riga if no coordinates exist
                 return (
                     <div className="h-96 w-full rounded-lg overflow-hidden">
                         <MapSelector 
@@ -361,7 +415,6 @@ export default function TrackDetailPage() {
                             initialDrawings={drawings}
                             onDrawingsChange={handleDrawingsChange}
                             center={centerPosition} 
-                            zoom={20}
                         />
                     </div>
                 );
@@ -370,7 +423,7 @@ export default function TrackDetailPage() {
             default:
                 return null;
         }
-    }, [step, editValues, drawings, availability, error, handleImageChange, handleDrawingsChange, currentImageIndex, t]);
+    }, [step, editValues, drawings, availability, error, handleImageChange, handleDrawingsChange, currentImageIndex, formErrors, formTouched]);
 
     // Function to format time in 12-hour format
     const formatTime = (timeStr) => {
@@ -551,13 +604,13 @@ export default function TrackDetailPage() {
                     </div>
                     
                     {/* Report button */}
-                    {(userId !== track.created_by?._id) &&(
+                    {( userId && userId !== track.created_by?._id) &&(
                         <div className="absolute bottom-6 right-6">
                             <ReportForm targetType="Track" targetId={track._id}
                                 triggerComponent={
                                     <button className="flex items-center gap-2 bg-red-900/30 border border-red-700 text-red-400  px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl">
                                         <FontAwesomeIcon icon={faTriangleExclamation} className="text-mainRed" />
-                                        Report
+                                        {t("report.title")}
                                     </button>
                                 }
                             />
@@ -582,8 +635,31 @@ export default function TrackDetailPage() {
                     </div>
                 </div>
 
+                                    {/* Tags section - Add this after the basic info overlay */}
+                    <div className="flex flex-wrap gap-2 px-4 bg-accentBlue py-2 rounded-b-xl mb-4">
+                    {track.tags && track.tags.map((tag, idx) => {
+                        const tagInfo = getTagInfoUniversal(tag, t);
+                        if (!tagInfo) return null;
+                        
+                        return (
+                        <span 
+                            key={idx} 
+                            className="flex items-center gap-1.5 px-3 py-1 rounded-full text-sm bg-gray-800 text-white font-medium border border-gray-700"
+                        >
+                            <FontAwesomeIcon 
+                            icon={getTagIcon(tagInfo.category)} 
+                            className="text-mainYellow" 
+                            />
+                            <span>{tagInfo.label}</span>
+                        </span>
+                        );
+                    })}
+                    </div>
+                
                 {/* User Contact Card */}
                 <UserContact created_by={track.created_by} />
+
+                
                 
                 {/* Action buttons for track owner */}
                 <div className="flex space-x-4 justify-end mt-8">
@@ -647,8 +723,11 @@ export default function TrackDetailPage() {
 
                                     {/* Error message */}
                                     {error && (
-                                        <div className="mb-6 bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
-                                            <p>{error}</p>
+                                        <div className="mt-4 bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
+                                            <div className="flex items-center gap-2 text-red-500">
+                                                <FontAwesomeIcon icon={faExclamationCircle} />
+                                                <p className="text-sm font-medium">{error}</p>
+                                            </div>
                                         </div>
                                     )}
 
@@ -739,10 +818,12 @@ export default function TrackDetailPage() {
                                         <FontAwesomeIcon icon={faTimes} />
                                     </button>
                                 </div>
-
                                 {error && (
                                     <div className="mt-4 bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
-                                        <p>{error}</p>
+                                        <div className="flex items-center gap-2 text-mainRed">
+                                            <FontAwesomeIcon icon={faExclamationCircle} className="text-lg" />
+                                            <p className="text-sm font-semibold">{error}</p>
+                                        </div>
                                     </div>
                                 )}
                             </div>

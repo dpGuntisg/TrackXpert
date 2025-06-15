@@ -10,8 +10,6 @@ const Footer = () => {
                 <p className="mb-4 sm:mb-0">{t('footer.copyright')}</p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 sm:space-x-4 whitespace-nowrap">
-                    <p className="sm:text-left sm:mb-0">{t('footer.terms')}</p>
-                    <p className="sm:text-left sm:mb-0">{t('footer.privacy')}</p>
                 </div>
             </div>
         </footer>

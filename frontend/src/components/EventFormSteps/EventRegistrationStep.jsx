@@ -140,14 +140,15 @@ export const EventRegistrationStep = ({
                     value={values.registrationInstructions || ''}
                     onChange={(e) => setValues(prev => ({ ...prev, registrationInstructions: e.target.value }))}
                     className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
-                    ${errors.registrationInstructions ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}
-                    ${values.requireManualApproval && !values.registrationInstructions ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}
+                    ${errors.registrationInstructions ? 'border-red-500 focus:border-red-500' : 
+                    values.requireManualApproval && (!values.registrationInstructions || values.registrationInstructions.trim().length < 10) 
+                    ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}
                     rows={4}
                 />
-                {(errors.registrationInstructions || (values.requireManualApproval && !values.registrationInstructions)) && (
+                {(errors.registrationInstructions || (values.requireManualApproval && (!values.registrationInstructions || values.registrationInstructions.trim().length < 10))) && (
                     <p className="text-red-500 text-sm mt-1 flex items-center">
                         <FontAwesomeIcon icon={faExclamationCircle} className="mr-1" />
-                        {errors.registrationInstructions || t('event.instructionsRequired')}
+                        {errors.registrationInstructions || t('event.instructionsRequired') || 'Detailed registration instructions (at least 10 characters) are required for events with manual approval'}
                     </p>
                 )}
                 <div className='flex flex-col items-start space-y-3 mt-2'>

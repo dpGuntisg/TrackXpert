@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPaperPlane, faEnvelope, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import { faPaperPlane, faEnvelope, faTrash, } from "@fortawesome/free-solid-svg-icons";
 import axiosInstance from "../utils/axios";
 import { useTranslation } from 'react-i18next';
 import TrackRequest from "../components/TrackRequest";
 import EventRequest from "../components/EventRequest";
 import { useAuth } from "../context/AuthContext";
+import { toast } from 'react-toastify';
 
 export default function NotificationPage() {
     const { t } = useTranslation();
@@ -17,6 +18,8 @@ export default function NotificationPage() {
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('notifications');
+    const [selectedRequests, setSelectedRequests] = useState([]);
+    const [selectionMode, setSelectionMode] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
@@ -56,6 +59,11 @@ export default function NotificationPage() {
         try {
             await axiosInstance.put(`/track-requests/update-request/${requestId}`, { status });
             fetchData();
+            if (status === 'approved') {
+                toast.success(t('notifications.trackRequestAccepted'));
+            } else if (status === 'rejected') {
+                toast.info(t('notifications.trackRequestRejected'));
+            }
         } catch (error) {
             console.error("Error updating track request:", error);
             setError(error.response?.data?.message || t('notifications.updateError'));
@@ -66,9 +74,34 @@ export default function NotificationPage() {
         try {
             await axiosInstance.put(`/event-registrations/${requestId}/status`, { status });
             fetchData();
+            if (status === 'approved') {
+                toast.success(t('notifications.eventRequestAccepted'));
+            } else if (status === 'rejected') {
+                toast.info(t('notifications.eventRequestRejected'));
+            }
         } catch (error) {
             console.error("Error updating event request:", error);
             setError(error.response?.data?.message || t('notifications.updateError'));
+        }
+    };
+    
+    const toggleSelection = () => {
+        setSelectionMode(!selectionMode);
+        if (selectionMode) {
+            // If exiting selection mode, clear selected requests
+            setSelectedRequests([]);
+        }
+    };
+
+    const handleSelectRequest = (requestId) => {
+        if (selectionMode) {
+            setSelectedRequests((prevSelected) => {
+                if (prevSelected.includes(requestId)) {
+                    return prevSelected.filter(id => id !== requestId);
+                } else {
+                    return [...prevSelected, requestId];
+                }
+            });
         }
     };
 
@@ -83,26 +116,68 @@ export default function NotificationPage() {
     return (
         <div className="min-h-screen bg-mainBlue p-4 sm:p-8">
             <div className="">
-                <h1 className="text-3xl font-bold text-mainYellow mb-8">{t('notifications.title')}</h1>
-                
-                {/* Tabs */}
-                <div className="flex space-x-4 mb-6">
-                    <button
-                        onClick={() => setActiveTab('notifications')}
-                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'notifications'
-                            ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
-                    >
-                        <FontAwesomeIcon icon={faEnvelope} className="mr-2"/>
-                        {t('notifications.title')} ({trackRequests.length + eventRequests.length})
-                    </button>
-                    <button
-                        onClick={() => setActiveTab('sent')}
-                        className={`px-6 py-3 font-medium flex items-center ${activeTab === 'sent'
-                            ? 'border-b-2 border-mainYellow text-mainYellow' : 'text-gray-400 hover:text-white'}`}
-                    >
-                        <FontAwesomeIcon icon={faPaperPlane} className="mr-2"/>
-                        {t('notifications.sentRequests')} ({sentTrackRequests.length + sentEventRequests.length})
-                    </button>
+                <h1 className="text-2xl sm:text-3xl font-bold text-mainYellow mb-6 sm:mb-8">{t('notifications.title')}</h1>
+                <div className="mb-6">
+                    {/* Tab Navigation*/}
+                    <div className="flex items-center justify-between gap-2">
+                        {/* Tab Buttons*/}
+                        <div className="flex w-full sm:w-auto gap-2 sm:gap-4">
+                            <button
+                                onClick={() => setActiveTab('notifications')}
+                                className={`px-3 py-3 sm:px-6 font-medium flex items-center text-sm sm:text-base transition-colors duration-200 ${
+                                    activeTab === 'notifications'
+                                        ? 'border-b-2 border-mainYellow text-mainYellow' 
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                <div className="relative">
+                                    <FontAwesomeIcon icon={faEnvelope} className="size-6"/>
+                                    {(trackRequests.length + eventRequests.length) > 0 && (
+                                        <span className="absolute -top-2 -right-2 text-xs bg-mainRed text-white px-1.5 py-0.5 rounded-sm min-w-[18px] text-center leading-none">
+                                            {trackRequests.length + eventRequests.length}
+                                        </span>
+                                    )}
+                                </div>
+                                <span className="hidden sm:inline ml-3 truncate">
+                                    {t('notifications.title')}
+                                </span>
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('sent')}
+                                className={`px-3 py-3 sm:px-6 font-medium flex items-center text-sm sm:text-base transition-colors duration-200 ${
+                                    activeTab === 'sent'
+                                        ? 'border-b-2 border-mainYellow text-mainYellow' 
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                <div className="relative">
+                                    <FontAwesomeIcon icon={faPaperPlane} className="size-6"/>
+                                    {(sentTrackRequests.length + sentEventRequests.length) > 0 && (
+                                        <span className="absolute -top-3 -right-4 text-xs bg-mainRed text-white px-1.5 py-0.5 rounded-full min-w-[18px] text-center leading-none">
+                                            {sentTrackRequests.length + sentEventRequests.length}
+                                        </span>
+                                    )}
+                                </div>
+                                <span className="hidden sm:inline ml-3 truncate">
+                                    {t('notifications.sentRequests')}
+                                </span>
+                            </button>
+                        </div>
+                        
+                        {/* Delete Button */}
+                        {((activeTab === 'notifications' && (trackRequests.length > 0 || eventRequests.length > 0)) ||
+                        (activeTab === 'sent' && (sentTrackRequests.length > 0 || sentEventRequests.length > 0))) && (
+                            <button className="px-3 py-3 sm:px-6 font-medium text-gray-400 hover:text-mainRed flex items-center text-sm sm:text-base transition-colors duration-200 hover:bg-mainRed/10 rounded-lg"
+                                onClick={toggleSelection}
+                            >
+                                <FontAwesomeIcon icon={faTrash} className="size-5" />
+                                <span className="hidden sm:inline ml-2">{t('common.delete')}</span>
+                            </button>
+                        )}
+                    </div>
+                    
+                    {/* Tab Separator Line */}
+                    <div className="border-b border-gray-600 mb-4"></div>
                 </div>
 
                 {error && (
@@ -126,6 +201,9 @@ export default function NotificationPage() {
                                     showActions={true}
                                     className="bg-accentBlue"
                                     action={t('notifications.wantsToJoin')}
+                                    selectionMode={selectionMode}
+                                    selected={selectedRequests.includes(request._id)}
+                                    onSelect={handleSelectRequest}
                                 />
                             ))}
                             {eventRequests.map((request) => (
@@ -154,6 +232,9 @@ export default function NotificationPage() {
                                     showActions={false}
                                     className="bg-accentBlue"
                                     isSentByCurrentUser={request.sender?.id === user?.id}
+                                    selectionMode={selectionMode}
+                                    selected={selectedRequests.includes(request._id)}
+                                    onSelect={handleSelectRequest}
                                 />
                             ))}
                             {sentEventRequests.map((request) => (

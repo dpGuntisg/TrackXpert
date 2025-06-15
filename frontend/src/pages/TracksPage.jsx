@@ -212,20 +212,6 @@ export default function TracksPage() {
             isValid = false;
         }
 
-        const trackTypeTags = formValues.tags.filter(tag => 
-            ['rally_stage', 'hill_climb', 'circuit', 'off_road', 'circuit_race'].includes(tag)
-        );
-        if (trackTypeTags.length > 2) {
-            errors.tags = t('tracks.form.validation.tooManyTrackTypeTags');
-            isValid = false;
-        }
-
-        // Check total tags limit
-        if (formValues.tags.length > 5) {
-            errors.tags = t('tracks.form.validation.tooManyTags');
-            isValid = false;
-        }
-
         setFormErrors(errors);
         
         if (!isValid) {
@@ -426,7 +412,7 @@ export default function TracksPage() {
                                 </button>
                             </div>
 
-                            {/* Global error message */}
+                            {/* error message */}
                             {error && (
                                 <div className="mt-4 bg-mainRed/20 border border-mainRed text-white p-4 rounded-lg">
                                     <div className="flex items-center gap-2 text-red-500">

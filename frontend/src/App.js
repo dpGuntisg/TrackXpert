@@ -7,13 +7,12 @@ import {
   faUsers, 
   faCalendarPlus, 
   faFlagCheckered,
-  faChartLine,
   faRoute
 } from '@fortawesome/free-solid-svg-icons';
 
 function FeatureCard({ icon, title, description }) {
   return (
-    <div className="bg-accentBlue p-6 rounded-xl border border-accentGray hover:border-mainYellow transition-all duration-300 hover:scale-105">
+    <div className="bg-accentBlue p-6 rounded-xl border border-accentGray">
       <div className="text-mainYellow text-3xl mb-4">
         <FontAwesomeIcon icon={icon} />
       </div>

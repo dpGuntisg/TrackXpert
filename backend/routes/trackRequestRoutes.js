@@ -67,4 +67,14 @@ router.put("/update-request/:requestId", verifyToken, async (req, res) => {
     }
 });
 
+// Delete a request
+router.delete("/delete-request/:requestId", verifyToken, async (req, res) => {
+    try{
+        TrackRequestService.deleteRequests(req.params.requestId, req.userId);
+        res.status(200).json({ message: "Request deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 export default router;

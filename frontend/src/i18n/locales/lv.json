@@ -36,8 +36,8 @@
     "september": "Septembris",
     "october": "Oktobris",
     "november": "Novembris",
-    "december": "Decembris"
-
+    "december": "Decembris",
+    "noServerResponse": "Radās problēma ar servera savienojumu. Lūdzu, mēģiniet vēlāk."
   },
   "contact": {
     "title": "Izveidoja"
@@ -48,37 +48,32 @@
     "privacy": "Privātuma politika"
   },
   "home": {
-    "title": "Kur Trases Iegūst Dzīvību",
-    "subtitle": "Atklāj, Radi, un Sacientes Kā Nekad Iepriekš",
+    "title": "Kur trases gūst dzīvību",
+    "subtitle": "Atklāj, radi un sacenties kā nekad iepriekš",
     "description": "Izpēti mūsu plašo trašu klāstu – izvēlies tās, kas atbilst tavam stilam un piedzīvojumu garam. Sāc savu ceļojumu, izpētot citiem lietotājiem pievienotās trases, vai pievieno jaunas vietas mūsu kopienai!",
-    "exploreButton": "IZPĒTIT TRĀSES",
+    "exploreButton": "IZPĒTĪT TRASES",
     "features": {
       "createTracks": {
-        "title": "Izveido Savas Trases",
+        "title": "Izveido savas trases",
         "description": "Dalies ar savām iecienītākajām braukšanas vietām. Atzīmē atrašanās vietas vai zīmē detalizētus maršrutus kartē."
       },
       "joinTracks": {
-        "title": "Pievienojies Trašu Sesijām",
+        "title": "pievienojies trašu sesijām",
         "description": "Sazinies ar trašu īpašniekiem un piedalies aizraujošās braukšanas sesijās. Izmēģini jaunas trases kopā ar citiem entuziastiem."
       },
       "createEvents": {
-        "title": "Organizē Pasākumus",
+        "title": "Organizē pasākumus",
         "description": "Izveido un vadi savas trašu dienas, sacensības vai neformālas tikšanās. Vieno kopienu."
       },
       "joinEvents": {
-        "title": "Piedalies Pasākumos",
+        "title": "Piedalies pasākumos",
         "description": "Atrodi un piedalies aizraujošos auto pasākumos. No trašu dienām līdz čempionātiem, katram kaut kas atradīsies."
       },
       "discover": {
-        "title": "Atklāj Jaunus Maršrutus",
+        "title": "Atklāj Jaunus maršrutus",
         "description": "Izpēti augošo trašu un maršrutu kolekciju. Atrodi slēptās pērles un populārās vietas savā apkārtnē."
-      },
-      "progress": {
-        "title": "Seko Savam Progresam",
-        "description": "Seko līdzi savām apmeklētajām vietām un pasākumiem. Veido savu braukšanas portfolio."
       }
-    },
-    "tutorialPlaceholder": "Iespējams, pamācība vai kaut kas tāds."
+    }
   },
   "navbar": {
     "home": "SĀKUMS",
@@ -88,7 +83,8 @@
     "settings": "IESTĀTĪJUMI",
     "signup": "REĢISTRĒTIES",
     "signin": "IENĀKT",
-    "signout": "IZIET"
+    "signout": "IZIET",
+    "notifications": "PAZIŅOJUMI"
   },
   "auth": {
     "welcomeBack": "Laipni lūdzam atpakaļ",
@@ -116,6 +112,7 @@
     "alreadyHaveAccount": "Jau ir konts?",
     "signInHere": "Ieiet šeit",
     "loginError": "Nepareizs e-pasts vai parole",
+    "nameRequired": "Vārds nevar būt tukšs vai sastāvēt tikai no atstarpēm",
     "signUpError": "Kļūda veidojot kontu",
     "passwordMismatch": "Paroles nesakrīt",
     "invalidEmail": "Lūdzu ievadiet derīgu e-pasta adresi",
@@ -125,7 +122,12 @@
     "banReason": "Aizlieguma Iemesls",
     "bannedUntil": "Aizlieguma Ilgums",
     "permanent": "Pastāvīgs",
-    "bannedMessage": "Jūsu konts ir Bloķēts. Iemesls: {{reason}}. Līdz: {{until}}"
+    "bannedMessage": "Jūsu konts ir Bloķēts. Iemesls: {{reason}}. Līdz: {{until}}",
+    "fieldsRequired": "Visi lauki ir obligāti",
+    "surnameRequired": "Uzvārds nevar būt tukšs vai sastāvēt tikai no atstarpēm",
+    "nameTooShort": "Vārdam jābūt vismaz 3 rakstzīmes garam",
+    "surnameTooShort": "Uzvārdam jābūt vismaz 3 rakstzīmes garam",
+    "passwordRequirements": "Parolei jāsatur vismaz viena lielā burtā, viena mazā burtā un viens cipars"
   },
   "profile": {
     "title": "Profils",
@@ -148,7 +150,11 @@
     "profilePicture": "Profila Attēls",
     "createdTracks": "Izveidotās Trases",
     "createdEvents": "Izveidotie Pasākumi",
-    "likedTracks": "Patīk",
+    "liked": "Patīk",
+    "likedTracks": "Iecienītās trases",
+    "likedEvents": "Iecienītie pasākumi",
+    "noLikedEvents":"Vēl nav neviena iecienītā pasākuma.",
+    "noLikedTracks": "Vēl nav nevienas iecienītās trases.",
     "noTracks": "Vēl nav izveidotu trašu.",
     "noEvents": "Vēl nav izveidotu pasākumu.",
     "noLiked": "Vēl nav nevienas iecienītās trases.",
@@ -164,7 +170,13 @@
     "deleteSuccess": "Profils veiksmīgi dzēsts!",
     "successEdit": "Profils veiksmīgi rediģēts!",
     "validation": {
-      "usernameRequired": "Lietotājvārds nevar būt tukšs"
+      "usernameRequired": "Lietotājvārds nevar būt tukšs",
+      "usernameTooShort": "Lietotājvārdam jābūt vismaz 3 rakstzīmes garam",
+      "usernameTaken": "Lietotājvārds jau ir aizņemts",
+      "nameRequired": "Vārds nevar būt tukšs",
+      "nameTooShort": "Vārdam jābūt vismaz 3 rakstzīmes garam",
+      "surnameRequired": "Uzvārds nevar būt tukšs",
+      "surnameTooShort": "Uzvārdam jābūt vismaz 3 rakstzīmes garam"
     }
   },
   "map": {
@@ -241,12 +253,13 @@
       "tagHelper": "Lūdzu, izvēlieties vismaz vienu tagu",
       "locationDetails": "Vietas informācija",
       "enterLocationDetails": "Ievadiet konkrētas vietas aprakstu (piem., ielas adrese, orientieris)",
+      "tagCounter": "{{total}}/12 izvēlēti tagi (Trases tipi: {{trackType}}/4)",
       "errors": {
         "nameTooShort": "Trases nosaukumam jābūt vismaz 5 rakstzīmes garam.",
         "nameTooLong": "Trases nosaukums ir pārāk garš (maksimums 100 rakstzīmes).",
         "descriptionTooShort": "Trases aprakstam jābūt vismaz 10 rakstzīmes garam.",
         "descriptionTooLong": "Trases apraksts ir pārāk garš (maksimums 15000 rakstzīmes).",
-        "locationTooShort": "Trases vietai jābūt vismaz 5 rakstzīmes garai.",
+        "locationTooShort": "Lūdzu norādiet trases atrašanāš vietu.",
         "locationTooLong": "Trases vieta ir pārāk gara (maksimums 100 rakstzīmes).",
         "imageRequired": "Nepieciešams vismaz viens trases attēls.",
         "fixErrors": "Lūdzu, izlabojiet kļūdas pirms turpināt.",
@@ -488,6 +501,7 @@
   },
   "event": {
     "title": "Izpēti Pasākumus",
+    "loading": "Ielādē pasākumus...",
     "createEventDescription": "Izpildiet visus soļus lai izveidotu pasākumu",
     "editEventDescription": "Izpildiet visus soļus lai rediģētu pasākumu",
     "createEvent": "Izveidot Pasākumu",
@@ -544,7 +558,12 @@
     "registrationFull": "Pasākums ir pilns",
     "loginToRegister": "Ielogoties, lai reģistrētos",
     "cannotRegisterAsCreator": "Jūs nevarat reģistrēties savā pasākumā",
+    "registrationSubmitted": "Reģistrācijas pieprasījums ir iesniegts",
+    "registrationPendingApproval": "Jūsu reģistrācija ir iesniegta un gaida apstiprinājumu no pasākuma organizatora.",
     "downloadTicket": "Lejupielādēt Biļeti",
+    "deletedSuccess": "Pasākums izdzests!",
+    "updatedSuccessfully": "Pasākums atjaunots!",
+    "createdSuccessfully": "Pasākums izveidots!",
     "status": {
       "completed": "Pabeigts",
       "active": "Aktīvs",
@@ -584,11 +603,18 @@
     "dates": "Datumi",
     "registered": "Jūs esat reģistrējies šim pasākumam",
     "registrationConfirmed":"Jūs esat apstiprināts un pievienots pasākumam.",
-    "defaultRegistrationMessage": "Jūs gatavojaties reģistrēties šim pasākumam. Lūdzu, pārskatiet pasākuma detaļas un noklikšķiniet uz reģistrēšanās pogas zemāk, lai apstiprinātu savu dalību."
+    "defaultRegistrationMessage": "Jūs gatavojaties reģistrēties šim pasākumam. Lūdzu, pārskatiet pasākuma detaļas un noklikšķiniet uz reģistrēšanās pogas zemāk, lai apstiprinātu savu dalību.",
+    "noLikedEvents": "Vēl nav neviena iecienītā pasākuma.",
+    "likedEvents": "Patīk",
+    "createdEvents": "Izveidotie Pasākumi",
+    "eventsError": "Neizdevās iegūt pasākumus",
+    "likedEventsError": "Neizdevās iegūt iecienītos pasākumus",
+    "createdEventsError": "Neizdevās iegūt izveidotos pasākumus"
   },
   "notifications": {
     "title": "Paziņojumi",
     "noNotifications": "Nav jauni paziņojumi",
+    "noSentRequests": "Nav sūtītu paziņojumi",
     "markAllRead": "Atzīmēt visus kā lasītus.",
     "viewAll": "Apskatīt visus paziņojumus",
     "sentRequests": "Sūtītie ziņojumi.",
@@ -597,7 +623,11 @@
     "wantsToRegister": "vēlās reģistrēties pasākumā:",
     "requestToRegister": "pasākumam:",
     "registrationInfo": "Reģistrācijas informācija:",
-    "noRegistrationInfo": "Nav norādītas reģistrācijas informācijas"
+    "noRegistrationInfo": "Nav norādītas reģistrācijas informācijas",
+    "trackRequestAccepted": "Tu esi apstiprinājis pieprasījumu pievienoties trasei",
+    "trackRequestRejected": "Tu esi noraidījis pieprasījumu pievienoties trasei",
+    "eventRequestAccepted": "Tu esi apstiprinājis reģistrācijas pieprasījumu pasākumam",
+    "eventRequestRejected": "Tu esi noraidījis reģistrācijas pieprasījumu pasākumam"
   },
   "admin": {
     "title": "Administratora panelis",
@@ -620,6 +650,7 @@
     "pendingReports": "Esošās Sūdzības",
     "resolvedReports": "Atrisinātās Sūdzības",
     "dismissedReports": "Noraidītās Sūdzības",
+    "noSearchResults": "Reģistri nav atrasti",
     "actions":{
       "created_account": "Izveidoja profilu",
       "updated_account": "Rediģēja profilu",
@@ -638,5 +669,28 @@
       "deleted": "Dzēsa",
       "joined": "Pievienojās"
     }
+  },
+  "report": {
+    "title": "Ziņot",
+    "warning": "Brīdinājums",
+    "falseReportWarning": "Nepatiess vai ļaunprātīgs ziņojums var novest pie jūsu konta bloķēšanu. Lūdzu, pārliecinieties, ka jūsu ziņojums ir precīzs un pamatots.",
+    "instructions": "Instrukcijas",
+    "instructionsDetail": "Lūdzu, sniedziet konkrētu informāciju par ziņojumu. Iekļaujiet attiecīgos datus, piemēram, laika zīmogus, saturu un iemeslu, kāpēc uzskatāt, ka tas prasa uzmanību.",
+    "reasonLabel": "Ziņojuma iemesls",
+    "reasonPlaceholder": "Aprakstiet problēmu pēc iespējas detalizētāk...",
+    "submit": "Iesniegt ziņojumu",
+    "success": "Ziņojums veiksmīgi iesniegts",
+    "error": "Neizdevās iesniegt ziņojumu",
+    "showReason": "Parādīt iemeslu",
+    "hideReason": "Paslēpt iemeslu",
+    "reported": "ziņots",
+    "resolve": "Atrisināt",
+    "dismiss": "Noraidīt",
+    "resolved": "Atrisināts",
+    "dismissed": "Noraidīts",
+    "noPendingReports": "Nav neapstrādātu ziņojumu",
+    "noFilteredReports": "Nav atrastu ziņojumu",
+    "noDismissedReports": "Nav noraidītu ziņojumu",
+    "statusUpdated": "Ziņojuma statuss veiksmīgi atjaunots"
   }
 } 

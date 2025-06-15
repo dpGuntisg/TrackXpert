@@ -153,7 +153,7 @@ export const EventDetailsStep = ({
         <textarea
           value={values.description || ''}
           onChange={(e) => handleInputChange('description', e.target.value)}
-          placeholder={t('tracks.form.enterDescription')}
+          placeholder={t('event.form.descriptionPlaceholder')}
           className={`w-full px-4 py-3 rounded-lg bg-gray-800 border transition-all duration-200 outline-none
             ${errors.description ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-mainRed'}`}
           rows="4"
@@ -175,7 +175,7 @@ export const EventDetailsStep = ({
           type="button"
           onClick={() => setShowCalendar(true)}
           className={`flex items-center justify-center w-full py-3 px-4 bg-gray-800 rounded-lg cursor-pointer transition-colors
-            ${errors.images ? 'border-red-500 hover:border-red-500' : 'border-gray-700 hover:border-mainRed'} border`}            
+            ${errors.eventDate ? 'border-red-500 hover:border-red-500' : 'border-gray-700 hover:border-mainRed'} border`}            
         >
           <FontAwesomeIcon icon={faCalendar} className="mr-2" />
           {values.eventDate?.startDate && values.eventDate?.endDate ? (
@@ -184,6 +184,12 @@ export const EventDetailsStep = ({
             t('event.selectDates')
           )}
         </button>
+        {errors.eventDate && (
+          <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+            <FontAwesomeIcon icon={faExclamationCircle} className="text-sm" />
+            {errors.eventDate}
+          </p>
+        )}
       </div>
 
       {showCalendar && (

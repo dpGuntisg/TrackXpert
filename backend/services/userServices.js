@@ -12,35 +12,59 @@ const JWT_SECRET = "process.env.JWT_SECRET";
 class UserService {
     static async createUser({ name, surname, email, password }) {
         if (!name || !surname || !email || !password) {
-            throw new Error("All fields are required");
+            const error = new Error("All fields are required");
+            error.translationKey = "auth.fieldsRequired";
+            throw error;
         }
-        if (name.length < 3) {
-            throw new Error("Name must be at least 3 characters long");
+        if (!name.trim()) {
+            const error = new Error("Name cannot be empty or consist only of spaces");
+            error.translationKey = "auth.nameRequired";
+            throw error;
         }
-        if (surname.length < 3) {
-            throw new Error("Surname must be at least 3 characters long");
+        if (!surname.trim()) {
+            const error = new Error("Surname cannot be empty or consist only of spaces");
+            error.translationKey = "auth.surnameRequired";
+            throw error;
+        }
+        if (name.trim().length < 3) {
+            const error = new Error("Name must be at least 3 characters long");
+            error.translationKey = "auth.nameTooShort";
+            throw error;
+        }
+        if (surname.trim().length < 3) {
+            const error = new Error("Surname must be at least 3 characters long");
+            error.translationKey = "auth.surnameTooShort";
+            throw error;
         }
         if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-            throw new Error("Invalid email format");
+            const error = new Error("Invalid email format");
+            error.translationKey = "auth.invalidEmail";
+            throw error;
         }
         if (password.length < 8) {
-            throw new Error("Password must be at least 8 characters long");
+            const error = new Error("Password must be at least 8 characters long");
+            error.translationKey = "auth.passwordTooShort";
+            throw error;
         }
         
         if (!/(?=.*[A-Z])(?=.*\d)(?=.*[a-z]).{8,}/.test(password)) {
-            throw new Error("Password must contain at least one uppercase letter, one lowercase letter and a number");
+            const error = new Error("Password must contain at least one uppercase letter, one lowercase letter and a number");
+            error.translationKey = "auth.passwordRequirements";
+            throw error;
         }
         
         // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            throw new Error("An account with this email already exists");
+            const error = new Error("An account with this email already exists");
+            error.translationKey = "auth.emailExists";
+            throw error;
         }
         
         // Create user
         const user = new User({
-            name,
-            surname,
+            name: name.trim(),
+            surname: surname.trim(),
             email,
             password,
             username: email.split('@')[0] + Math.floor(Math.random() * 1000)
@@ -51,8 +75,8 @@ class UserService {
         await Token.create({ userId: user._id, token });
         await logActivity(user._id, 'created_account', {
             username: user.username, 
-            name,
-            surname,
+            name: user.name,
+            surname: user.surname,
             email
         });
         return { user, token };
@@ -60,19 +84,27 @@ class UserService {
     
     static async signInUser({ email, password }) {
         if (!email || !password) {
-            throw new Error("Email and password are required");
+            const error = new Error("Email and password are required");
+            error.translationKey = "auth.fieldsRequired";
+            throw error;
         }
         if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-            throw new Error("Invalid email format");
+            const error = new Error("Invalid email format");
+            error.translationKey = "auth.invalidEmail";
+            throw error;
         }
         const user = await User.findOne({ email });
         if (!user) {
-            throw new Error("Invalid credentials");
+            const error = new Error("Invalid credentials");
+            error.translationKey = "auth.loginError";
+            throw error;
         }
         
         const isMatch = await user.comparePassword(password);
         if (!isMatch) {
-            throw new Error("Invalid credentials");
+            const error = new Error("Invalid credentials");
+            error.translationKey = "auth.loginError";
+            throw error;
         }
         
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: "7d" });
@@ -130,13 +162,41 @@ class UserService {
                         }
                         user[key] = updates[key];
                     }
+                } else if (key === 'username') {
+                    if (!updates.username || !updates.username.trim()) {
+                        const error = new Error("Username cannot be empty");
+                        error.translationKey = "profile.validation.usernameRequired";
+                        throw error;
+                    }
+                    if (updates.username.trim().length < 3) {
+                        const error = new Error("Username must be at least 3 characters long");
+                        error.translationKey = "profile.validation.usernameTooShort";
+                        throw error;
+                    }
+                    const existingUser = await User.findOne({ username: updates.username });
+                    if (existingUser && existingUser._id.toString() !== userIdToUpdate) {
+                        const error = new Error("Username is already taken");
+                        error.translationKey = "profile.validation.usernameTaken";
+                        throw error;
+                    }
+                    user[key] = updates[key].trim();
+                } else if (key === 'name' || key === 'surname') {
+                    if (!updates[key] || !updates[key].trim()) {
+                        const error = new Error(`${key.charAt(0).toUpperCase() + key.slice(1)} cannot be empty`);
+                        error.translationKey = `profile.validation.${key}Required`;
+                        throw error;
+                    }
+                    if (updates[key].trim().length < 3) {
+                        const error = new Error(`${key.charAt(0).toUpperCase() + key.slice(1)} must be at least 3 characters long`);
+                        error.translationKey = `profile.validation.${key}TooShort`;
+                        throw error;
+                    }
+                    user[key] = updates[key].trim();
                 } else {
                     user[key] = updates[key];
                 }
             }
         }
-
-
 
         if (updates.profile_image && updates.profile_image.data && updates.profile_image.mimeType) {
             // If a new profile image object is provided

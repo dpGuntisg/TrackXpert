@@ -23,9 +23,12 @@ export default function ProfilePage() {
     });
     const [tracks, setTracks] = useState([]);
     const [events, setEvents] = useState([]);
+    const [likedTracks, setLikedTracks] = useState([]);
+    const [likedEvents, setLikedEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [tracksLoading, setTracksLoading] = useState(false);
     const [eventsLoading, setEventsLoading] = useState(false);
+    const [likedLoading, setLikedLoading] = useState(false);
     const [error, setError] = useState(null);
     const [editMode, setEditMode] = useState(false);
     const [newUsername, setNewUsername] = useState('');
@@ -35,7 +38,8 @@ export default function ProfilePage() {
     const [image, setImage] = useState(null);
     const [previewImage, setPreviewImage] = useState(null);
     const [deleteConfirmation, setDeleteConfirmation] = useState(false);
-    const [activeTab, setActiveTab] = useState('tracks'); // 'tracks' or 'events'
+    const [activeTab, setActiveTab] = useState('tracks'); // 'tracks', 'events', or 'liked'
+    const [likedType, setLikedType] = useState('tracks'); // 'tracks' or 'events' for liked content
     const navigate = useNavigate();
     
     useEffect(() => {
@@ -87,6 +91,29 @@ export default function ProfilePage() {
         fetchEvents();
     }, [profile?._id, t]);
 
+    useEffect(() => {
+        const fetchLikedContent = async () => {
+            if (profile?._id && activeTab === 'liked') {
+                setLikedLoading(true);
+                try {
+                    if (likedType === 'tracks') {
+                        const tracksResponse = await axiosInstance.get(`/tracks/profile/${profile._id}/liked`);
+                        setLikedTracks(tracksResponse.data.tracks || []);
+                    } else {
+                        const eventsResponse = await axiosInstance.get(`/events/profile/${profile._id}/liked`);
+                        setLikedEvents(eventsResponse.data.events || []);
+                    }
+                } catch (error) {
+                    setError(error.response?.data?.message || t('profile.likedError'));
+                } finally {
+                    setLikedLoading(false);
+                }
+            }
+        };
+
+        fetchLikedContent();
+    }, [profile?._id, activeTab, likedType, t]);
+
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -117,16 +144,36 @@ export default function ProfilePage() {
     };
     
     const handleProfileEdit = async () => {
-        if (!newUsername.trim()) {
-            setError(t('profile.validation.usernameRequired'));
+        const errors = {};
+        
+        if (!newUsername || !newUsername.trim()) {
+            errors.username = t('profile.validation.usernameRequired');
+        } else if (newUsername.trim().length < 3) {
+            errors.username = t('profile.validation.usernameTooShort');
+        }
+        
+        if (!newName || !newName.trim()) {
+            errors.name = t('profile.validation.nameRequired');
+        } else if (newName.trim().length < 3) {
+            errors.name = t('profile.validation.nameTooShort');
+        }
+        
+        if (!newSurname || !newSurname.trim()) {
+            errors.surname = t('profile.validation.surnameRequired');
+        } else if (newSurname.trim().length < 3) {
+            errors.surname = t('profile.validation.surnameTooShort');
+        }
+
+        if (Object.keys(errors).length > 0) {
+            setError(Object.values(errors)[0]);
             return;
         }
 
         try {
             const updateData = {
-                name: newName,
-                surname: newSurname,
-                username: newUsername,
+                name: newName.trim(),
+                surname: newSurname.trim(),
+                username: newUsername.trim(),
                 phonenumber: newPhonenumber || null
             };
 
@@ -263,6 +310,72 @@ export default function ProfilePage() {
                 ))}
             </div>
         );
+    };
+
+    const renderLikedContent = () => {
+        if (likedLoading) {
+            return (
+                <div className="flex justify-center items-center py-16">
+                    <div className="loader h-10 w-10 sm:h-14 sm:w-14 border-t-mainYellow border-4 border-white/30 rounded-full animate-spin"></div>
+                </div>
+            );
+        }
+
+        if (likedType === 'tracks') {
+            if (!likedTracks || likedTracks.length === 0) {
+                return (
+                    <div className="flex flex-col items-center justify-center py-10 sm:py-16 text-center">
+                        <FontAwesomeIcon icon={faRoute} className="text-3xl sm:text-4xl text-gray-500 mb-4" />
+                        <p className="text-lg sm:text-xl text-gray-400">{t('profile.noLikedTracks')}</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    {likedTracks.map(track => (
+                        <div key={track._id} className="flex justify-center sm:justify-start">
+                            <TrackCard
+                                track={track}
+                                className="w-full max-w-xs sm:max-w-none"
+                                onLikeChange={(trackId, isLiked, updatedLikes) => {
+                                    setLikedTracks(prevTracks => 
+                                        prevTracks.filter(t => t._id !== trackId)
+                                    );
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+            );
+        } else {
+            if (!likedEvents || likedEvents.length === 0) {
+                return (
+                    <div className="flex flex-col items-center justify-center py-10 sm:py-16 text-center">
+                        <FontAwesomeIcon icon={faCalendarAlt} className="text-3xl sm:text-4xl text-gray-500 mb-4" />
+                        <p className="text-lg sm:text-xl text-gray-400">{t('profile.noLikedEvents')}</p>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+                    {likedEvents.map(event => (
+                        <div key={event._id} className="flex justify-center sm:justify-start">
+                            <EventCard
+                                event={event}
+                                className="w-full max-w-xs sm:max-w-none"
+                                onLikeChange={(eventId, isLiked, updatedLikes) => {
+                                    setLikedEvents(prevEvents => 
+                                        prevEvents.filter(e => e._id !== eventId)
+                                    );
+                                }}
+                            />
+                        </div>
+                    ))}
+                </div>
+            );
+        }
     };
 
     if (loading) {
@@ -470,11 +583,51 @@ export default function ProfilePage() {
                         <FontAwesomeIcon icon={faCalendarAlt} className="mr-2 sm:mr-3" />
                         {t('profile.createdEvents')}
                     </button>
+                    <button 
+                        onClick={() => setActiveTab('liked')}
+                        className={`flex-1 sm:flex-none px-4 sm:px-8 py-3 sm:py-4 font-medium flex justify-center sm:justify-start items-center transition-all duration-200 text-base sm:text-lg ${
+                            activeTab === 'liked' 
+                                ? 'border-b-2 border-mainYellow text-mainYellow' 
+                                : 'text-gray-400 hover:text-white'
+                        }`}
+                    >
+                        <FontAwesomeIcon icon={faHeart} className="mr-2 sm:mr-3" />
+                        {t('profile.liked')}
+                    </button>
                 </div>
                 
                 {/* Content Grid */}
                 <div className="bg-accentBlue rounded-2xl p-4 sm:p-6 shadow-xl mt-4">
-                    {activeTab === 'tracks' ? renderTracks() : renderEvents()}
+                    {activeTab === 'liked' ? (
+                        <div>
+                            {/* Liked content type selector */}
+                            <div className="flex gap-4 mb-6">
+                                <button
+                                    onClick={() => setLikedType('tracks')}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                                        likedType === 'tracks'
+                                            ? 'bg-mainYellow text-mainBlue'
+                                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                                    }`}
+                                >
+                                    <FontAwesomeIcon icon={faRoute} className="mr-2" />
+                                    {t('profile.likedTracks')}
+                                </button>
+                                <button
+                                    onClick={() => setLikedType('events')}
+                                    className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+                                        likedType === 'events'
+                                            ? 'bg-mainYellow text-mainBlue'
+                                            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                                    }`}
+                                >
+                                    <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
+                                    {t('profile.likedEvents')}
+                                </button>
+                            </div>
+                            {renderLikedContent()}
+                        </div>
+                    ) : activeTab === 'tracks' ? renderTracks() : renderEvents()}
                 </div>
             </div>
 
