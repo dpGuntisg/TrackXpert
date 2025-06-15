@@ -71,7 +71,7 @@ const EventRequest = ({ request, className = "", onStatusUpdate, showActions = f
 
         <div className="flex items-center justify-between mt-3">
           <span className={`text-sm font-medium ${getStatusColor(request.status)}`}>
-            {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+            {t(`common.${request.status}`)}
           </span>
           {showActions && request.status === 'pending' && !selectionMode && (
             <div className="flex gap-2">

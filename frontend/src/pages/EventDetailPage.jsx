@@ -107,6 +107,18 @@ const EventDetailPage = () => {
     }
 
     try {
+      // First check if user is in approvedParticipants
+      const isApproved = event?.approvedParticipants?.some(
+        participant => participant.user._id === userId || participant.user === userId
+      );
+
+      if (isApproved) {
+        setIsRegistered(true);
+        setRegistrationStatus('approved');
+        return;
+      }
+
+      // If not approved, check registration status
       const registrationResponse = await axiosInstance.get(`/event-registrations/user`);
       const userRegistration = registrationResponse.data.registrations.find(
         reg => reg.event._id === id
@@ -126,7 +138,29 @@ const EventDetailPage = () => {
     }
   };
 
-// Handles like/unlike button click
+  // Update canRegister function to also check approvedParticipants
+  const canRegister = () => {
+    if (!userId || isEventCreator) return false;
+    if (!isRegistrationOpen) return false;
+    if (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) return false;
+    
+    // Check if user is already approved
+    const isApproved = event?.approvedParticipants?.some(
+      participant => participant.user._id === userId || participant.user === userId
+    );
+    if (isApproved) return false;
+
+    return true;
+  };
+
+  // Add effect to check registration status when event data changes
+  useEffect(() => {
+    if (event && userId) {
+      checkRegistrationStatus();
+    }
+  }, [event, userId]);
+
+  // Handles like/unlike button click
   const handleLikeClick = async () => {
     if (!userId) {
       toast.error(t('auth.loginRequired'));
@@ -541,9 +575,9 @@ const EventDetailPage = () => {
                   ) : (
                     <button
                       onClick={() => setShowRegistrationModal(true)}
-                      disabled={registrationLoading || !userId || (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) || isEventCreator}
+                      disabled={registrationLoading || !canRegister()}
                       className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
-                        registrationLoading || !userId || (!event.unlimitedParticipants && event.currentParticipants >= event.maxParticipants) || isEventCreator
+                        registrationLoading || !canRegister()
                           ? 'bg-gray-700 cursor-not-allowed opacity-60'
                           : 'bg-mainRed hover:bg-red-700'
                       } text-white`}

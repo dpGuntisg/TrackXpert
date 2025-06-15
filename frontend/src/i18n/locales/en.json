@@ -39,7 +39,10 @@
     "october": "October",
     "november": "November",
     "december": "December",
-    "noServerResponse":"The server is not responding. Please try again in a moment."
+    "noServerResponse":"The server is not responding. Please try again in a moment.",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected"
   },
   "footer": {
     "copyright": "© 2025 TrackXpert. All rights reserved.",

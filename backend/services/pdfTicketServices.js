@@ -20,27 +20,26 @@ class PdfTicketService {
             throw new Error("User or event not found");
         }
 
-        // Check if user is registered and approved for the event
-        let registration = await EventRegistration.findOne({
-            event: eventId,
-            user: userId,
-            status: 'approved'
-        });
+        // Check if user is in approvedParticipants
+        const approvedParticipant = event.approvedParticipants.find(
+            participant => participant.user.toString() === userId
+        );
 
-        if (!registration) {
+        if (!approvedParticipant) {
             throw new Error("You must be an approved participant to download a ticket");
         }
 
-        // Generate or get existing ticket ID
-        if (!registration.ticketId) {
+        // Use the ticket ID from approvedParticipants or generate a new one
+        let ticketId = approvedParticipant.ticketId;
+        if (!ticketId) {
             // Generate a unique ticket ID using user ID, event ID, and timestamp
             const timestamp = Date.now();
             const uniqueString = `${userId}-${eventId}-${timestamp}`;
-            const ticketId = crypto.createHash('sha256').update(uniqueString).digest('hex').substring(0, 12).toUpperCase();
+            ticketId = crypto.createHash('sha256').update(uniqueString).digest('hex').substring(0, 12).toUpperCase();
             
-            // Save the ticket ID to the registration
-            registration.ticketId = ticketId;
-            await registration.save();
+            // Save the ticket ID to approvedParticipants
+            approvedParticipant.ticketId = ticketId;
+            await event.save();
         }
 
         const doc = new PDFkit({ size: "A4", margin: 50 });
@@ -112,7 +111,7 @@ class PdfTicketService {
         y += sectionGap;
         doc.fontSize(10).fillColor(labelColor).text("TICKET ID", leftPad, y, { align: "left" });
         y += 14;
-        doc.fontSize(14).fillColor(valueColor).text(registration.ticketId, leftPad, y, { align: "left" });
+        doc.fontSize(14).fillColor(valueColor).text(ticketId, leftPad, y, { align: "left" });
 
         doc.pipe(res);
         doc.end();

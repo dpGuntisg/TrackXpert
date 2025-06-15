@@ -37,7 +37,10 @@
     "october": "Oktobris",
     "november": "Novembris",
     "december": "Decembris",
-    "noServerResponse": "Radās problēma ar servera savienojumu. Lūdzu, mēģiniet vēlāk."
+    "noServerResponse": "Radās problēma ar servera savienojumu. Lūdzu, mēģiniet vēlāk.",
+    "pending": "Gaida apstiprinājumu",
+    "approved": "Apstiprināts",
+    "rejected": "Noraidīts"
   },
   "contact": {
     "title": "Izveidoja"

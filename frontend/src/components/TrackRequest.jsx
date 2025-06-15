@@ -71,7 +71,7 @@ const borderClasses = selectionMode
 
     <div className="flex items-center justify-between mt-3">
       <span className={`text-sm font-medium ${getStatusColor(request.status)}`}>
-        {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+        {t(`common.${request.status}`)}
       </span>
       {showActions && request.status === 'pending' && !selectionMode && (
         <div className="flex gap-2">
@@ -79,13 +79,13 @@ const borderClasses = selectionMode
             className="px-4 py-1.5 text-sm font-medium bg-green-500/20 text-green-500 hover:bg-green-500/30 rounded-md transition-colors" 
             onClick={() => onStatusUpdate(request._id, 'accepted')}
           >
-            Accept
+            {t('common.accept')}
           </button>
           <button 
             className="px-4 py-1.5 text-sm font-medium bg-red-500/20 text-red-500 hover:bg-red-500/30 rounded-md transition-colors" 
             onClick={() => onStatusUpdate(request._id, 'rejected')}
           >
-            Decline
+            {t('common.decline')}
           </button>
         </div>
       )}

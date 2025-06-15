@@ -28,44 +28,40 @@ export default function NotificationPage() {
             setIsLoading(true);
             setError(null);
 
-            // Only fetch data for the active tab
-            if (activeTab === 'notifications') {
-                const [trackRequestsRes, eventRequestsRes] = await Promise.all([
-                    axiosInstance.get("/track-requests/notifications"),
-                    axiosInstance.get("/event-registrations/pending")
-                ]);
-                
-                setTrackRequests(trackRequestsRes.data || []);
-                setEventRequests(Array.isArray(eventRequestsRes.data) ? eventRequestsRes.data : []);
-            } else {
-                const [sentTrackRequestsRes, sentEventRequestsRes] = await Promise.all([
-                    axiosInstance.get("/track-requests/sent-requests"),
-                    axiosInstance.get("/event-registrations/user")
-                ]);
-                
-                setSentTrackRequests(sentTrackRequestsRes.data || []);
-                setSentEventRequests(sentEventRequestsRes.data?.registrations || []);
-            }
+            // Fetch all data regardless of active tab
+            const [
+                trackRequestsRes, 
+                eventRequestsRes,
+                sentTrackRequestsRes, 
+                sentEventRequestsRes
+            ] = await Promise.all([
+                axiosInstance.get("/track-requests/notifications"),
+                axiosInstance.get("/event-registrations/pending"),
+                axiosInstance.get("/track-requests/sent-requests"),
+                axiosInstance.get("/event-registrations/user")
+            ]);
+            
+            setTrackRequests(trackRequestsRes.data || []);
+            setEventRequests(Array.isArray(eventRequestsRes.data) ? eventRequestsRes.data : []);
+            setSentTrackRequests(sentTrackRequestsRes.data || []);
+            setSentEventRequests(sentEventRequestsRes.data?.registrations || []);
         } catch (error) {
             console.error("Error fetching data:", error);
             setError(error.response?.data?.message || t('notifications.fetchError'));
-            // Only clear the data for the active tab
-            if (activeTab === 'notifications') {
-                setTrackRequests([]);
-                setEventRequests([]);
-            } else {
-                setSentTrackRequests([]);
-                setSentEventRequests([]);
-            }
+            // Clear all data on error
+            setTrackRequests([]);
+            setEventRequests([]);
+            setSentTrackRequests([]);
+            setSentEventRequests([]);
         } finally {
             setIsLoading(false);
         }
-    }, [t, activeTab]);
+    }, [t]);
 
     // Add effect to refetch when tab changes
     useEffect(() => {
         fetchData();
-    }, [fetchData, activeTab]);
+    }, [fetchData]);
 
     const handleTrackRequestUpdate = async (requestId, status) => {
         try {
