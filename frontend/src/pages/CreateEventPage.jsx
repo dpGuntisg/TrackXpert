@@ -43,6 +43,29 @@ function CreateEventPage({ mode = 'create' }) {
     const [isAuthorized, setIsAuthorized] = useState(true);
     const { t } = useTranslation();
 
+    // Check if user has tracks when component mounts
+    useEffect(() => {
+        const checkUserTracks = async () => {
+            if (mode === 'create') {
+                try {
+                    const response = await axiosInstance.get(`/tracks/profile/${userId}/tracks`);
+                    const userTracks = response.data.tracks;
+                    
+                    if (!userTracks || userTracks.length === 0) {
+                        toast.error(t('event.noTracksError'));
+                        navigate('/events');
+                    }
+                } catch (error) {
+                    console.error('Error checking user tracks:', error);
+                    toast.error(t('common.error'));
+                    navigate('/events');
+                }
+            }
+        };
+
+        checkUserTracks();
+    }, [mode, userId, navigate, t]);
+
     // Fetch event data if in edit mode
     useEffect(() => {
         if (mode === 'edit' && eventId) {

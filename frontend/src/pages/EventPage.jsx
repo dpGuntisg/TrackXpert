@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import axiosInstance from '../utils/axios';
 import { useAuth } from '../context/AuthContext';
 import SearchAndFilter from '../components/SearchAndFilter';
 import EventCard from '../components/EventCard';
+import { toast } from 'react-toastify';
 
 function EventPage() {
     const { t } = useTranslation();
     const { userId } = useAuth();
+    const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,6 +21,29 @@ function EventPage() {
             endDate: null
         }
     });
+
+    const handleCreateEvent = async (e) => {
+        e.preventDefault();
+        if (!userId) {
+            toast.error(t('event.loginRequired'));
+            return;
+        }
+
+        try {
+            const response = await axiosInstance.get(`/tracks/profile/${userId}/tracks`);
+            const userTracks = response.data.tracks;
+
+            if (!userTracks || userTracks.length === 0) {
+                toast.error(t('event.noTracksError'));
+                return;
+            }
+
+            navigate('/events/create');
+        } catch (error) {
+            console.error('Error checking user tracks:', error);
+            toast.error(t('common.error'));
+        }
+    };
 
     const fetchEvents = async () => {
         try {
@@ -75,12 +100,13 @@ function EventPage() {
                     <h1 className="text-4xl font-bold">{t('event.title')}</h1>
                 </div>
                 {userId && 
-                    <Link className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-                        to="/events/create"
+                    <button 
+                        onClick={handleCreateEvent}
+                        className="flex items-center gap-2 bg-mainRed hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
                         aria-label={t('event.createEvent')}>
                         <span className="text-xl">+</span>
                         <span className="hidden sm:inline">{t('event.createEvent')}</span>
-                    </Link>
+                    </button>
                 }
             </div>
 

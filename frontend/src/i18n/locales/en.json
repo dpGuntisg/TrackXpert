@@ -282,7 +282,9 @@
         "tagsRequired": "Please select at least one tag",
         "trackTypeRequired": "Please select at least one track type",
         "selectTrackType": "Select track type",
-        "selectMoreTags": "Select more tags"
+        "selectMoreTags": "Select more tags",
+        "geometryRequired": "Please either place a marker or draw a track on the map",
+        "saveDrawing": "To save the drawing, please click the 'Save' icon on the map."
       },
       "success": "Track created successfully!",
       "successEdit": "Track updated successfully!",
@@ -516,6 +518,7 @@
     "createEventDescription": "Complete all steps to create an event",
     "editEventDescription": "Complete all steps to edit an event",
     "searchPlaceholder": "Search for an event",
+    "noTracksError": "You need to create at least one track before you can create an event.",
     "noEvents": "No events found",
     "details": "Details",
     "tracks": "Tracks",

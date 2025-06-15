@@ -287,7 +287,9 @@
         "tagsRequired": "Lūdzu, izvēlieties vismaz vienu tagu",
         "trackTypeRequired": "Lūdzu, izvēlieties vismaz vienu trases tipu",
         "selectTrackType": "Izvēlieties trases tipu",
-        "selectMoreTags": "Izvēlieties vairāk tagu"
+        "selectMoreTags": "Izvēlieties vairāk tagu",
+        "geometryRequired": "Lūdzu, novietojiet marķieri vai uzzīmējiet trasi uz kartes",
+        "saveDrawing": "Lai saglabātu zīmējumu, lūdzu, noklikšķiniet uz 'Saglabāt' ikonas kartē."
       }
     }
   },
@@ -510,6 +512,7 @@
     "confirmDelete": "Vai tiešām vēlaties neatgriezeniski dzēst šo pasākumu? Šo darbību nevar atsaukt.",
     "deleteSuccess": "Pasākums veiksmīgi dzēsts!",
     "searchPlaceholder": "Meklēt pasākumu",
+    "noTracksError": "Lai varētu izveidot pasākumu, vispirms jāizveido vismaz viena trase.",
     "details": "Pamatinformācija",
     "tracks": "Trases",
     "schedule": "Pasākuma grafiks",
