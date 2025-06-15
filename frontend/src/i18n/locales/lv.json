@@ -613,6 +613,7 @@
   },
   "notifications": {
     "title": "Paziņojumi",
+    "loading":"Ielādē paziņojumus...",
     "noNotifications": "Nav jauni paziņojumi",
     "noSentRequests": "Nav sūtītu paziņojumi",
     "markAllRead": "Atzīmēt visus kā lasītus.",
@@ -627,7 +628,12 @@
     "trackRequestAccepted": "Tu esi apstiprinājis pieprasījumu pievienoties trasei",
     "trackRequestRejected": "Tu esi noraidījis pieprasījumu pievienoties trasei",
     "eventRequestAccepted": "Tu esi apstiprinājis reģistrācijas pieprasījumu pasākumam",
-    "eventRequestRejected": "Tu esi noraidījis reģistrācijas pieprasījumu pasākumam"
+    "eventRequestRejected": "Tu esi noraidījis reģistrācijas pieprasījumu pasākumam",
+    "deleteSuccess": "Izvēlētie pieprasījumi veiksmīgi izdzēsti",
+    "deleteError": "Neizdevās izdzēst pieprasījumus",
+    "deleteConfirmationTitle": "Dzēst pieprasījumus",
+    "deleteConfirmationMessage": "Vai tiešām vēlaties dzēst izvēlēto pieprasījumu(-us)? Šo darbību nevarēs atsaukt.",
+    "noRequestsSelected": "Lūdzu, izvēlieties vismaz vienu pieprasījumu, ko dzēst"
   },
   "admin": {
     "title": "Administratora panelis",

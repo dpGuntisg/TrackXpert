@@ -617,6 +617,7 @@
   },
   "notifications": {
     "title": "Notifications",
+    "loading":"Loading notifications...",
     "noNotifications": "No new notifications",
     "noSentRequests": "No sent requests",
     "markAllRead": "Mark all as read",
@@ -631,7 +632,12 @@
     "trackRequestAccepted": "You have accepted the request to join the track",
     "trackRequestRejected": "You have rejected the request to join the track",
     "eventRequestAccepted": "You have accepted the request to register for the event",
-    "eventRequestRejected": "You have rejected the request to register for the event"
+    "eventRequestRejected": "You have rejected the request to register for the event",
+    "deleteSuccess": "Selected requests deleted successfully",
+    "deleteError": "Failed to delete requests",
+    "deleteConfirmationTitle": "Delete Requests",
+    "deleteConfirmationMessage": "Are you sure you want to delete selected request(s)? This action cannot be undone.",
+    "noRequestsSelected": "Please select at least one request to delete"
   },
   "admin": {
     "title": "Admin Panel",

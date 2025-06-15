@@ -67,11 +67,16 @@ router.put("/update-request/:requestId", verifyToken, async (req, res) => {
     }
 });
 
-// Delete a request
-router.delete("/delete-request/:requestId", verifyToken, async (req, res) => {
-    try{
-        TrackRequestService.deleteRequests(req.params.requestId, req.userId);
-        res.status(200).json({ message: "Request deleted successfully" });
+// Delete requests
+router.delete("/delete-request", verifyToken, async (req, res) => {
+    try {
+        const { requestIds } = req.body;
+        if (!requestIds || !Array.isArray(requestIds)) {
+            return res.status(400).json({ message: "Invalid request IDs" });
+        }
+        
+        await TrackRequestService.deleteRequests(requestIds, req.userId);
+        res.status(200).json({ message: "Requests deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

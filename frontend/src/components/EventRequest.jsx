@@ -1,9 +1,9 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faImagePortrait } from '@fortawesome/free-solid-svg-icons';
+import { faImagePortrait, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { useTranslation } from 'react-i18next';
 
-const EventRequest = ({ request, className = "", onStatusUpdate, showActions = false, isSentByCurrentUser }) => {
+const EventRequest = ({ request, className = "", onStatusUpdate, showActions = false, isSentByCurrentUser, selectionMode = false, selected = false, onSelect }) => {
   const { t } = useTranslation();
 
   const getStatusColor = (status) => {
@@ -19,8 +19,23 @@ const EventRequest = ({ request, className = "", onStatusUpdate, showActions = f
     }
   };
 
+  const borderClasses = selectionMode 
+    ? selected 
+        ? 'border border-mainRed' 
+        : 'border border-mainYellow'
+    : 'border border-gray-700';
+
   return (
-    <div className={`flex items-start gap-4 p-4 border rounded-lg border-accentGray hover:bg-gray-800 transition-colors ${className}`}>
+    <div 
+      className={`flex items-start gap-4 p-4 ${borderClasses} rounded-lg hover:bg-gray-800 transition-colors ${className} ${selectionMode ? 'cursor-pointer' : ''}`}
+      onClick={selectionMode ? () => onSelect(request._id) : undefined}
+    >
+      {selectionMode && selected && (
+        <div className="absolute top-23 left-5 bg-mainRed rounded-full p-2 z-10">
+          <FontAwesomeIcon icon={faCheck} className="text-white text-sm" />
+        </div>
+      )}
+
       {/* Profile Image */}
       <div className="flex-shrink-0">
         {request.user?.profile_image?.data ? (
@@ -58,7 +73,7 @@ const EventRequest = ({ request, className = "", onStatusUpdate, showActions = f
           <span className={`text-sm font-medium ${getStatusColor(request.status)}`}>
             {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
           </span>
-          {showActions && request.status === 'pending' && (
+          {showActions && request.status === 'pending' && !selectionMode && (
             <div className="flex gap-2">
               <button 
                 className="px-4 py-1.5 text-sm font-medium bg-green-500/20 text-green-500 hover:bg-green-500/30 rounded-md transition-colors" 
